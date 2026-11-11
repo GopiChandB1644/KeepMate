@@ -13,6 +13,8 @@ import '../../../../core/enums/item_enums.dart';
 import '../../../../core/storage/local_file_storage.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/image_compressor.dart';
+import '../../../../core/services/lost_data_service.dart';
+import '../../document_scanner/pages/document_camera_page.dart';
 import '../../document_scanner/services/ocr_parser_service.dart';
 import '../../../shared/widgets/widgets.dart';
 import '../cubit/items_cubit.dart';
@@ -103,7 +105,16 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkLostData();
+      LostDataService.instance.recoveredFileNotifier.addListener(_onRecoveredFileChanged);
     });
+  }
+
+  void _onRecoveredFileChanged() {
+    final file = LostDataService.instance.recoveredFileNotifier.value;
+    if (file != null && mounted) {
+      LostDataService.instance.clearRecoveredFile();
+      _processAttachedFile(file);
+    }
   }
 
   Future<void> _checkLostData() async {
@@ -122,6 +133,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
   @override
   void dispose() {
+    LostDataService.instance.recoveredFileNotifier.removeListener(_onRecoveredFileChanged);
     _titleController.dispose();
     _descriptionController.dispose();
     _providerOrSellerController.dispose();
@@ -162,33 +174,28 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Take a Photo / Scan'),
+                title: const Text('Scan Document / Photo'),
+                subtitle: const Text('Fast in-app camera with document framing'),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.camera,
-                    maxWidth: 1920,
-                    maxHeight: 1920,
-                    imageQuality: 85,
-                  );
-                  if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    await _processAttachedFile(File(compressed));
+                  final path = await DocumentCameraPage.open(context, title: 'Scan Document / Item');
+                  if (path != null && mounted) {
+                    await _processAttachedFile(File(path));
                   }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
                 title: const Text('Choose from Gallery'),
+                subtitle: const Text('Pick existing image from device'),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final picker = ImagePicker();
                   final picked = await picker.pickImage(
                     source: ImageSource.gallery,
-                    maxWidth: 1920,
-                    maxHeight: 1920,
-                    imageQuality: 85,
+                    maxWidth: 1600,
+                    maxHeight: 1600,
+                    imageQuality: 80,
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
@@ -199,6 +206,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.dangerRed),
                 title: const Text('Select PDF Document'),
+                subtitle: const Text('Upload PDF invoice, bill, or policy'),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final result = await FilePicker.platform.pickFiles(
@@ -207,6 +215,25 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   );
                   if (result != null && result.files.single.path != null) {
                     await _processAttachedFile(File(result.files.single.path!));
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera_back_rounded, color: AppColors.textSecondary),
+                title: const Text('Use System Camera App'),
+                subtitle: const Text('External native device camera'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 1600,
+                    maxHeight: 1600,
+                    imageQuality: 80,
+                  );
+                  if (picked != null) {
+                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
+                    await _processAttachedFile(File(compressed));
                   }
                 },
               ),

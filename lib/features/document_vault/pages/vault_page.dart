@@ -9,6 +9,7 @@ import '../../../../core/design_system/app_text.dart';
 import '../../../../core/storage/file_path_resolver.dart';
 import '../../../../core/utils/image_compressor.dart';
 import '../../../../shared/widgets/widgets.dart';
+import '../../document_scanner/pages/document_camera_page.dart';
 import '../cubit/vault_cubit.dart';
 import '../cubit/vault_state.dart';
 
@@ -30,33 +31,28 @@ class VaultPage extends StatelessWidget {
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Take a Photo / Scan'),
+                title: const Text('Scan Document / Photo'),
+                subtitle: const Text('Fast in-app camera with document framing'),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.camera,
-                    maxWidth: 1920,
-                    maxHeight: 1920,
-                    imageQuality: 85,
-                  );
-                  if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    await cubit.uploadDocument(file: File(compressed), source: 'camera');
+                  final path = await DocumentCameraPage.open(context, title: 'Scan Vault Document');
+                  if (path != null) {
+                    await cubit.uploadDocument(file: File(path), source: 'camera');
                   }
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
                 title: const Text('Choose Photo from Gallery'),
+                subtitle: const Text('Pick existing image from device'),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final picker = ImagePicker();
                   final picked = await picker.pickImage(
                     source: ImageSource.gallery,
-                    maxWidth: 1920,
-                    maxHeight: 1920,
-                    imageQuality: 85,
+                    maxWidth: 1600,
+                    maxHeight: 1600,
+                    imageQuality: 80,
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
@@ -67,6 +63,7 @@ class VaultPage extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.dangerRed),
                 title: const Text('Select PDF Document'),
+                subtitle: const Text('Upload PDF document'),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final result = await FilePicker.platform.pickFiles(
@@ -75,6 +72,25 @@ class VaultPage extends StatelessWidget {
                   );
                   if (result != null && result.files.single.path != null) {
                     await cubit.uploadDocument(file: File(result.files.single.path!), source: 'pdf_picker');
+                  }
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera_back_rounded, color: AppColors.textSecondary),
+                title: const Text('Use System Camera App'),
+                subtitle: const Text('External native device camera'),
+                onTap: () async {
+                  Navigator.pop(ctx);
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 1600,
+                    maxHeight: 1600,
+                    imageQuality: 80,
+                  );
+                  if (picked != null) {
+                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
+                    await cubit.uploadDocument(file: File(compressed), source: 'camera');
                   }
                 },
               ),
