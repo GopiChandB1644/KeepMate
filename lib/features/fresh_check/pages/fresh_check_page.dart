@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/enums/item_enums.dart';
-import '../../../../shared/widgets/app_cards.dart';
-import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
 import '../../tracked_items/pages/add_edit_item_page.dart';
@@ -22,8 +21,10 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('FreshCheck'),
+      appBar: const KeepMateAppBar(
+        title: 'FreshCheck',
+        subtitle: 'Pantry, fridge & medicine expiry',
+        showBack: false,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {

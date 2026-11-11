@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../../doc_alert/pages/doc_alert_page.dart';
 import '../../fresh_check/pages/fresh_check_page.dart';
 import '../../life_pocket/pages/life_pocket_page.dart';
@@ -15,8 +16,9 @@ class CategoriesHubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Categories'),
+      appBar: const KeepMateAppBar(
+        title: 'Categories',
+        subtitle: 'All items organized by type',
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../cubit/items_cubit.dart';
 import '../domain/entities/tracked_item_entity.dart';
 
@@ -78,11 +79,11 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
 
     setState(() => _isSaving = false);
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🎉 Successfully renewed! Previous record safely archived in history.'),
-          backgroundColor: AppColors.safeGreen,
-        ),
+      showToast(
+        context,
+        '🎉 Successfully renewed! Previous record safely archived.',
+        icon: Icons.celebration_rounded,
+        type: ToastType.success,
       );
       context.pop();
     }
@@ -91,8 +92,9 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Renew ${widget.item.title}'),
+      appBar: KeepMateAppBar(
+        title: 'Renew / Pay',
+        subtitle: widget.item.title,
       ),
       body: SafeArea(
         child: Form(

@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
-import '../../../../shared/widgets/app_cards.dart';
-import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../../categories/pages/categories_hub_page.dart';
 import '../../doc_alert/pages/doc_alert_page.dart';
 import '../../fresh_check/pages/fresh_check_page.dart';
@@ -33,26 +32,26 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(7),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text('KeepMate'),
-          ],
+      appBar: KeepMateAppBar(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 20),
         ),
+        title: 'KeepMate',
+        subtitle: 'Never miss an expiry or bill',
+        showBack: false,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_rounded, color: AppColors.primary, size: 28),
+          CircleIconButton(
+            icon: Icons.add_rounded,
+            size: 40,
+            color: AppColors.primary,
+            iconColor: Colors.white,
             tooltip: 'Add Anything',
-            onPressed: () {
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => const AddEditItemPage()),

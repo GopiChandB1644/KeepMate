@@ -7,7 +7,7 @@ import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../core/storage/file_path_resolver.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../shared/widgets/status_chip.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../cubit/items_cubit.dart';
 import '../domain/entities/tracked_item_entity.dart';
 import 'add_edit_item_page.dart';
@@ -37,14 +37,20 @@ class ItemDetailPage extends StatelessWidget {
         );
       } else {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Document file not found on device storage')),
+        showToast(
+          context,
+          'Document file not found on device storage',
+          icon: Icons.error_outline_rounded,
+          type: ToastType.error,
         );
       }
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening file: $e')),
+      showToast(
+        context,
+        'Error opening file: $e',
+        icon: Icons.error_outline_rounded,
+        type: ToastType.error,
       );
     }
   }
@@ -63,6 +69,7 @@ class ItemDetailPage extends StatelessWidget {
             onPressed: () {
               Navigator.pop(ctx);
               context.read<ItemsCubit>().deleteItem(item.id);
+              showToast(context, 'Item deleted', icon: Icons.delete_sweep_rounded, type: ToastType.info);
               context.pop();
             },
             child: const Text('Delete', style: TextStyle(color: AppColors.dangerRed)),
@@ -77,13 +84,15 @@ class ItemDetailPage extends StatelessWidget {
     final sub = item.subcategory;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(item.title),
+      appBar: KeepMateAppBar(
+        title: item.title,
+        subtitle: '${sub.displayName} Details',
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
+          CircleIconButton(
+            icon: Icons.edit_outlined,
+            size: 38,
             tooltip: 'Edit Details',
-            onPressed: () {
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -92,10 +101,13 @@ class ItemDetailPage extends StatelessWidget {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed),
+          const SizedBox(width: 8),
+          CircleIconButton(
+            icon: Icons.delete_outline_rounded,
+            size: 38,
+            iconColor: AppColors.dangerRed,
             tooltip: 'Delete',
-            onPressed: () => _confirmDelete(context),
+            onTap: () => _confirmDelete(context),
           ),
         ],
       ),

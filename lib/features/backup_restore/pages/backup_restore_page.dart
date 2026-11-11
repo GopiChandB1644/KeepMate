@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../cubit/backup_cubit.dart';
 import '../cubit/backup_state.dart';
 
@@ -54,8 +55,11 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
             onPressed: () {
               final pwd = _passwordController.text.trim();
               if (pwd.length < 4) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Password must be at least 4 characters')),
+                showToast(
+                  context,
+                  'Password must be at least 4 characters',
+                  icon: Icons.lock_outline_rounded,
+                  type: ToastType.warning,
                 );
                 return;
               }
@@ -185,35 +189,34 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Backup & Restore'),
+      appBar: const KeepMateAppBar(
+        title: 'Backup & Restore',
+        subtitle: 'Encrypted export & recovery',
       ),
       body: BlocConsumer<BackupCubit, BackupState>(
         listener: (context, state) {
           if (state.status == BackupOperationStatus.exportSuccess && state.exportedFile != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('✅ Backup created! You can now share or save it.'),
-                backgroundColor: AppColors.safeGreen,
-                action: SnackBarAction(
-                  label: 'Share',
-                  textColor: Colors.white,
-                  onPressed: () => context.read<BackupCubit>().shareBackup(state.exportedFile!),
-                ),
-              ),
+            showToast(
+              context,
+              '✅ Backup created! You can now share or save it.',
+              icon: Icons.shield_rounded,
+              type: ToastType.success,
             );
           } else if (state.status == BackupOperationStatus.inspectSuccess && state.preview != null) {
             _showRestorePreviewDialog(state);
           } else if (state.status == BackupOperationStatus.restoreSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('🎉 Restore complete! All records & documents recovered.'),
-                backgroundColor: AppColors.safeGreen,
-              ),
+            showToast(
+              context,
+              '🎉 Restore complete! All records & documents recovered.',
+              icon: Icons.check_circle_rounded,
+              type: ToastType.success,
             );
           } else if (state.status == BackupOperationStatus.failure && state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage!), backgroundColor: AppColors.dangerRed),
+            showToast(
+              context,
+              state.errorMessage!,
+              icon: Icons.error_outline_rounded,
+              type: ToastType.error,
             );
           }
         },

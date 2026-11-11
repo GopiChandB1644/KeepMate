@@ -14,6 +14,7 @@ import '../../../../core/storage/local_file_storage.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/image_compressor.dart';
 import '../../document_scanner/services/ocr_parser_service.dart';
+import '../../../shared/widgets/widgets.dart';
 import '../cubit/items_cubit.dart';
 import '../domain/entities/tracked_item_entity.dart';
 
@@ -222,22 +223,12 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       _isExtractingText = true;
     });
 
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: const [
-            SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-            ),
-            SizedBox(width: 12),
-            Expanded(child: Text('Extracting details from document...')),
-          ],
-        ),
-        duration: const Duration(seconds: 4),
-      ),
+    showToast(
+      context,
+      'Reading document & extracting details...',
+      icon: Icons.document_scanner_rounded,
+      type: ToastType.info,
+      duration: const Duration(seconds: 4),
     );
 
     try {
@@ -248,12 +239,11 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         setState(() {
           _isExtractingText = false;
         });
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Document attached. No readable text found — please enter details manually.'),
-            backgroundColor: AppColors.textSecondary,
-          ),
+        showToast(
+          context,
+          'Document attached. No readable text found — please enter details manually.',
+          icon: Icons.info_outline_rounded,
+          type: ToastType.warning,
         );
         return;
       }
@@ -291,21 +281,20 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         _isExtractingText = false;
       });
 
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       if (parsed.detectedFields.isNotEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('✨ Extracted: ${parsed.detectedFields.join(', ')}'),
-            backgroundColor: AppColors.safeGreen,
-            duration: const Duration(seconds: 5),
-          ),
+        showToast(
+          context,
+          '✨ Auto-filled: ${parsed.detectedFields.join(', ')}',
+          icon: Icons.auto_awesome_rounded,
+          type: ToastType.success,
+          duration: const Duration(seconds: 4),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Document attached. Please review and fill details.'),
-            backgroundColor: AppColors.primary,
-          ),
+        showToast(
+          context,
+          'Document attached. Please review and fill details.',
+          icon: Icons.check_circle_outline_rounded,
+          type: ToastType.info,
         );
       }
     } catch (e) {
@@ -314,12 +303,11 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         setState(() {
           _isExtractingText = false;
         });
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Document attached. (Extraction note: $e)'),
-            backgroundColor: AppColors.textSecondary,
-          ),
+        showToast(
+          context,
+          'Document attached. (Extraction note: $e)',
+          icon: Icons.error_outline_rounded,
+          type: ToastType.warning,
         );
       }
     }
@@ -349,8 +337,11 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedTargetDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an expiry or due date')),
+      showToast(
+        context,
+        'Please select an expiry or due date',
+        icon: Icons.event_busy_rounded,
+        type: ToastType.warning,
       );
       return;
     }
@@ -504,6 +495,12 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
     setState(() => _isSaving = false);
     if (mounted) {
+      showToast(
+        context,
+        widget.existingItem != null ? 'Item updated successfully!' : 'Item saved successfully!',
+        icon: Icons.check_circle_rounded,
+        type: ToastType.success,
+      );
       context.pop();
     }
   }
@@ -513,8 +510,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     final isEditing = widget.existingItem != null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isEditing ? 'Edit Details' : 'Add Anything'),
+      appBar: KeepMateAppBar(
+        title: isEditing ? 'Edit Details' : 'Add New Item',
+        subtitle: isEditing ? 'Update item details' : 'Enter details or attach document / photo',
       ),
       body: SafeArea(
         child: Form(

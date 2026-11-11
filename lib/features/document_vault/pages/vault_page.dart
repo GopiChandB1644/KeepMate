@@ -8,7 +8,7 @@ import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/storage/file_path_resolver.dart';
 import '../../../../core/utils/image_compressor.dart';
-import '../../../../shared/widgets/empty_state_view.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../cubit/vault_cubit.dart';
 import '../cubit/vault_state.dart';
 
@@ -112,14 +112,20 @@ class VaultPage extends StatelessWidget {
         );
       } else {
         if (!context.mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File not found on local storage')),
+        showToast(
+          context,
+          'File not found on local storage',
+          icon: Icons.error_outline_rounded,
+          type: ToastType.error,
         );
       }
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to open file: $e')),
+      showToast(
+        context,
+        'Failed to open file: $e',
+        icon: Icons.error_outline_rounded,
+        type: ToastType.error,
       );
     }
   }
@@ -127,8 +133,9 @@ class VaultPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Document Vault'),
+      appBar: const KeepMateAppBar(
+        title: 'Document Vault',
+        subtitle: 'Secure local storage',
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _pickAndUpload(context),

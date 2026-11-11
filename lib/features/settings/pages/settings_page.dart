@@ -4,6 +4,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/utils/date_utils.dart';
+import '../../../../shared/widgets/widgets.dart';
 import '../../backup_restore/pages/backup_restore_page.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
@@ -14,8 +15,9 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings & Storage'),
+      appBar: const KeepMateAppBar(
+        title: 'Settings',
+        subtitle: 'Preferences & Storage',
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
