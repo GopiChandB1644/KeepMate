@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/backup/encryption_service.dart';
-import 'package:keepmate/core/errors/app_exceptions.dart';
+import 'package:keepremind/core/backup/encryption_service.dart';
+import 'package:keepremind/core/errors/app_exceptions.dart';
 
 void main() {
   group('Encrypted Backup Security Tests', () {
     const encryption = EncryptionService();
     const testPassword = 'StrongSecretPassword!@#123';
-    final samplePlaintext = Uint8List.fromList(utf8.encode('{"app": "KeepMate", "items": [1,2,3]}'));
+    final samplePlaintext = Uint8List.fromList(utf8.encode('{"app": "KeepRemind", "items": [1,2,3]}'));
 
     test('Encrypt and decrypt returns original plaintext', () {
       final encrypted = encryption.encrypt(plaintext: samplePlaintext, password: testPassword);

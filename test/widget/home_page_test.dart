@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/database/app_database.dart';
-import 'package:keepmate/core/enums/item_enums.dart';
-import 'package:keepmate/features/tracked_items/domain/entities/tracked_item_entity.dart';
-import 'package:keepmate/shared/widgets/app_cards.dart';
-import 'package:keepmate/shared/widgets/status_chip.dart';
+import 'package:keepremind/core/database/app_database.dart';
+import 'package:keepremind/core/enums/item_enums.dart';
+import 'package:keepremind/features/tracked_items/domain/entities/tracked_item_entity.dart';
+import 'package:keepremind/shared/widgets/app_cards.dart';
+import 'package:keepremind/shared/widgets/status_chip.dart';
 
 void main() {
   group('Widget Tests', () {

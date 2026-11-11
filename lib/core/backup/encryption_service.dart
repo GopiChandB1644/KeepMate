@@ -103,7 +103,7 @@ class EncryptionService {
     // Check magic bytes
     final magic = utf8.decode(container.sublist(0, 4));
     if (magic != BackupConstants.magic) {
-      throw const BackupException('Not a valid KeepMate (.kmb) backup file');
+      throw const BackupException('Not a valid KeepRemind (.kmb) backup file');
     }
 
     final version = container[4];

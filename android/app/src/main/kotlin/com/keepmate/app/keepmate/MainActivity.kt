@@ -19,8 +19,9 @@ import kotlin.math.min
 class MainActivity : FlutterActivity() {
     companion object {
         private const val TAG = "MainActivity"
-        private const val ENGINE_ID = "keepmate_engine"
-        private const val PDF_CHANNEL = "com.keepmate.app/pdf_renderer"
+        private const val ENGINE_ID = "keepremind_engine"
+        private const val PDF_CHANNEL = "com.keepremind.app/pdf_renderer"
+        private const val LEGACY_PDF_CHANNEL = "com.keepmate.app/pdf_renderer"
     }
 
     override fun provideFlutterEngine(context: Context): FlutterEngine {
@@ -41,14 +42,14 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun setupPdfChannel(engine: FlutterEngine) {
-        MethodChannel(engine.dartExecutor.binaryMessenger, PDF_CHANNEL).setMethodCallHandler { call, result ->
+        val handler = MethodChannel.MethodCallHandler { call, result ->
             when (call.method) {
                 "renderPages" -> {
                     val pdfPath = call.argument<String>("path")
                     val maxPages = call.argument<Int>("maxPages") ?: 4
                     if (pdfPath == null) {
                         result.error("INVALID_PATH", "Path is null", null)
-                        return@setMethodCallHandler
+                        return@MethodCallHandler
                     }
                     try {
                         val renderedList = renderPdfPages(pdfPath, maxPages)
@@ -62,7 +63,7 @@ class MainActivity : FlutterActivity() {
                     val pdfPath = call.argument<String>("path")
                     if (pdfPath == null) {
                         result.error("INVALID_PATH", "Path is null", null)
-                        return@setMethodCallHandler
+                        return@MethodCallHandler
                     }
                     try {
                         val rendered = renderPdfFirstPage(pdfPath)
@@ -75,6 +76,8 @@ class MainActivity : FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        MethodChannel(engine.dartExecutor.binaryMessenger, PDF_CHANNEL).setMethodCallHandler(handler)
+        MethodChannel(engine.dartExecutor.binaryMessenger, LEGACY_PDF_CHANNEL).setMethodCallHandler(handler)
     }
 
     private fun renderPdfPages(pdfPath: String, maxPages: Int): List<String> {

@@ -1,8 +1,8 @@
-# KeepMate
+# KeepRemind
 
 > **"Everything important. One place. Never forgotten."**
 
-KeepMate is a personal organization, document vault, and expiry-tracking Flutter application designed to help users track bills, product warranties, vehicle & personal documents, subscriptions, and grocery expiry dates in one place with automatic reminders and local-first privacy.
+KeepRemind is a personal organization, document vault, and expiry-tracking Flutter application designed to help users track bills, product warranties, vehicle & personal documents, subscriptions, and grocery expiry dates in one place with automatic reminders and local-first privacy.
 
 The application has been designed so that anyone can use it intuitively without any training or technical jargon: big clear buttons, familiar color-coded status badges, 1-tap quick actions, and effortless wizards.
 
@@ -16,7 +16,7 @@ The project follows the **Feature-First Clean Architecture** with **BLoC/Cubit**
 - **State Management**: `flutter_bloc` (Cubit with immutable states, enum statuses, and copyWith)
 - **Routing**: `go_router` with `StatefulShellRoute` (persistent bottom navigation tabs)
 - **Database**: SQLite with **Drift** (`drift`, `drift_flutter`, `sqlite3_flutter_libs`)
-- **Storage Strategy**: Local-first with sandboxed relative paths (`KeepMate/documents/...`)
+- **Storage Strategy**: Local-first with sandboxed relative paths (`KeepRemind/documents/...`)
 - **Reminders**: Shared deterministic reminder engine (`flutter_local_notifications`, `timezone`)
 - **Backup & Restore**: Password-protected authenticated `.kmb` container (AES + PBKDF2 + SHA-256 manifest + ZIP archive)
 - **Document Scanner & OCR**: Text recognition & pattern parser for bills, policies, expiry dates with user verification
@@ -26,7 +26,7 @@ The project follows the **Feature-First Clean Architecture** with **BLoC/Cubit**
 ## 📁 Project Structure
 
 ```
-keepmate/
+keepremind/
 ├── docs/
 │   ├── IMPLEMENTATION_STATUS.md        # Sprint tracker & phase deliverables
 │   └── DATABASE_SCHEMA.md              # Drift tables, schemas, relations & migrations
@@ -37,7 +37,7 @@ keepmate/
 │   │   │   └── app_routes.dart         # Canonical route paths
 │   │   ├── shell/
 │   │   │   └── main_shell.dart         # Bottom navigation bar with Home, Categories, Vault, Settings
-│   │   └── keepmate_app.dart           # Root MaterialApp with reactive theme switcher
+│   │   └── keepremind_app.dart         # Root MaterialApp with reactive theme switcher
 │   ├── core/
 │   │   ├── constants/                  # App constants & channel IDs
 │   │   ├── enums/                      # ItemCategory, ItemSubcategory, ItemStatus, StorageLocation

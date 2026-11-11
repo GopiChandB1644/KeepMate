@@ -110,7 +110,7 @@ class BackupExportService {
     // 6. Write .kmb file to backups directory
     final backupsDir = await FilePathResolver.backupsDirectory;
     final dateStr = DateFormat('yyyy-MM-dd_HHmmss').format(DateTime.now());
-    final backupFile = File(p.join(backupsDir.path, 'KeepMate_Backup_$dateStr.kmb'));
+    final backupFile = File(p.join(backupsDir.path, 'KeepRemind_Backup_$dateStr.kmb'));
     await backupFile.writeAsBytes(encryptedBytes);
 
     // 7. Record in backup_history table

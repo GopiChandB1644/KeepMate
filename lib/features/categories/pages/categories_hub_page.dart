@@ -16,7 +16,7 @@ class CategoriesHubPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KeepMateAppBar(
+      appBar: const KeepRemindAppBar(
         title: 'Categories',
         subtitle: 'All items organized by type',
       ),

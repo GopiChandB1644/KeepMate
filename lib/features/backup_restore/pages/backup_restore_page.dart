@@ -133,7 +133,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'A valid KeepMate backup was verified! Restoring will sync all items, files, and reschedule your notifications.',
+              'A valid KeepRemind backup was verified! Restoring will sync all items, files, and reschedule your notifications.',
             ),
             const SizedBox(height: 14),
             Container(
@@ -189,7 +189,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KeepMateAppBar(
+      appBar: const KeepRemindAppBar(
         title: 'Backup & Restore',
         subtitle: 'Encrypted export & recovery',
       ),
@@ -257,7 +257,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'KeepMate keeps 100% of your documents and data on your phone. To avoid losing data if you change phones, create an encrypted backup regularly.',
+                            'KeepRemind keeps 100% of your documents and data on your phone. To avoid losing data if you change phones, create an encrypted backup regularly.',
                             style: AppText.bodySmall.copyWith(
                               color: AppColors.isDark ? const Color(0xFFFDE68A).withValues(alpha: 0.85) : const Color(0xFF78350F),
                             ),

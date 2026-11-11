@@ -84,7 +84,7 @@ class ItemDetailPage extends StatelessWidget {
     final sub = item.subcategory;
 
     return Scaffold(
-      appBar: KeepMateAppBar(
+      appBar: KeepRemindAppBar(
         title: item.title,
         subtitle: '${sub.displayName} Details',
         actions: [

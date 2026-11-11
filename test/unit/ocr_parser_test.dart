@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/enums/item_enums.dart';
-import 'package:keepmate/features/document_scanner/services/ocr_parser_service.dart';
+import 'package:keepremind/core/enums/item_enums.dart';
+import 'package:keepremind/features/document_scanner/services/ocr_parser_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 void main() {

@@ -32,7 +32,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KeepMateAppBar(
+      appBar: KeepRemindAppBar(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
           ),
           child: const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 20),
         ),
-        title: 'KeepMate',
+        title: 'KeepRemind',
         subtitle: 'Never miss an expiry or bill',
         showBack: false,
         actions: [

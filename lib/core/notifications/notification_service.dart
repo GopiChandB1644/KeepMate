@@ -24,7 +24,7 @@ class NotificationService {
         android: androidSettings,
         iOS: iosSettings,
         linux: LinuxInitializationSettings(defaultActionName: 'Open'),
-        windows: WindowsInitializationSettings(appName: 'KeepMate', appUserModelId: 'KeepMateApp', guid: '7c9e6679-7425-40de-944b-e07fc1f90ae7'),
+        windows: WindowsInitializationSettings(appName: 'KeepRemind', appUserModelId: 'KeepRemindApp', guid: '7c9e6679-7425-40de-944b-e07fc1f90ae7'),
       );
 
       await _notificationsPlugin.initialize(

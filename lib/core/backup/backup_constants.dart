@@ -8,7 +8,8 @@ class BackupConstants {
   static const int ivLength = 16;
   static const int pbkdf2Iterations = 10000;
   static const String manifestFileName = 'manifest.json';
-  static const String databaseFileName = 'keepmate_data.json';
+  static const String databaseFileName = 'keepremind_data.json';
+  static const String legacyDatabaseFileName = 'keepmate_data.json';
   static const String preferencesFileName = 'preferences.json';
 }
 

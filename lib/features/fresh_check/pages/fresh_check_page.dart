@@ -21,7 +21,7 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KeepMateAppBar(
+      appBar: const KeepRemindAppBar(
         title: 'FreshCheck',
         subtitle: 'Pantry, fridge & medicine expiry',
         showBack: false,

@@ -95,8 +95,8 @@ class BackupCubit extends Cubit<BackupState> {
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(file.path)],
-          subject: 'KeepMate Backup (.kmb)',
-          text: 'KeepMate password-protected backup file.',
+          subject: 'KeepRemind Backup (.kmb)',
+          text: 'KeepRemind password-protected backup file.',
         ),
       );
     } catch (e) {

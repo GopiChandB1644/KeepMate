@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/services/lost_data_service.dart';
+import 'package:keepremind/core/services/lost_data_service.dart';
 
 void main() {
   group('LostDataService Tests', () {

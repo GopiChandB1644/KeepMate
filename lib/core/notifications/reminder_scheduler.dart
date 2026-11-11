@@ -69,7 +69,7 @@ class ReminderScheduler {
 
       await notificationService.scheduleNotification(
         id: notifId,
-        title: '⚠️ KeepMate: ${item.title}',
+        title: '⚠️ KeepRemind: ${item.title}',
         body: '${item.title} $offsetText Please check and take action.',
         scheduledDate: triggerAt,
         payload: item.id,

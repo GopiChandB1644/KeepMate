@@ -74,7 +74,8 @@ class BackupImportService {
     );
 
     // 5. Parse DB Data
-    final dbBytes = extractedFiles[BackupConstants.databaseFileName];
+    final dbBytes = extractedFiles[BackupConstants.databaseFileName] ??
+        extractedFiles[BackupConstants.legacyDatabaseFileName];
     if (dbBytes == null) {
       throw const BackupException('Missing database snapshot in backup');
     }

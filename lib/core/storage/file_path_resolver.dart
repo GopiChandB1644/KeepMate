@@ -9,11 +9,19 @@ class FilePathResolver {
   static Future<Directory> get baseDirectory async {
     if (_appDocDir != null) return _appDocDir!;
     _appDocDir = await getApplicationDocumentsDirectory();
-    final appDir = Directory(p.join(_appDocDir!.path, 'KeepMate'));
-    if (!await appDir.exists()) {
-      await appDir.create(recursive: true);
+    final oldDir = Directory(p.join(_appDocDir!.path, 'KeepMate'));
+    final newDir = Directory(p.join(_appDocDir!.path, 'KeepRemind'));
+    if (await oldDir.exists() && !await newDir.exists()) {
+      try {
+        await oldDir.rename(newDir.path);
+      } catch (_) {
+        return oldDir;
+      }
     }
-    return appDir;
+    if (!await newDir.exists()) {
+      await newDir.create(recursive: true);
+    }
+    return newDir;
   }
 
   static Future<Directory> get documentsDirectory async {
@@ -50,7 +58,7 @@ class FilePathResolver {
     return File(p.join(base.path, normalized));
   }
 
-  /// Convert an absolute path to a relative path starting from KeepMate root
+  /// Convert an absolute path to a relative path starting from KeepRemind root
   static Future<String> toRelativePath(String absolutePath) async {
     final base = await baseDirectory;
     final rel = p.relative(absolutePath, from: base.path);

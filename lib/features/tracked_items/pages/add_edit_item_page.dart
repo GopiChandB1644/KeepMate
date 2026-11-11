@@ -567,7 +567,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     final isEditing = widget.existingItem != null;
 
     return Scaffold(
-      appBar: KeepMateAppBar(
+      appBar: KeepRemindAppBar(
         title: isEditing ? 'Edit Details' : 'Add New Item',
         subtitle: isEditing ? 'Update item details' : 'Enter details or attach document / photo',
       ),

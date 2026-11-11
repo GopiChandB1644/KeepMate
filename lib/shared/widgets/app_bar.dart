@@ -61,9 +61,9 @@ class CircleIconButton extends StatelessWidget {
   }
 }
 
-/// Custom AppBar that integrates seamlessly with the KeepMate app flow and structure.
+/// Custom AppBar that integrates seamlessly with the KeepRemind app flow and structure.
 /// Clean, basic, and distraction-free with round action/back buttons.
-class KeepMateAppBar extends StatelessWidget implements PreferredSizeWidget {
+class KeepRemindAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
   final String? subtitle;
   final List<Widget> actions;
@@ -74,7 +74,7 @@ class KeepMateAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? backgroundColor;
   final bool centerTitle;
 
-  const KeepMateAppBar({
+  const KeepRemindAppBar({
     super.key,
     this.title,
     this.subtitle,
@@ -189,3 +189,6 @@ class KeepMateAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 }
+
+/// Backward-compatibility alias
+typedef KeepMateAppBar = KeepRemindAppBar;

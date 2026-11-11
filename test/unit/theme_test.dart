@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/design_system/app_colors.dart';
-import 'package:keepmate/core/design_system/app_theme.dart';
+import 'package:keepremind/core/design_system/app_colors.dart';
+import 'package:keepremind/core/design_system/app_theme.dart';
 
 void main() {
   group('Theme & Color Palette Tests', () {

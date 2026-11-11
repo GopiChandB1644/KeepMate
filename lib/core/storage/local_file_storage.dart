@@ -11,7 +11,7 @@ class LocalFileStorage {
 
   LocalFileStorage({this.integrityService = const DocumentIntegrityService()});
 
-  /// Save an external file into KeepMate private documents folder
+  /// Save an external file into KeepRemind private documents folder
   /// Returns a record with relativePath, fileName, fileSize, and sha256 checksum
   Future<StoredFileMetadata> saveFile({
     required File sourceFile,

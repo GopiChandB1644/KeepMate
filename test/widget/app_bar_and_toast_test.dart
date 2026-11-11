@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/shared/widgets/widgets.dart';
+import 'package:keepremind/shared/widgets/widgets.dart';
 
 void main() {
-  group('KeepMateAppBar & Toast Widget Tests', () {
-    testWidgets('KeepMateAppBar renders title, subtitle, and action', (tester) async {
+  group('KeepRemindAppBar & Toast Widget Tests', () {
+    testWidgets('KeepRemindAppBar renders title, subtitle, and action', (tester) async {
       var backTapped = false;
       var actionTapped = false;
 
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            appBar: KeepMateAppBar(
+            appBar: KeepRemindAppBar(
               title: 'Add New Item',
               subtitle: 'Enter details or attach document',
               showBack: true,

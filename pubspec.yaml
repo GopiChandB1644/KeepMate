@@ -1,7 +1,7 @@
 
 
-name: keepmate
-description: KeepMate - Personal organization, expiry tracking, document vault and reminder application.
+name: keepremind
+description: KeepRemind - Personal organization, expiry tracking, document vault and reminder application.
 publish_to: 'none'
 
 version: 1.0.0+1

@@ -15,7 +15,7 @@ class DocAlertPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KeepMateAppBar(
+      appBar: const KeepRemindAppBar(
         title: 'DocAlert',
         subtitle: 'Licences, passports & vehicle documents',
         showBack: false,

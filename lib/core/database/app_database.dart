@@ -25,7 +25,7 @@ part 'app_database.g.dart';
   BackupHistory,
 ])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? e]) : super(e ?? driftDatabase(name: 'keepmate'));
+  AppDatabase([QueryExecutor? e]) : super(e ?? driftDatabase(name: 'keepremind'));
 
   @override
   int get schemaVersion => 1;

@@ -92,7 +92,7 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: KeepMateAppBar(
+      appBar: KeepRemindAppBar(
         title: 'Renew / Pay',
         subtitle: widget.item.title,
       ),

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:keepmate/core/enums/item_enums.dart';
-import 'package:keepmate/core/utils/date_utils.dart';
+import 'package:keepremind/core/enums/item_enums.dart';
+import 'package:keepremind/core/utils/date_utils.dart';
 
 void main() {
   group('Item Status & Date Derivation Tests', () {

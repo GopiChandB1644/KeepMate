@@ -1,7 +1,7 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'KeepMate';
+  static const String appName = 'KeepRemind';
   static const String appTagline = 'Everything important. One place. Never forgotten.';
   static const String appVersion = '1.0.0';
 
@@ -17,7 +17,7 @@ class AppConstants {
   static const String stagingDirName = 'staging';
 
   // Notification Channels
-  static const String reminderChannelId = 'keepmate_reminders';
+  static const String reminderChannelId = 'keepremind_reminders';
   static const String reminderChannelName = 'Important Reminders';
   static const String reminderChannelDescription = 'Alerts for upcoming expiries, due dates, and document renewals.';
 }

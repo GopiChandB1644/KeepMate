@@ -21,7 +21,7 @@ class _LifePocketPageState extends State<LifePocketPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const KeepMateAppBar(
+      appBar: const KeepRemindAppBar(
         title: 'LifePocket',
         subtitle: 'Bills, warranties & subscriptions',
         showBack: false,

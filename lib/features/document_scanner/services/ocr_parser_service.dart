@@ -39,7 +39,8 @@ class ParsedOcrResult {
 class OcrParserService {
   const OcrParserService();
 
-  static const MethodChannel _pdfChannel = MethodChannel('com.keepmate.app/pdf_renderer');
+  static const MethodChannel _pdfChannel = MethodChannel('com.keepremind.app/pdf_renderer');
+  static const MethodChannel _legacyPdfChannel = MethodChannel('com.keepmate.app/pdf_renderer');
 
   /// Extracts full text from any supported file (PDF or Image).
   static Future<String> extractText(File file) async {
@@ -134,23 +135,20 @@ class OcrParserService {
   }
 
   static Future<List<String>> _renderPdfPagesViaNative(String pdfPath, {int maxPages = 4}) async {
-    try {
-      final result = await _pdfChannel.invokeMethod<List<dynamic>>('renderPages', {
-        'path': pdfPath,
-        'maxPages': maxPages,
-      });
-      if (result != null) {
-        return result.map((e) => e.toString()).toList();
-      }
-    } catch (e) {
-      debugPrint('OcrParserService: Native PDF renderPages error: $e');
-    }
-    // Fallback to renderFirstPage
-    try {
-      final single = await _pdfChannel.invokeMethod<String>('renderFirstPage', {'path': pdfPath});
-      if (single != null) return [single];
-    } catch (e) {
-      debugPrint('OcrParserService: Native PDF renderFirstPage fallback error: $e');
+    for (final channel in [_pdfChannel, _legacyPdfChannel]) {
+      try {
+        final result = await channel.invokeMethod<List<dynamic>>('renderPages', {
+          'path': pdfPath,
+          'maxPages': maxPages,
+        });
+        if (result != null && result.isNotEmpty) {
+          return result.map((e) => e.toString()).toList();
+        }
+      } catch (_) {}
+      try {
+        final single = await channel.invokeMethod<String>('renderFirstPage', {'path': pdfPath});
+        if (single != null) return [single];
+      } catch (_) {}
     }
     return [];
   }
