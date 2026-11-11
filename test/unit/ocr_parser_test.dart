@@ -43,6 +43,24 @@ Total Due: 1420.50
       expect(result.expiryDate?.day, equals(20));
       expect(result.expiryDate?.month, equals(11));
     });
+
+    test('Parses alphanumeric month dates and broadband bills', () {
+      const sample = '''
+Airtel Broadband
+Consumer No: AB129034
+Invoice Date: 05 Nov 2026
+Payment Due Date: 25 Nov 2026
+Total Amount Due: ₹ 1,299.00
+''';
+
+      final result = parser.parse(text: sample);
+
+      expect(result.amount, equals(1299.00));
+      expect(result.documentOrPolicyNumber, contains('AB129034'));
+      expect(result.expiryDate?.day, equals(25));
+      expect(result.expiryDate?.month, equals(11));
+      expect(result.expiryDate?.year, equals(2026));
+      expect(result.detectedSubcategory, equals(ItemSubcategory.bill));
+    });
   });
 }
-

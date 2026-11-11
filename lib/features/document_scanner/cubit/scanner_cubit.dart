@@ -57,13 +57,11 @@ class ScannerCubit extends Cubit<ScannerState> {
   Future<void> processImage(File imageFile, {ItemSubcategory? expectedSubcategory}) async {
     emit(state.copyWith(status: ScannerStatus.processing, imageFile: imageFile));
     try {
-      // In production ML Kit is called on mobile. For safe multiplatform execution & unit tests:
-      // We parse filenames and common OCR patterns or simulate quick text extraction.
-      final fileName = imageFile.uri.pathSegments.last;
-      final simulatedSampleText = _sampleTextForFileName(fileName);
+      final text = await OcrParserService.extractText(imageFile);
+      final rawText = text.trim().isNotEmpty ? text : _sampleTextForFileName(imageFile.uri.pathSegments.last);
 
       final result = parserService.parse(
-        text: simulatedSampleText,
+        text: rawText,
         expectedSubcategory: expectedSubcategory,
       );
 

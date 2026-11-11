@@ -52,6 +52,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
   final List<int> _reminderOffsets = [7, 1];
   final List<File> _attachedFiles = [];
   bool _isSaving = false;
+  bool _isExtractingText = false;
 
   @override
   void initState() {
@@ -111,7 +112,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       final file = response.file;
       if (file != null && mounted) {
         final compressed = await ImageCompressor.compress(file.path, purpose: ImagePurpose.document);
-        _processAttachedImage(File(compressed));
+        await _processAttachedFile(File(compressed));
       }
     } catch (e) {
       debugPrint('retrieveLostData error: $e');
@@ -172,7 +173,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    _processAttachedImage(File(compressed));
+                    await _processAttachedFile(File(compressed));
                   }
                 },
               ),
@@ -190,7 +191,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    _processAttachedImage(File(compressed));
+                    await _processAttachedFile(File(compressed));
                   }
                 },
               ),
@@ -204,9 +205,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     allowedExtensions: ['pdf'],
                   );
                   if (result != null && result.files.single.path != null) {
-                    setState(() {
-                      _attachedFiles.add(File(result.files.single.path!));
-                    });
+                    await _processAttachedFile(File(result.files.single.path!));
                   }
                 },
               ),
@@ -217,47 +216,112 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     );
   }
 
-  void _processAttachedImage(File imageFile) {
+  Future<void> _processAttachedFile(File file) async {
     setState(() {
-      _attachedFiles.add(imageFile);
+      _attachedFiles.add(file);
+      _isExtractingText = true;
     });
 
-    // Run OCR parser to help user
-    final parser = const OcrParserService();
-    final fileName = imageFile.uri.pathSegments.last.toLowerCase();
-    String mockSample = '';
-    if (fileName.contains('bill') || _selectedSubcategory == ItemSubcategory.bill) {
-      mockSample = 'Electricity Bill Due Date: 20/12/2026 Total Due: 1250.00 Account No: EL839210';
-    } else if (fileName.contains('insurance') || _selectedSubcategory == ItemSubcategory.insurance) {
-      mockSample = 'Vehicle Policy No: POL998823 Vehicle No: KA05MN4321 Valid Until: 15/11/2027 Amount: 4200';
-    } else if (_selectedSubcategory == ItemSubcategory.grocery) {
-      mockSample = 'Amul Milk Best Before: 25/11/2026 Batch No: B921';
-    }
-
-    if (mockSample.isNotEmpty) {
-      final parsed = parser.parse(text: mockSample, expectedSubcategory: _selectedSubcategory);
-      if (_titleController.text.isEmpty && parsed.title != null) {
-        _titleController.text = parsed.title!;
-      }
-      if (_docNumberController.text.isEmpty && parsed.documentOrPolicyNumber != null) {
-        _docNumberController.text = parsed.documentOrPolicyNumber!;
-      }
-      if (_vehicleNumberController.text.isEmpty && parsed.vehicleNumber != null) {
-        _vehicleNumberController.text = parsed.vehicleNumber!;
-      }
-      if (_amountController.text.isEmpty && parsed.amount != null) {
-        _amountController.text = parsed.amount.toString();
-      }
-      if (_selectedTargetDate == null && parsed.expiryDate != null) {
-        _selectedTargetDate = parsed.expiryDate;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✨ Extracted details from photo. Please verify them below!'),
-          backgroundColor: AppColors.safeGreen,
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: const [
+            SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+            ),
+            SizedBox(width: 12),
+            Expanded(child: Text('Extracting details from document...')),
+          ],
         ),
-      );
+        duration: const Duration(seconds: 4),
+      ),
+    );
+
+    try {
+      final rawText = await OcrParserService.extractText(file);
+      if (!mounted) return;
+
+      if (rawText.trim().isEmpty) {
+        setState(() {
+          _isExtractingText = false;
+        });
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Document attached. No readable text found — please enter details manually.'),
+            backgroundColor: AppColors.textSecondary,
+          ),
+        );
+        return;
+      }
+
+      final parser = const OcrParserService();
+      final parsed = parser.parse(text: rawText, expectedSubcategory: _selectedSubcategory);
+
+      setState(() {
+        if (_titleController.text.trim().isEmpty && parsed.title != null) {
+          _titleController.text = parsed.title!;
+        }
+        if (_providerOrSellerController.text.trim().isEmpty && parsed.providerOrSeller != null) {
+          _providerOrSellerController.text = parsed.providerOrSeller!;
+        }
+        if (_docNumberController.text.trim().isEmpty && parsed.documentOrPolicyNumber != null) {
+          _docNumberController.text = parsed.documentOrPolicyNumber!;
+        }
+        if (_vehicleNumberController.text.trim().isEmpty && parsed.vehicleNumber != null) {
+          _vehicleNumberController.text = parsed.vehicleNumber!;
+        }
+        if (_amountController.text.trim().isEmpty && parsed.amount != null) {
+          _amountController.text = parsed.amount!.toStringAsFixed(parsed.amount! % 1 == 0 ? 0 : 2);
+        }
+        if (_selectedTargetDate == null && parsed.expiryDate != null) {
+          _selectedTargetDate = parsed.expiryDate;
+        }
+        if (_selectedStartDate == null && parsed.startDate != null) {
+          _selectedStartDate = parsed.startDate;
+        }
+        if (parsed.detectedSubcategory != null &&
+            _selectedSubcategory == ItemSubcategory.bill &&
+            parsed.detectedSubcategory != _selectedSubcategory) {
+          _selectedSubcategory = parsed.detectedSubcategory!;
+        }
+        _isExtractingText = false;
+      });
+
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      if (parsed.detectedFields.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✨ Extracted: ${parsed.detectedFields.join(', ')}'),
+            backgroundColor: AppColors.safeGreen,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Document attached. Please review and fill details.'),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Text extraction failed: $e');
+      if (mounted) {
+        setState(() {
+          _isExtractingText = false;
+        });
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Document attached. (Extraction note: $e)'),
+            backgroundColor: AppColors.textSecondary,
+          ),
+        );
+      }
     }
   }
 
@@ -517,17 +581,47 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: _pickAttachment,
+                      onPressed: _isExtractingText ? null : _pickAttachment,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         minimumSize: Size.zero,
                       ),
-                      child: const Text('Add File'),
+                      child: _isExtractingText
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text('Add File'),
                     ),
                   ],
                 ),
               ),
+
+              if (_isExtractingText) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+                  ),
+                  child: Row(
+                    children: const [
+                      SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Reading document and auto-filling form details...',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               if (_attachedFiles.isNotEmpty) ...[
                 const SizedBox(height: 12),
