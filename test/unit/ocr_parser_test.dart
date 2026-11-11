@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:keepmate/core/enums/item_enums.dart';
 import 'package:keepmate/features/document_scanner/services/ocr_parser_service.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 void main() {
   group('OCR Parser Service Tests', () {
@@ -61,6 +63,73 @@ Total Amount Due: ₹ 1,299.00
       expect(result.expiryDate?.month, equals(11));
       expect(result.expiryDate?.year, equals(2026));
       expect(result.detectedSubcategory, equals(ItemSubcategory.bill));
+    });
+
+    test('Parses APCPDCL electricity bill from user photo', () {
+      const sample = '''
+CENTRAL POWER
+Distribution Corporation of A.P. Ltd.
+
+Online Electricity Bill Payment
+
+Unique Service Number: 4345324000015
+Service Type: SL
+Customer Name: BOKKISAM PUTAIAH
+Circle Name: PRAKASAM
+ERO Code: 434
+Arrear Amount: 0.0
+Current Demand: 256.0
+ACD Amount: 0.0
+Reconnection Fee: 0
+Bill Date: 10/11/26
+Due Date: 25/11/26
+Disconnection Date: 11/12/26
+Bill Amount: 256.00
+''';
+
+      final result = parser.parse(text: sample);
+      expect(result.title, equals('Electricity Bill'));
+      expect(result.providerOrSeller, contains('CENTRAL POWER'));
+      expect(result.documentOrPolicyNumber, equals('4345324000015'));
+      expect(result.amount, equals(256.00));
+      expect(result.expiryDate?.year, equals(2026));
+      expect(result.expiryDate?.month, equals(11));
+      expect(result.expiryDate?.day, equals(25));
+      expect(result.startDate?.year, equals(2026));
+      expect(result.startDate?.month, equals(11));
+      expect(result.startDate?.day, equals(10));
+      expect(result.detectedSubcategory, equals(ItemSubcategory.bill));
+      expect(result.detectedFields.any((f) => f.contains('4345324000015')), isTrue);
+      expect(result.detectedFields.any((f) => f.contains('256')), isTrue);
+    });
+
+    test('Extracts text from PDF generated via Syncfusion', () async {
+      final doc = PdfDocument();
+      final page = doc.pages.add();
+      page.graphics.drawString(
+        'Electricity Bill\nConsumer Number: 9876543210\nBill Date: 01/10/2026\nDue Date: 15/10/2026\nTotal Amount: 2450.00',
+        PdfStandardFont(PdfFontFamily.helvetica, 12),
+      );
+      final bytes = doc.saveSync();
+      doc.dispose();
+
+      final tempFile = File('test_temp_bill.pdf');
+      await tempFile.writeAsBytes(bytes);
+
+      try {
+        final extracted = await OcrParserService.extractTextFromPdf(tempFile);
+        expect(extracted, contains('Electricity Bill'));
+        expect(extracted, contains('2450.00'));
+
+        final parsed = parser.parse(text: extracted);
+        expect(parsed.amount, equals(2450.00));
+        expect(parsed.documentOrPolicyNumber, equals('9876543210'));
+        expect(parsed.expiryDate?.year, equals(2026));
+        expect(parsed.expiryDate?.month, equals(10));
+        expect(parsed.expiryDate?.day, equals(15));
+      } finally {
+        if (tempFile.existsSync()) tempFile.deleteSync();
+      }
     });
   });
 }

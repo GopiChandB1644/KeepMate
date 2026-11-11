@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/design_system/app_colors.dart';
@@ -215,10 +216,24 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   Navigator.pop(ctx);
                   final result = await FilePicker.platform.pickFiles(
                     type: FileType.custom,
-                    allowedExtensions: ['pdf'],
+                    allowedExtensions: ['pdf', 'PDF'],
+                    withData: true,
                   );
-                  if (result != null && result.files.single.path != null) {
-                    await _processAttachedFile(File(result.files.single.path!));
+                  if (result != null && result.files.isNotEmpty) {
+                    final pickedFile = result.files.single;
+                    File? fileToProcess;
+                    if (pickedFile.path != null && File(pickedFile.path!).existsSync()) {
+                      fileToProcess = File(pickedFile.path!);
+                    } else if (pickedFile.bytes != null) {
+                      final tempDir = await getTemporaryDirectory();
+                      final safeName = pickedFile.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+                      final tempFile = File('${tempDir.path}/$safeName');
+                      await tempFile.writeAsBytes(pickedFile.bytes!);
+                      fileToProcess = tempFile;
+                    }
+                    if (fileToProcess != null) {
+                      await _processAttachedFile(fileToProcess);
+                    }
                   }
                 },
               ),
@@ -227,6 +242,16 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         ),
       ),
     );
+  }
+
+  bool _isGenericTitle(String text) {
+    final lower = text.trim().toLowerCase();
+    return lower.isEmpty ||
+        lower == 'bill' ||
+        lower == 'item' ||
+        lower == 'new item' ||
+        lower == 'document' ||
+        lower == 'receipt';
   }
 
   Future<void> _processAttachedFile(File file) async {
@@ -245,6 +270,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
     try {
       final rawText = await OcrParserService.extractText(file);
+      debugPrint('AddEditItemPage: Extracted text length: ${rawText.length}');
       if (!mounted) return;
 
       if (rawText.trim().isEmpty) {
@@ -264,30 +290,28 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       final parsed = parser.parse(text: rawText, expectedSubcategory: _selectedSubcategory);
 
       setState(() {
-        if (_titleController.text.trim().isEmpty && parsed.title != null) {
+        if (parsed.title != null && (_titleController.text.trim().isEmpty || _isGenericTitle(_titleController.text))) {
           _titleController.text = parsed.title!;
         }
-        if (_providerOrSellerController.text.trim().isEmpty && parsed.providerOrSeller != null) {
+        if (parsed.providerOrSeller != null) {
           _providerOrSellerController.text = parsed.providerOrSeller!;
         }
-        if (_docNumberController.text.trim().isEmpty && parsed.documentOrPolicyNumber != null) {
+        if (parsed.documentOrPolicyNumber != null) {
           _docNumberController.text = parsed.documentOrPolicyNumber!;
         }
-        if (_vehicleNumberController.text.trim().isEmpty && parsed.vehicleNumber != null) {
+        if (parsed.vehicleNumber != null) {
           _vehicleNumberController.text = parsed.vehicleNumber!;
         }
-        if (_amountController.text.trim().isEmpty && parsed.amount != null) {
+        if (parsed.amount != null) {
           _amountController.text = parsed.amount!.toStringAsFixed(parsed.amount! % 1 == 0 ? 0 : 2);
         }
-        if (_selectedTargetDate == null && parsed.expiryDate != null) {
+        if (parsed.expiryDate != null) {
           _selectedTargetDate = parsed.expiryDate;
         }
-        if (_selectedStartDate == null && parsed.startDate != null) {
+        if (parsed.startDate != null) {
           _selectedStartDate = parsed.startDate;
         }
-        if (parsed.detectedSubcategory != null &&
-            _selectedSubcategory == ItemSubcategory.bill &&
-            parsed.detectedSubcategory != _selectedSubcategory) {
+        if (parsed.detectedSubcategory != null) {
           _selectedSubcategory = parsed.detectedSubcategory!;
         }
         _isExtractingText = false;
@@ -299,7 +323,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
           '✨ Auto-filled: ${parsed.detectedFields.join(', ')}',
           icon: Icons.auto_awesome_rounded,
           type: ToastType.success,
-          duration: const Duration(seconds: 4),
+          duration: const Duration(seconds: 5),
         );
       } else {
         showToast(
