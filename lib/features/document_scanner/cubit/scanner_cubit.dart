@@ -19,9 +19,9 @@ class ScannerCubit extends Cubit<ScannerState> {
       emit(state.copyWith(status: ScannerStatus.picking));
       final picked = await _picker.pickImage(
         source: ImageSource.camera,
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 80,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 85,
       );
       if (picked == null) {
         emit(state.copyWith(status: ScannerStatus.idle));
@@ -39,9 +39,9 @@ class ScannerCubit extends Cubit<ScannerState> {
       emit(state.copyWith(status: ScannerStatus.picking));
       final picked = await _picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1600,
-        maxHeight: 1600,
-        imageQuality: 80,
+        maxWidth: 2000,
+        maxHeight: 2000,
+        imageQuality: 85,
       );
       if (picked == null) {
         emit(state.copyWith(status: ScannerStatus.idle));

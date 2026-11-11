@@ -9,7 +9,6 @@ import '../../../../core/design_system/app_text.dart';
 import '../../../../core/storage/file_path_resolver.dart';
 import '../../../../core/utils/image_compressor.dart';
 import '../../../../shared/widgets/widgets.dart';
-import '../../document_scanner/pages/document_camera_page.dart';
 import '../cubit/vault_cubit.dart';
 import '../cubit/vault_state.dart';
 
@@ -31,13 +30,19 @@ class VaultPage extends StatelessWidget {
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
-                title: const Text('Scan Document / Photo'),
-                subtitle: const Text('Fast in-app camera with document framing'),
+                title: const Text('Take a Photo'),
+                subtitle: const Text('Capture document with camera'),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  final path = await DocumentCameraPage.open(context, title: 'Scan Vault Document');
-                  if (path != null) {
-                    await cubit.uploadDocument(file: File(path), source: 'camera');
+                  final picker = ImagePicker();
+                  final picked = await picker.pickImage(
+                    source: ImageSource.camera,
+                    maxWidth: 2000,
+                    imageQuality: 85,
+                  );
+                  if (picked != null) {
+                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
+                    await cubit.uploadDocument(file: File(compressed), source: 'camera');
                   }
                 },
               ),
@@ -50,9 +55,8 @@ class VaultPage extends StatelessWidget {
                   final picker = ImagePicker();
                   final picked = await picker.pickImage(
                     source: ImageSource.gallery,
-                    maxWidth: 1600,
-                    maxHeight: 1600,
-                    imageQuality: 80,
+                    maxWidth: 2000,
+                    imageQuality: 85,
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
@@ -72,25 +76,6 @@ class VaultPage extends StatelessWidget {
                   );
                   if (result != null && result.files.single.path != null) {
                     await cubit.uploadDocument(file: File(result.files.single.path!), source: 'pdf_picker');
-                  }
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.photo_camera_back_rounded, color: AppColors.textSecondary),
-                title: const Text('Use System Camera App'),
-                subtitle: const Text('External native device camera'),
-                onTap: () async {
-                  Navigator.pop(ctx);
-                  final picker = ImagePicker();
-                  final picked = await picker.pickImage(
-                    source: ImageSource.camera,
-                    maxWidth: 1600,
-                    maxHeight: 1600,
-                    imageQuality: 80,
-                  );
-                  if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    await cubit.uploadDocument(file: File(compressed), source: 'camera');
                   }
                 },
               ),
