@@ -2,10 +2,11 @@ import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/database/app_database.dart';
+import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/storage/local_file_storage.dart';
 import 'settings_state.dart';
 
-class SettingsCubit extends Cubit<SettingsState> {
+class SettingsCubit extends Cubit<SettingsState> with WidgetsBindingObserver {
   final AppDatabase database;
   final LocalFileStorage fileStorage;
 
@@ -13,7 +14,26 @@ class SettingsCubit extends Cubit<SettingsState> {
     required this.database,
     required this.fileStorage,
   }) : super(const SettingsState()) {
+    try {
+      WidgetsBinding.instance.addObserver(this);
+    } catch (_) {}
     loadSettings();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (state.themeMode == ThemeMode.system) {
+      AppColors.updateTheme(ThemeMode.system);
+      emit(state.copyWith());
+    }
+  }
+
+  @override
+  Future<void> close() {
+    try {
+      WidgetsBinding.instance.removeObserver(this);
+    } catch (_) {}
+    return super.close();
   }
 
   Future<void> loadSettings() async {
@@ -35,6 +55,8 @@ class SettingsCubit extends Cubit<SettingsState> {
 
       final lastBackup = backups.isNotEmpty ? backups.first.createdAt : null;
 
+      AppColors.updateTheme(themeMode);
+
       emit(state.copyWith(
         themeMode: themeMode,
         notificationsEnabled: notifEnabled,
@@ -51,6 +73,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
+    AppColors.updateTheme(mode);
     emit(state.copyWith(themeMode: mode));
     await _saveSetting('theme_mode', mode.name);
   }

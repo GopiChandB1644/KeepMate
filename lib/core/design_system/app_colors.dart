@@ -3,9 +3,31 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
+  /// Reactive theme flag synchronized with active ThemeMode and system brightness
   static bool isDark = false;
 
+  /// Helper to select between light and dark palette tokens
   static Color _p(Color light, Color dark) => isDark ? dark : light;
+
+  static bool computeIsDark(ThemeMode mode, [Brightness? platformBrightness]) {
+    Brightness? platform = platformBrightness;
+    if (platform == null) {
+      try {
+        platform = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      } catch (_) {
+        platform = Brightness.light;
+      }
+    }
+    return switch (mode) {
+      ThemeMode.light => false,
+      ThemeMode.dark => true,
+      ThemeMode.system => platform == Brightness.dark,
+    };
+  }
+
+  static void updateTheme(ThemeMode mode, [Brightness? platformBrightness]) {
+    isDark = computeIsDark(mode, platformBrightness);
+  }
 
   // Brand primary colors (Modern Indigo & Emerald)
   static const Color primary = Color(0xFF2563EB); // Vibrant Blue
@@ -39,4 +61,3 @@ class AppColors {
   // Shimmer / Divider
   static Color get divider => _p(const Color(0xFFE2E8F0), const Color(0xFF1E293B));
 }
-

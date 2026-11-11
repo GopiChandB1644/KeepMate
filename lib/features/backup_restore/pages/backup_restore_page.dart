@@ -232,26 +232,35 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFEF3C7),
+                  color: AppColors.isDark ? const Color(0xFF78350F).withValues(alpha: 0.3) : const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                  border: Border.all(color: AppColors.accent.withValues(alpha: AppColors.isDark ? 0.35 : 0.4)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.shield_rounded, color: Color(0xFFB45309), size: 30),
+                    Icon(
+                      Icons.shield_rounded,
+                      color: AppColors.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+                      size: 30,
+                    ),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Local-First Privacy',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'KeepMate keeps 100% of your documents and data on your phone. To avoid losing data if you change phones, create an encrypted backup regularly.',
-                            style: AppText.bodySmall.copyWith(color: const Color(0xFF78350F)),
+                            style: AppText.bodySmall.copyWith(
+                              color: AppColors.isDark ? const Color(0xFFFDE68A).withValues(alpha: 0.85) : const Color(0xFF78350F),
+                            ),
                           ),
                         ],
                       ),

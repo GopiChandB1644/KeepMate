@@ -96,58 +96,62 @@ class SettingsPage extends StatelessWidget {
               // Preferences Section
               Text('Preferences', style: AppText.h3),
               const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      secondary: const Icon(Icons.notifications_active_rounded, color: AppColors.primary),
-                      title: const Text('Expiry & Due Reminders'),
-                      subtitle: const Text('Receive alerts before bills or documents expire'),
-                      value: state.notificationsEnabled,
-                      onChanged: (val) => cubit.toggleNotifications(val),
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.access_time_filled_rounded, color: AppColors.warningOrange),
-                      title: const Text('Daily Alert Time'),
-                      subtitle: Text('Notifications arrive at ${state.preferredReminderTime} AM'),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                      onTap: () async {
-                        final picked = await showTimePicker(
-                          context: context,
-                          initialTime: const TimeOfDay(hour: 9, minute: 0),
-                        );
-                        if (picked != null) {
-                          final h = picked.hour.toString().padLeft(2, '0');
-                          final m = picked.minute.toString().padLeft(2, '0');
-                          cubit.setReminderTime('$h:$m');
-                        }
-                      },
-                    ),
-                    const Divider(height: 1),
-                    ListTile(
-                      leading: const Icon(Icons.dark_mode_rounded, color: AppColors.vaultColor),
-                      title: const Text('Appearance / Theme'),
-                      subtitle: Text(state.themeMode.name.toUpperCase()),
-                      trailing: DropdownButton<ThemeMode>(
-                        value: state.themeMode,
-                        underline: const SizedBox.shrink(),
-                        items: const [
-                          DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                          DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                          DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) cubit.setThemeMode(val);
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        secondary: const Icon(Icons.notifications_active_rounded, color: AppColors.primary),
+                        title: const Text('Expiry & Due Reminders'),
+                        subtitle: const Text('Receive alerts before bills or documents expire'),
+                        value: state.notificationsEnabled,
+                        onChanged: (val) => cubit.toggleNotifications(val),
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.access_time_filled_rounded, color: AppColors.warningOrange),
+                        title: const Text('Daily Alert Time'),
+                        subtitle: Text('Notifications arrive at ${state.preferredReminderTime} AM'),
+                        trailing: const Icon(Icons.chevron_right_rounded),
+                        onTap: () async {
+                          final picked = await showTimePicker(
+                            context: context,
+                            initialTime: const TimeOfDay(hour: 9, minute: 0),
+                          );
+                          if (picked != null) {
+                            final h = picked.hour.toString().padLeft(2, '0');
+                            final m = picked.minute.toString().padLeft(2, '0');
+                            cubit.setReminderTime('$h:$m');
+                          }
                         },
                       ),
-                    ),
-                  ],
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.dark_mode_rounded, color: AppColors.vaultColor),
+                        title: const Text('Appearance / Theme'),
+                        subtitle: Text(state.themeMode.name.toUpperCase()),
+                        trailing: DropdownButton<ThemeMode>(
+                          value: state.themeMode,
+                          underline: const SizedBox.shrink(),
+                          items: const [
+                            DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
+                            DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
+                            DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) cubit.setThemeMode(val);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -156,25 +160,29 @@ class SettingsPage extends StatelessWidget {
               // Data Security & Backup Section
               Text('Security & Backups', style: AppText.h3),
               const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: ListTile(
-                  leading: const Icon(Icons.lock_reset_rounded, color: AppColors.safeGreen),
-                  title: const Text('Backup & Restore (.kmb)'),
-                  subtitle: Text(state.lastBackupDate != null
-                      ? 'Last backup: ${AppDateUtils.formatDisplay(DateTime.tryParse(state.lastBackupDate!))}'
-                      : 'No backup created yet'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const BackupRestorePage()),
-                    );
-                  },
+              Material(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                clipBehavior: Clip.antiAlias,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.cardBorder),
+                  ),
+                  child: ListTile(
+                    leading: const Icon(Icons.lock_reset_rounded, color: AppColors.safeGreen),
+                    title: const Text('Backup & Restore (.kmb)'),
+                    subtitle: Text(state.lastBackupDate != null
+                        ? 'Last backup: ${AppDateUtils.formatDisplay(DateTime.tryParse(state.lastBackupDate!))}'
+                        : 'No backup created yet'),
+                    trailing: const Icon(Icons.chevron_right_rounded),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BackupRestorePage()),
+                      );
+                    },
+                  ),
                 ),
               ),
 

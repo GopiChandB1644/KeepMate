@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../core/constants/app_constants.dart';
 import '../core/database/app_database.dart';
+import '../core/design_system/app_colors.dart';
 import '../core/design_system/app_theme.dart';
 import '../core/notifications/notification_service.dart';
 import '../core/services/lost_data_service.dart';
@@ -65,13 +67,17 @@ class _KeepMateAppState extends State<KeepMateApp> {
         providers: AppStateInjector.blocProviders,
         child: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, settingsState) {
-            return MaterialApp.router(
-              title: AppConstants.appName,
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: settingsState.themeMode,
-              routerConfig: _router,
+            AppColors.updateTheme(settingsState.themeMode);
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: AppTheme.systemOverlayStyle(AppColors.isDark),
+              child: MaterialApp.router(
+                title: AppConstants.appName,
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: settingsState.themeMode,
+                routerConfig: _router,
+              ),
             );
           },
         ),
