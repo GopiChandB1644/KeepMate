@@ -14,6 +14,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.math.min
 
 class MainActivity : FlutterActivity() {
     companion object {
@@ -41,53 +42,87 @@ class MainActivity : FlutterActivity() {
 
     private fun setupPdfChannel(engine: FlutterEngine) {
         MethodChannel(engine.dartExecutor.binaryMessenger, PDF_CHANNEL).setMethodCallHandler { call, result ->
-            if (call.method == "renderFirstPage") {
-                val pdfPath = call.argument<String>("path")
-                if (pdfPath == null) {
-                    result.error("INVALID_PATH", "Path is null", null)
-                    return@setMethodCallHandler
+            when (call.method) {
+                "renderPages" -> {
+                    val pdfPath = call.argument<String>("path")
+                    val maxPages = call.argument<Int>("maxPages") ?: 4
+                    if (pdfPath == null) {
+                        result.error("INVALID_PATH", "Path is null", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val renderedList = renderPdfPages(pdfPath, maxPages)
+                        result.success(renderedList)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "renderPdfPages failed", e)
+                        result.error("RENDER_FAILED", e.message, null)
+                    }
                 }
-                try {
-                    val rendered = renderPdfFirstPage(pdfPath)
-                    result.success(rendered)
-                } catch (e: Exception) {
-                    Log.e(TAG, "renderPdfFirstPage failed", e)
-                    result.error("RENDER_FAILED", e.message, null)
+                "renderFirstPage" -> {
+                    val pdfPath = call.argument<String>("path")
+                    if (pdfPath == null) {
+                        result.error("INVALID_PATH", "Path is null", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val rendered = renderPdfFirstPage(pdfPath)
+                        result.success(rendered)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "renderPdfFirstPage failed", e)
+                        result.error("RENDER_FAILED", e.message, null)
+                    }
                 }
-            } else {
-                result.notImplemented()
+                else -> result.notImplemented()
             }
         }
     }
 
-    private fun renderPdfFirstPage(pdfPath: String): String? {
+    private fun renderPdfPages(pdfPath: String, maxPages: Int): List<String> {
         val file = File(pdfPath)
-        if (!file.exists()) return null
-        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY) ?: return null
+        if (!file.exists()) return emptyList()
+        val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY) ?: return emptyList()
         val renderer = PdfRenderer(pfd)
-        if (renderer.pageCount == 0) {
+        val pageCount = renderer.pageCount
+        if (pageCount == 0) {
             renderer.close()
             pfd.close()
-            return null
+            return emptyList()
         }
-        val page = renderer.openPage(0)
-        // 2x scale for sharp OCR recognition in ML Kit
-        val scale = 2
-        val width = page.width * scale
-        val height = page.height * scale
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.WHITE)
-        page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        page.close()
-        renderer.close()
-        pfd.close()
 
-        val outFile = File(cacheDir, "pdf_render_${System.currentTimeMillis()}.jpg")
-        FileOutputStream(outFile).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+        val renderedPaths = mutableListOf<String>()
+        val pagesToRender = min(pageCount, maxPages)
+        val timestamp = System.currentTimeMillis()
+
+        try {
+            for (i in 0 until pagesToRender) {
+                val page = renderer.openPage(i)
+                // 2x scale for sharp recognition in Google ML Kit OCR
+                val scale = 2
+                val width = page.width * scale
+                val height = page.height * scale
+                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                bitmap.eraseColor(Color.WHITE)
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                page.close()
+
+                val outFile = File(cacheDir, "pdf_render_${timestamp}_page_$i.jpg")
+                FileOutputStream(outFile).use { out ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 92, out)
+                }
+                bitmap.recycle()
+                renderedPaths.add(outFile.absolutePath)
+            }
+        } finally {
+            renderer.close()
+            pfd.close()
         }
-        bitmap.recycle()
-        return outFile.absolutePath
+
+        return renderedPaths
+    }
+
+    private fun renderPdfFirstPage(pdfPath: String): String? {
+        val pages = renderPdfPages(pdfPath, 1)
+        return pages.firstOrNull()
     }
 
     override fun shouldDestroyEngineWithHost(): Boolean = false
@@ -96,3 +131,4 @@ class MainActivity : FlutterActivity() {
         super.cleanUpFlutterEngine(flutterEngine)
     }
 }
+

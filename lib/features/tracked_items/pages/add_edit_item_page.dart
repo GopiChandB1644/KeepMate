@@ -301,6 +301,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         }
         if (parsed.vehicleNumber != null) {
           _vehicleNumberController.text = parsed.vehicleNumber!;
+          if (_docNumberController.text.trim().isEmpty) {
+            _docNumberController.text = parsed.vehicleNumber!;
+          }
         }
         if (parsed.amount != null) {
           _amountController.text = parsed.amount!.toStringAsFixed(parsed.amount! % 1 == 0 ? 0 : 2);
@@ -354,12 +357,27 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedTargetDate ?? now.add(const Duration(days: 7)),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2045),
+      firstDate: DateTime(1990),
+      lastDate: DateTime(2055),
     );
     if (picked != null) {
       setState(() {
         _selectedTargetDate = picked;
+      });
+    }
+  }
+
+  Future<void> _pickStartDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedStartDate ?? now,
+      firstDate: DateTime(1990),
+      lastDate: DateTime(2055),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedStartDate = picked;
       });
     }
   }
@@ -473,9 +491,12 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         );
         break;
       case ItemSubcategory.document:
+        final docNum = _docNumberController.text.trim().isNotEmpty
+            ? _docNumberController.text.trim()
+            : (_vehicleNumberController.text.trim().isNotEmpty ? _vehicleNumberController.text.trim() : null);
         document = DocumentDetailsCompanion(
           itemId: drift.Value(itemId),
-          documentNumber: drift.Value(_docNumberController.text.trim().isEmpty ? null : _docNumberController.text.trim()),
+          documentNumber: drift.Value(docNum),
           issuingAuthority: drift.Value(_providerOrSellerController.text.trim().isEmpty ? null : _providerOrSellerController.text.trim()),
           documentType: drift.Value(_selectedSubcategory.displayName),
         );
@@ -761,26 +782,146 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               const SizedBox(height: 20),
 
               // 5. Category-Specific Extra Fields
+              // Optional Start / Issue / Registration Date
+              if (_selectedSubcategory != ItemSubcategory.grocery) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedSubcategory == ItemSubcategory.document
+                          ? 'Issue / Registration Date'
+                          : _selectedSubcategory == ItemSubcategory.warranty || _selectedSubcategory == ItemSubcategory.purchase
+                              ? 'Purchase Date'
+                              : _selectedSubcategory == ItemSubcategory.bill
+                                  ? 'Bill Date'
+                                  : 'Start Date',
+                      style: AppText.label,
+                    ),
+                    if (_selectedStartDate != null)
+                      TextButton(
+                        onPressed: () => setState(() => _selectedStartDate = null),
+                        style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
+                        child: Text('Clear', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                InkWell(
+                  onTap: _pickStartDate,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          _selectedStartDate != null
+                              ? AppDateUtils.formatDisplay(_selectedStartDate)
+                              : 'Select date (optional)',
+                          style: _selectedStartDate != null ? AppText.bodyLarge : AppText.bodySmall,
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.arrow_drop_down_rounded),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Document / Policy / Account / Consumer Number
+              if (_selectedSubcategory != ItemSubcategory.grocery) ...[
+                Text(
+                  _selectedSubcategory == ItemSubcategory.document
+                      ? 'Document / Registration Number'
+                      : _selectedSubcategory == ItemSubcategory.insurance
+                          ? 'Policy Number'
+                          : _selectedSubcategory == ItemSubcategory.bill
+                              ? 'Account / Service / Consumer Number'
+                              : 'Invoice / Serial Number',
+                  style: AppText.label,
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _docNumberController,
+                  decoration: InputDecoration(
+                    hintText: _selectedSubcategory == ItemSubcategory.document
+                        ? 'e.g. AP04TE1234, DL-12345678'
+                        : _selectedSubcategory == ItemSubcategory.insurance
+                            ? 'e.g. POL-987654321'
+                            : _selectedSubcategory == ItemSubcategory.bill
+                                ? 'e.g. Unique Service No, CA No'
+                                : 'e.g. INV-100234',
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Issuing Authority / Provider / Seller
+              if (_selectedSubcategory != ItemSubcategory.grocery) ...[
+                Text(
+                  _selectedSubcategory == ItemSubcategory.document
+                      ? 'Issuing Authority / Issuer'
+                      : _selectedSubcategory == ItemSubcategory.insurance
+                          ? 'Insurance Provider / Company'
+                          : _selectedSubcategory == ItemSubcategory.bill
+                              ? 'Biller / Service Provider'
+                              : _selectedSubcategory == ItemSubcategory.subscription
+                                  ? 'Service / Platform'
+                                  : 'Seller / Store / Brand',
+                  style: AppText.label,
+                ),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _providerOrSellerController,
+                  decoration: InputDecoration(
+                    hintText: _selectedSubcategory == ItemSubcategory.document
+                        ? 'e.g. Transport Department, UIDAI'
+                        : _selectedSubcategory == ItemSubcategory.insurance
+                            ? 'e.g. HDFC Ergo, Star Health'
+                            : _selectedSubcategory == ItemSubcategory.bill
+                                ? 'e.g. APCPDCL, BESCOM, Airtel'
+                                : 'e.g. Amazon, Croma',
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Vehicle Registration Number (for Insurance & Vehicle Documents)
+              if (_selectedSubcategory == ItemSubcategory.insurance || _selectedSubcategory == ItemSubcategory.document) ...[
+                Text('Vehicle Registration Number', style: AppText.label),
+                const SizedBox(height: 6),
+                TextFormField(
+                  controller: _vehicleNumberController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(hintText: 'e.g. AP04TE1234, KA01AB1234'),
+                  onChanged: (val) {
+                    if (_selectedSubcategory == ItemSubcategory.document && _docNumberController.text.trim().isEmpty) {
+                      _docNumberController.text = val;
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Amount
               if (_selectedSubcategory == ItemSubcategory.bill ||
                   _selectedSubcategory == ItemSubcategory.insurance ||
-                  _selectedSubcategory == ItemSubcategory.subscription) ...[
+                  _selectedSubcategory == ItemSubcategory.subscription ||
+                  _selectedSubcategory == ItemSubcategory.warranty ||
+                  _selectedSubcategory == ItemSubcategory.purchase) ...[
                 Text('Amount (₹)', style: AppText.label),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: const InputDecoration(hintText: 'e.g. 1500'),
-                ),
-                const SizedBox(height: 16),
-              ],
-
-              if (_selectedSubcategory == ItemSubcategory.insurance) ...[
-                Text('Vehicle Registration Number', style: AppText.label),
-                const SizedBox(height: 6),
-                TextFormField(
-                  controller: _vehicleNumberController,
-                  textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(hintText: 'e.g. KA01AB1234'),
                 ),
                 const SizedBox(height: 16),
               ],

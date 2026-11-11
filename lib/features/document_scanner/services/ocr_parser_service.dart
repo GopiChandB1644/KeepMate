@@ -83,23 +83,46 @@ class OcrParserService {
         debugPrint('OcrParserService: Syncfusion PDF extract note: $e');
       }
 
-      // If text stream has usable characters, return it
+      // Check if digital text has meaningful content (>= 40 alphanumeric characters
+      // AND contains words/digits typical of bills/documents)
       final letterCount = RegExp(r'[a-zA-Z0-9]').allMatches(extractedText).length;
-      if (letterCount >= 20) {
+      final hasMeaningfulContent = letterCount >= 40 &&
+          (RegExp(r'\d{2}').hasMatch(extractedText) ||
+              extractedText.toLowerCase().contains('bill') ||
+              extractedText.toLowerCase().contains('invoice') ||
+              extractedText.toLowerCase().contains('date') ||
+              extractedText.toLowerCase().contains('policy') ||
+              extractedText.toLowerCase().contains('certificate'));
+
+      if (hasMeaningfulContent) {
         debugPrint('OcrParserService: Digital PDF text extracted successfully (${extractedText.length} chars)');
         return extractedText;
       }
 
-      // Otherwise, the PDF is a scanned image! Render page 1 and run Google ML Kit OCR
-      debugPrint('OcrParserService: Scanned PDF detected, rendering first page for ML Kit OCR...');
-      final renderedImagePath = await _renderPdfPageViaNative(file.path);
-      if (renderedImagePath != null && File(renderedImagePath).existsSync()) {
-        final ocrText = await extractTextFromImage(File(renderedImagePath));
-        try {
-          File(renderedImagePath).deleteSync();
-        } catch (_) {}
-        if (ocrText.trim().isNotEmpty) {
-          return ocrText;
+      // Otherwise, the PDF is a scanned document (e.g. photos/scans of RC front & back)!
+      // Render pages via native PdfRenderer and run Google ML Kit OCR on each page.
+      debugPrint('OcrParserService: Scanned image PDF detected, rendering pages for ML Kit OCR...');
+      final renderedImagePaths = await _renderPdfPagesViaNative(file.path, maxPages: 4);
+
+      if (renderedImagePaths.isNotEmpty) {
+        final pageTexts = <String>[];
+        for (var i = 0; i < renderedImagePaths.length; i++) {
+          final pagePath = renderedImagePaths[i];
+          final pageFile = File(pagePath);
+          if (pageFile.existsSync()) {
+            final pageText = await extractTextFromImage(pageFile);
+            try {
+              pageFile.deleteSync();
+            } catch (_) {}
+            if (pageText.trim().isNotEmpty) {
+              pageTexts.add('--- PAGE ${i + 1} ---\n$pageText');
+            }
+          }
+        }
+        if (pageTexts.isNotEmpty) {
+          final combined = pageTexts.join('\n\n');
+          debugPrint('OcrParserService: Extracted OCR text from ${pageTexts.length} rendered pages (${combined.length} chars)');
+          return combined;
         }
       }
 
@@ -110,14 +133,26 @@ class OcrParserService {
     }
   }
 
-  static Future<String?> _renderPdfPageViaNative(String pdfPath) async {
+  static Future<List<String>> _renderPdfPagesViaNative(String pdfPath, {int maxPages = 4}) async {
     try {
-      final result = await _pdfChannel.invokeMethod<String>('renderFirstPage', {'path': pdfPath});
-      return result;
+      final result = await _pdfChannel.invokeMethod<List<dynamic>>('renderPages', {
+        'path': pdfPath,
+        'maxPages': maxPages,
+      });
+      if (result != null) {
+        return result.map((e) => e.toString()).toList();
+      }
     } catch (e) {
-      debugPrint('OcrParserService: Native PDF render unavailable: $e');
-      return null;
+      debugPrint('OcrParserService: Native PDF renderPages error: $e');
     }
+    // Fallback to renderFirstPage
+    try {
+      final single = await _pdfChannel.invokeMethod<String>('renderFirstPage', {'path': pdfPath});
+      if (single != null) return [single];
+    } catch (e) {
+      debugPrint('OcrParserService: Native PDF renderFirstPage fallback error: $e');
+    }
+    return [];
   }
 
   /// On-device machine learning OCR via Google ML Kit for photos & images.
@@ -276,11 +311,65 @@ class OcrParserService {
     caseSensitive: false,
   );
 
-  // Indian vehicle registration format: KA01AB1234, AP01C1234, DL01C1234, MH12DE5678
+  // Valid Indian State & UT codes
+  static const Set<String> _indianStateCodes = {
+    'AN', 'AP', 'AR', 'AS', 'BR', 'CH', 'CG', 'DD', 'DL', 'DN',
+    'GA', 'GJ', 'HR', 'HP', 'JH', 'JK', 'KA', 'KL', 'LA', 'LD',
+    'MP', 'MH', 'MN', 'ML', 'MZ', 'NL', 'OD', 'OR', 'PB', 'PY',
+    'RJ', 'SK', 'TN', 'TR', 'TS', 'UK', 'UA', 'UP', 'WB', 'BH',
+  };
+
+  // Indian vehicle registration format: KA01AB1234, AP 04 TE 1234, DL-1C-A-1234, 22 BH 1234 AA
   static final RegExp _vehicleRegex = RegExp(
-    r'\b[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{4}\b',
+    r'\b([A-Z]{2}[\s\-]?[0-9]{1,2}[\s\-]?[A-Z]{1,3}[\s\-]?[0-9]{4})\b|\b([0-9]{2}[\s\-]?BH[\s\-]?[0-9]{4}[\s\-]?[A-Z]{1,2})\b',
     caseSensitive: false,
   );
+
+  static final RegExp _labeledVehicleRegex = RegExp(
+    r'(?:reg(?:n|istration)?(?:\.|\s)*(?:no|num|number)?|vehicle(?:\.|\s)*(?:no|num|number)?)\s*[:\-]?\s*([A-Z]{2}[\s\-]?[0-9]{1,2}[\s\-]?[A-Z]{1,3}[\s\-]?[0-9]{3,4}|[0-9]{2}[\s\-]?BH[\s\-]?[0-9]{4}[\s\-]?[A-Z]{1,2})\b',
+    caseSensitive: false,
+  );
+
+  static final RegExp _chassisRegex = RegExp(
+    r'(?:chassis|chasis)(?:\.|\s)*(?:no|num|number)?\s*[:\-]?\s*([A-Za-z0-9]{8,25})',
+    caseSensitive: false,
+  );
+
+  static final RegExp _engineRegex = RegExp(
+    r'engine(?:\.|\s)*(?:no|num|number)?\s*[:\-]?\s*([A-Za-z0-9]{5,25})',
+    caseSensitive: false,
+  );
+
+  static String? _extractVehicleNumber(String text) {
+    // Check labeled line first
+    final labeled = _labeledVehicleRegex.firstMatch(text);
+    if (labeled != null) {
+      final raw = labeled.group(1)?.trim();
+      if (raw != null) {
+        final clean = raw.replaceAll(RegExp(r'[\s\-]+'), '').toUpperCase();
+        if (_isValidVehicle(clean)) return clean;
+      }
+    }
+
+    // Check all general vehicle regex matches
+    final matches = _vehicleRegex.allMatches(text);
+    for (final m in matches) {
+      final raw = m.group(0)?.trim();
+      if (raw != null) {
+        final clean = raw.replaceAll(RegExp(r'[\s\-]+'), '').toUpperCase();
+        if (_isValidVehicle(clean)) return clean;
+      }
+    }
+    return null;
+  }
+
+  static bool _isValidVehicle(String clean) {
+    if (clean.length < 7 || clean.length > 11) return false;
+    if (RegExp(r'^[0-9]{2}BH[0-9]{4}[A-Z]{1,2}$').hasMatch(clean)) return true;
+    final prefix = clean.substring(0, 2);
+    if (!_indianStateCodes.contains(prefix)) return false;
+    return RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$').hasMatch(clean);
+  }
 
   // Stop words that must NOT be mistaken for document numbers
   static final Set<String> _docNumberStopWords = {
@@ -337,8 +426,44 @@ class OcrParserService {
 
     final lowerFullText = text.toLowerCase();
 
-    // 1. Detect subcategory & smart title from text contents
-    if (lowerFullText.contains('electricity') ||
+    // 1. Detect Vehicle Registration Number first
+    detectedVehicle = _extractVehicleNumber(text);
+    if (detectedVehicle != null) {
+      detected.add('Vehicle: $detectedVehicle');
+    }
+
+    // 2. Detect subcategory & smart title from text contents
+    final isVehicleRc = lowerFullText.contains('registration certificate') ||
+        lowerFullText.contains('certificate of registration') ||
+        lowerFullText.contains('form 23') ||
+        lowerFullText.contains('form-23') ||
+        lowerFullText.contains('form no 23') ||
+        lowerFullText.contains('form no. 23') ||
+        lowerFullText.contains('motor vehicles department') ||
+        lowerFullText.contains('chassis no') ||
+        lowerFullText.contains('chasis no') ||
+        lowerFullText.contains('engine no') ||
+        (detectedVehicle != null &&
+            (lowerFullText.contains('transport') ||
+                lowerFullText.contains('rto') ||
+                lowerFullText.contains('fitness') ||
+                lowerFullText.contains('regn upto') ||
+                lowerFullText.contains('reg. upto') ||
+                lowerFullText.contains('regn. no') ||
+                lowerFullText.contains('regn no') ||
+                lowerFullText.contains('regn date')));
+
+    if (isVehicleRc) {
+      detectedSubcategory = ItemSubcategory.document;
+      detectedTitle = detectedVehicle != null ? 'Vehicle RC ($detectedVehicle)' : 'Vehicle Registration Certificate';
+      detectedProvider ??= _findProviderName(lines, [
+        'transport department',
+        'government of',
+        'govt of',
+        'motor vehicles',
+        'rto',
+      ]) ?? 'Transport Department';
+    } else if (lowerFullText.contains('electricity') ||
         lowerFullText.contains('power distribution') ||
         lowerFullText.contains('central power') ||
         lowerFullText.contains('southern power') ||
@@ -426,8 +551,8 @@ class OcrParserService {
       detectedTitle = 'Warranty Card';
     } else if (lowerFullText.contains('driving licence') ||
         lowerFullText.contains('driving license') ||
-        lowerFullText.contains('transport department') ||
-        lowerFullText.contains('sarathi')) {
+        lowerFullText.contains('sarathi') ||
+        lowerFullText.contains('dl no')) {
       detectedSubcategory = ItemSubcategory.document;
       detectedTitle = 'Driving Licence';
       detectedProvider ??= 'Transport Department';
@@ -560,17 +685,66 @@ class OcrParserService {
       }
     }
 
-    // 4. Detect Vehicle Number
-    final vehicleMatch = _vehicleRegex.firstMatch(text);
-    if (vehicleMatch != null) {
-      detectedVehicle = vehicleMatch.group(0)?.toUpperCase();
-      detected.add('Vehicle: $detectedVehicle');
+    // Fallback: If document number wasn't found, check vehicle number or chassis number
+    if (detectedNumber == null && detectedVehicle != null) {
+      detectedNumber = detectedVehicle;
+      detected.add('Doc/Service No: $detectedNumber');
+    } else if (detectedNumber == null) {
+      final chMatch = _chassisRegex.firstMatch(text);
+      if (chMatch != null) {
+        final chNum = chMatch.group(1)?.trim().toUpperCase();
+        if (chNum != null && chNum.length >= 8 && !_docNumberStopWords.contains(chNum.toLowerCase())) {
+          detectedNumber = chNum;
+          detected.add('Chassis No: $detectedNumber');
+        }
+      } else {
+        final engMatch = _engineRegex.firstMatch(text);
+        if (engMatch != null) {
+          final engNum = engMatch.group(1)?.trim().toUpperCase();
+          if (engNum != null && engNum.length >= 6 && !_docNumberStopWords.contains(engNum.toLowerCase())) {
+            detectedNumber = engNum;
+            detected.add('Engine No: $detectedNumber');
+          }
+        }
+      }
     }
 
-    // 5. Detect Dates with contextual expiry / due date prioritization and 2-digit year expansion
+    // 4. Detect Dates with contextual expiry / due date prioritization and 2-digit year expansion
     for (var i = 0; i < lines.length; i++) {
       final line = lines[i];
       final lineLower = line.toLowerCase();
+
+      final isExpiryKeyword = lineLower.contains('fitness') ||
+          lineLower.contains('regn upto') ||
+          lineLower.contains('reg. upto') ||
+          lineLower.contains('reg upto') ||
+          lineLower.contains('tax upto') ||
+          lineLower.contains('valid upto') ||
+          lineLower.contains('valid till') ||
+          lineLower.contains('valid to') ||
+          lineLower.contains('valid until') ||
+          lineLower.contains('due') ||
+          lineLower.contains('exp') ||
+          lineLower.contains('disconnection') ||
+          lineLower.contains('pay by') ||
+          lineLower.contains('best before') ||
+          lineLower.contains('use by');
+
+      final isStartKeyword = lineLower.contains('regn date') ||
+          lineLower.contains('date of regn') ||
+          lineLower.contains('reg. date') ||
+          lineLower.contains('reg date') ||
+          lineLower.contains('date of registration') ||
+          lineLower.contains('registration date') ||
+          lineLower.contains('issue date') ||
+          lineLower.contains('date of issue') ||
+          lineLower.contains('issue') ||
+          lineLower.contains('start') ||
+          lineLower.contains('from') ||
+          lineLower.contains('bill date') ||
+          lineLower.contains('mfg') ||
+          lineLower.contains('invoice date') ||
+          lineLower.contains('purchase date');
 
       // Look for text-month, numeric, and month-year dates
       final match = _textMonthDateRegex.firstMatch(line) ??
@@ -582,11 +756,16 @@ class OcrParserService {
         parsedDate = _parseAnyDate(match.group(1)!);
       } else if (i + 1 < lines.length) {
         // Check adjacent line if current line has date label
-        if (lineLower.contains('due date') ||
+        if (isExpiryKeyword ||
+            isStartKeyword ||
+            lineLower.contains('due date') ||
             lineLower.contains('expiry') ||
             lineLower.contains('valid till') ||
             lineLower.contains('bill date') ||
-            lineLower.contains('invoice date')) {
+            lineLower.contains('invoice date') ||
+            lineLower.contains('fitness') ||
+            lineLower.contains('upto') ||
+            lineLower.contains('regn')) {
           final nextMatch = _numericDateRegex.firstMatch(lines[i + 1]) ??
               _textMonthDateRegex.firstMatch(lines[i + 1]) ??
               _monthYearDateRegex.firstMatch(lines[i + 1]);
@@ -597,23 +776,6 @@ class OcrParserService {
       }
 
       if (parsedDate != null) {
-        final isExpiryKeyword = lineLower.contains('due') ||
-            lineLower.contains('exp') ||
-            lineLower.contains('valid to') ||
-            lineLower.contains('valid until') ||
-            lineLower.contains('valid till') ||
-            lineLower.contains('valid upto') ||
-            lineLower.contains('disconnection') ||
-            lineLower.contains('pay by') ||
-            lineLower.contains('best before') ||
-            lineLower.contains('use by');
-
-        final isStartKeyword = lineLower.contains('issue') ||
-            lineLower.contains('start') ||
-            lineLower.contains('from') ||
-            lineLower.contains('bill date') ||
-            lineLower.contains('mfg') ||
-            lineLower.contains('invoice date');
 
         if (isExpiryKeyword && detectedExpiry == null) {
           detectedExpiry = parsedDate;
