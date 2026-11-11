@@ -1,0 +1,55 @@
+
+
+name: keepmate
+description: KeepMate - Personal organization, expiry tracking, document vault and reminder application.
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management & Routing
+  flutter_bloc: ^9.1.1
+  go_router: ^17.5.0
+
+  # Database & Persistence (Drift + SQLite)
+  drift: ^2.24.2
+  drift_flutter: ^0.2.4
+  sqlite3_flutter_libs: ^0.5.24
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Utilities & Formatting
+  uuid: ^4.5.1
+  intl: ^0.20.2
+  crypto: ^3.0.6
+  archive: ^4.0.2
+
+  # Notifications & Time
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
+
+  # File & Image Handling
+  file_picker: ^10.3.3
+  image_picker: ^1.2.0
+  share_plus: ^12.0.2
+
+  # Animation & UI Polish
+  flutter_animate: ^4.5.2
+  flutter_image_compress: ^2.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.24.2
+  build_runner: ^2.4.15
+
+flutter:
+  uses-material-design: true
