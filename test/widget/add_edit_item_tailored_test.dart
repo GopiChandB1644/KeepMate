@@ -38,8 +38,11 @@ void main() {
   }
 
   group('AddEditItemPage Tailored Type Tests', () {
-    testWidgets('Bill flow shows only bill fields and hides unrelated chips and grocery fields', (tester) async {
-      await tester.pumpWidget(buildTestableAddPage(subcategory: ItemSubcategory.bill));
+    testWidgets(
+        'Bill flow shows only bill fields and hides unrelated chips and grocery fields',
+        (tester) async {
+      await tester
+          .pumpWidget(buildTestableAddPage(subcategory: ItemSubcategory.bill));
       await tester.pumpAndSettle();
 
       // Tailored AppBar
@@ -79,7 +82,9 @@ void main() {
       expect(find.text('Quantity'), findsNothing);
     });
 
-    testWidgets('Grocery flow shows storage location and quantity and hides bill amount and account number', (tester) async {
+    testWidgets(
+        'Grocery flow shows storage location and quantity and hides bill amount and account number',
+        (tester) async {
       await tester.pumpWidget(buildTestableAddPage(
         subcategory: ItemSubcategory.grocery,
         title: 'Fresh Almond Milk',
@@ -109,7 +114,9 @@ void main() {
       expect(find.text('Bill Amount (₹)'), findsNothing);
     });
 
-    testWidgets('Official Document flow shows registration and issuing authority and hides amount and storage', (tester) async {
+    testWidgets(
+        'Official Document flow shows registration and issuing authority and hides amount and storage',
+        (tester) async {
       await tester.pumpWidget(buildTestableAddPage(
         subcategory: ItemSubcategory.document,
         title: 'Driving Licence',

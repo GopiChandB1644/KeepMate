@@ -18,6 +18,10 @@ class KeepRemindAlarmActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
+        if (action != ACTION_TAKEN && action != ACTION_SNOOZE && action != ACTION_STOP) {
+            Log.w(TAG, "Ignored unexpected action: $action")
+            return
+        }
         val alarmId = intent.getIntExtra(KeepRemindAlarmService.EXTRA_ALARM_ID, 0)
         val medicineId = intent.getStringExtra(KeepRemindAlarmService.EXTRA_MEDICINE_ID) ?: ""
         val doseTime = intent.getStringExtra(KeepRemindAlarmService.EXTRA_DOSE_TIME) ?: ""

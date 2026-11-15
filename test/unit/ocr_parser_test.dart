@@ -18,7 +18,8 @@ Valid Until: 31/12/2026
 Total Premium: 4520.00
 ''';
 
-      final result = parser.parse(text: sample, expectedSubcategory: ItemSubcategory.insurance);
+      final result = parser.parse(
+          text: sample, expectedSubcategory: ItemSubcategory.insurance);
 
       expect(result.documentOrPolicyNumber, contains('POL-9988123'));
       expect(result.vehicleNumber, equals('KA01AB1234'));
@@ -38,7 +39,8 @@ Due Date: 20/11/2026
 Total Due: 1420.50
 ''';
 
-      final result = parser.parse(text: sample, expectedSubcategory: ItemSubcategory.bill);
+      final result =
+          parser.parse(text: sample, expectedSubcategory: ItemSubcategory.bill);
 
       expect(result.amount, equals(1420.50));
       expect(result.expiryDate, isNotNull);
@@ -99,7 +101,8 @@ Bill Amount: 256.00
       expect(result.startDate?.month, equals(11));
       expect(result.startDate?.day, equals(10));
       expect(result.detectedSubcategory, equals(ItemSubcategory.bill));
-      expect(result.detectedFields.any((f) => f.contains('4345324000015')), isTrue);
+      expect(result.detectedFields.any((f) => f.contains('4345324000015')),
+          isTrue);
       expect(result.detectedFields.any((f) => f.contains('256')), isTrue);
     });
 
@@ -132,7 +135,9 @@ Bill Amount: 256.00
       }
     });
 
-    test('Parses Vehicle RC (Registration Certificate) front and back scan text', () {
+    test(
+        'Parses Vehicle RC (Registration Certificate) front and back scan text',
+        () {
       const rcText = '''
 --- PAGE 1 ---
 GOVERNMENT OF ANDHRA PRADESH
@@ -164,7 +169,8 @@ Registering Authority: ONGOLE
       expect(result.title, contains('AP04TE1234'));
       expect(result.vehicleNumber, equals('AP04TE1234'));
       expect(result.documentOrPolicyNumber, equals('AP04TE1234'));
-      expect(result.providerOrSeller, anyOf(contains('Transport Department'), contains('GOVERNMENT')));
+      expect(result.providerOrSeller,
+          anyOf(contains('Transport Department'), contains('GOVERNMENT')));
       expect(result.startDate?.day, equals(16));
       expect(result.startDate?.month, equals(8));
       expect(result.startDate?.year, equals(2020));
@@ -174,7 +180,9 @@ Registering Authority: ONGOLE
       expect(result.confidence, greaterThanOrEqualTo(0.8));
     });
 
-    test('Parses Karnataka Vehicle RC with hyphenated reg number and fitness date', () {
+    test(
+        'Parses Karnataka Vehicle RC with hyphenated reg number and fitness date',
+        () {
       const karnatakaRc = '''
 GOVERNMENT OF KARNATAKA
 TRANSPORT DEPARTMENT
@@ -212,7 +220,8 @@ Valid Upto: 28/02/2037
       expect(result.expiryDate?.year, equals(2037));
     });
 
-    test('Parses Indian Driving Licence scan text as document (NOT insurance)', () {
+    test('Parses Indian Driving Licence scan text as document (NOT insurance)',
+        () {
       const dlText = '''
 INDIAN UNION DRIVING LICENCE
 GOVERNMENT OF ANDHRA PRADESH / TRANSPORT DEPARTMENT
@@ -233,7 +242,8 @@ RTO: ONGOLE
       expect(result.title, contains('Driving Licence'));
       expect(result.title, contains('AP07 20180001234'));
       expect(result.documentOrPolicyNumber, equals('AP07 20180001234'));
-      expect(result.providerOrSeller, anyOf(contains('Transport Department'), contains('GOVERNMENT')));
+      expect(result.providerOrSeller,
+          anyOf(contains('Transport Department'), contains('GOVERNMENT')));
 
       // Start date must be Issue Date (2018), NOT DOB (1995)!
       expect(result.startDate?.year, equals(2018));
@@ -246,7 +256,8 @@ RTO: ONGOLE
       expect(result.expiryDate?.day, equals(14));
 
       // DOB is recorded in detectedFields
-      expect(result.detectedFields.any((f) => f.contains('DOB: 15/07/1995')), isTrue);
+      expect(result.detectedFields.any((f) => f.contains('DOB: 15/07/1995')),
+          isTrue);
     });
 
     test('Parses Delhi Smart Card Driving Licence (Form 7)', () {
@@ -276,7 +287,9 @@ Issuing Authority: RTO JANAKPURI
       expect(result.expiryDate?.day, equals(19));
     });
 
-    test('Correctly identifies genuine LIC Insurance Policy while ignoring "lic" in other words', () {
+    test(
+        'Correctly identifies genuine LIC Insurance Policy while ignoring "lic" in other words',
+        () {
       const licText = '''
 Life Insurance Corporation of India
 Branch: Hyderabad Central

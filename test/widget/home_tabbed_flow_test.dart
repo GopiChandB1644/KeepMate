@@ -32,15 +32,18 @@ class MockTabbedItemRepository implements ItemRepository {
 
   @override
   Stream<List<TrackedItemEntity>> watchItemsByCategory(ItemCategory category) =>
-      _controller.stream.map((list) => list.where((i) => i.category == category).toList());
+      _controller.stream
+          .map((list) => list.where((i) => i.category == category).toList());
 
   @override
-  Future<List<TrackedItemEntity>> getItemsByCategory(ItemCategory category) async =>
+  Future<List<TrackedItemEntity>> getItemsByCategory(
+          ItemCategory category) async =>
       _items.where((i) => i.category == category).toList();
 
   @override
-  Future<TrackedItemEntity?> getItemById(String id) async =>
-      _items.cast<TrackedItemEntity?>().firstWhere((i) => i?.id == id, orElse: () => null);
+  Future<TrackedItemEntity?> getItemById(String id) async => _items
+      .cast<TrackedItemEntity?>()
+      .firstWhere((i) => i?.id == id, orElse: () => null);
 
   @override
   Future<void> addItem({
@@ -86,7 +89,8 @@ class MockTabbedItemRepository implements ItemRepository {
     String? newDocumentNumber,
     double? newAmount,
     List<ItemDocumentsCompanion>? newDocuments,
-  }) async => 'renewed-id';
+  }) async =>
+      'renewed-id';
 
   @override
   Future<List<TrackedItemEntity>> searchItems(String query) async => _items;
@@ -108,7 +112,8 @@ void main() {
         category: 'life_pocket',
         subcategory: 'bill',
         title: 'Electricity Bill',
-        dueDate: now.add(const Duration(days: 3)).toIso8601String().split('T').first,
+        dueDate:
+            now.add(const Duration(days: 3)).toIso8601String().split('T').first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -127,7 +132,8 @@ void main() {
         category: 'fresh_check',
         subcategory: 'grocery',
         title: 'Fresh Almond Milk',
-        expiryDate: now.add(const Duration(days: 5)).toIso8601String().split('T').first,
+        expiryDate:
+            now.add(const Duration(days: 5)).toIso8601String().split('T').first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -147,7 +153,11 @@ void main() {
         category: 'doc_alert',
         subcategory: 'document',
         title: 'Driving Licence (DL-12345)',
-        expiryDate: now.add(const Duration(days: 300)).toIso8601String().split('T').first,
+        expiryDate: now
+            .add(const Duration(days: 300))
+            .toIso8601String()
+            .split('T')
+            .first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -195,12 +205,15 @@ void main() {
   }
 
   group('Home Tabbed Flow & 2x2 Feature Cards Tests', () {
-    testWidgets('Home screen defaults to LifePocket tab with 2x2 feature cards and LifePocket FAB', (tester) async {
+    testWidgets(
+        'Home screen defaults to LifePocket tab with 2x2 feature cards and LifePocket FAB',
+        (tester) async {
       await tester.pumpWidget(buildTestableHome());
       await tester.pumpAndSettle();
 
       // Top segmented pills exist
-      expect(find.text('LifePocket'), findsNWidgets(2)); // in pill and section header
+      expect(find.text('LifePocket'),
+          findsNWidgets(2)); // in pill and section header
       expect(find.text('FreshCheck'), findsOneWidget);
       expect(find.text('DocAlert'), findsOneWidget);
 
@@ -227,7 +240,9 @@ void main() {
       expect(find.text('Driving Licence (DL-12345)'), findsNothing);
     });
 
-    testWidgets('Switching to FreshCheck tab updates feature cards, FAB, and items', (tester) async {
+    testWidgets(
+        'Switching to FreshCheck tab updates feature cards, FAB, and items',
+        (tester) async {
       await tester.pumpWidget(buildTestableHome());
       await tester.pumpAndSettle();
 
@@ -258,7 +273,9 @@ void main() {
       expect(find.text('Driving Licence (DL-12345)'), findsNothing);
     });
 
-    testWidgets('Switching to DocAlert tab updates feature cards, FAB, and items', (tester) async {
+    testWidgets(
+        'Switching to DocAlert tab updates feature cards, FAB, and items',
+        (tester) async {
       await tester.pumpWidget(buildTestableHome());
       await tester.pumpAndSettle();
 
@@ -267,7 +284,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Category Header for DocAlert
-      expect(find.text('IDENTITY, VEHICLE & OFFICIAL DOCUMENTS'), findsOneWidget);
+      expect(
+          find.text('IDENTITY, VEHICLE & OFFICIAL DOCUMENTS'), findsOneWidget);
 
       // DocAlert 2x2 Feature Cards
       expect(find.text('Driving Licence'), findsOneWidget);
@@ -283,13 +301,16 @@ void main() {
       expect(find.text('+ Add Document'), findsOneWidget);
 
       // Only DocAlert items listed
-      await tester.scrollUntilVisible(find.text('Driving Licence (DL-12345)'), 100);
+      await tester.scrollUntilVisible(
+          find.text('Driving Licence (DL-12345)'), 100);
       expect(find.text('Driving Licence (DL-12345)'), findsOneWidget);
       expect(find.text('Electricity Bill'), findsNothing);
       expect(find.text('Fresh Almond Milk'), findsNothing);
     });
 
-    testWidgets('Tapping feature card navigates to AddEditItemPage with pre-filled metadata', (tester) async {
+    testWidgets(
+        'Tapping feature card navigates to AddEditItemPage with pre-filled metadata',
+        (tester) async {
       String navigatedLocation = '';
       Object? navigatedExtra;
 
@@ -339,18 +360,22 @@ void main() {
       expect(extraMap['subcategory'], ItemSubcategory.bill);
     });
 
-    testWidgets('Simplified 3-tab Bottom Navbar displays Home, Vault, and Settings', (tester) async {
+    testWidgets(
+        'Simplified 3-tab Bottom Navbar displays Home, Vault, and Settings',
+        (tester) async {
       final router = GoRouter(
         initialLocation: AppRoutes.home,
         routes: [
           StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
+            builder: (context, state, navigationShell) =>
+                MainShell(navigationShell: navigationShell),
             branches: [
               StatefulShellBranch(
                 routes: [
                   GoRoute(
                     path: AppRoutes.home,
-                    builder: (context, state) => const Text('Home Branch Content'),
+                    builder: (context, state) =>
+                        const Text('Home Branch Content'),
                   ),
                 ],
               ),
@@ -358,7 +383,8 @@ void main() {
                 routes: [
                   GoRoute(
                     path: AppRoutes.vault,
-                    builder: (context, state) => const Text('Vault Branch Content'),
+                    builder: (context, state) =>
+                        const Text('Vault Branch Content'),
                   ),
                 ],
               ),
@@ -366,7 +392,8 @@ void main() {
                 routes: [
                   GoRoute(
                     path: AppRoutes.settings,
-                    builder: (context, state) => const Text('Settings Branch Content'),
+                    builder: (context, state) =>
+                        const Text('Settings Branch Content'),
                   ),
                 ],
               ),

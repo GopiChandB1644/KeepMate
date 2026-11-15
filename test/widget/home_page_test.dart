@@ -20,7 +20,8 @@ void main() {
       expect(find.text('Safe / Active'), findsOneWidget);
     });
 
-    testWidgets('ItemSummaryCard renders title and tap action works', (tester) async {
+    testWidgets('ItemSummaryCard renders title and tap action works',
+        (tester) async {
       var tapped = false;
       final mockItem = TrackedItemEntity(
         baseItem: TrackedItem(

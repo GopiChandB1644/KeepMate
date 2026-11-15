@@ -7,7 +7,9 @@ import 'package:keepremind/shared/widgets/widgets.dart';
 
 void main() {
   group('Back Button & Navigation Flow Tests', () {
-    testWidgets('KeepRemindAppBar defaults to showing back button when no leading is provided', (tester) async {
+    testWidgets(
+        'KeepRemindAppBar defaults to showing back button when no leading is provided',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -24,7 +26,8 @@ void main() {
       expect(find.byTooltip('Back'), findsOneWidget);
     });
 
-    testWidgets('KeepRemindAppBar hides back button when showBack: false', (tester) async {
+    testWidgets('KeepRemindAppBar hides back button when showBack: false',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -40,13 +43,16 @@ void main() {
       expect(find.byTooltip('Back'), findsNothing);
     });
 
-    testWidgets('KeepRemindAppBar hides back button and shows custom leading when leading is provided', (tester) async {
+    testWidgets(
+        'KeepRemindAppBar hides back button and shows custom leading when leading is provided',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
             appBar: KeepRemindAppBar(
               title: 'Home',
-              leading: Icon(Icons.bookmark_added_rounded, key: Key('custom_logo')),
+              leading:
+                  Icon(Icons.bookmark_added_rounded, key: Key('custom_logo')),
             ),
           ),
         ),
@@ -56,7 +62,8 @@ void main() {
       expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
     });
 
-    testWidgets('Default back tap pops when navigator canPop is true', (tester) async {
+    testWidgets('Default back tap pops when navigator canPop is true',
+        (tester) async {
       var popped = false;
       await tester.pumpWidget(
         MaterialApp(
@@ -64,15 +71,17 @@ void main() {
             builder: (context) => ElevatedButton(
               child: const Text('Open'),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const Scaffold(
-                      appBar: KeepRemindAppBar(
-                        title: 'Pushed Page',
+                Navigator.of(context)
+                    .push(
+                      MaterialPageRoute(
+                        builder: (_) => const Scaffold(
+                          appBar: KeepRemindAppBar(
+                            title: 'Pushed Page',
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ).then((_) => popped = true);
+                    )
+                    .then((_) => popped = true);
               },
             ),
           ),
@@ -92,7 +101,9 @@ void main() {
       expect(find.text('Open'), findsOneWidget);
     });
 
-    testWidgets('Default back tap falls back to AppRoutes.home when navigator cannot pop', (tester) async {
+    testWidgets(
+        'Default back tap falls back to AppRoutes.home when navigator cannot pop',
+        (tester) async {
       String currentLocation = '';
       final router = GoRouter(
         initialLocation: AppRoutes.categories,
@@ -139,18 +150,22 @@ void main() {
       expect(find.text('Home Screen Content'), findsOneWidget);
     });
 
-    testWidgets('MainShell PopScope redirects system back to Home tab when on non-home tab', (tester) async {
+    testWidgets(
+        'MainShell PopScope redirects system back to Home tab when on non-home tab',
+        (tester) async {
       final router = GoRouter(
         initialLocation: AppRoutes.home,
         routes: [
           StatefulShellRoute.indexedStack(
-            builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
+            builder: (context, state, navigationShell) =>
+                MainShell(navigationShell: navigationShell),
             branches: [
               StatefulShellBranch(
                 routes: [
                   GoRoute(
                     path: AppRoutes.home,
-                    builder: (context, state) => const Scaffold(body: Text('Tab 0: Home Page')),
+                    builder: (context, state) =>
+                        const Scaffold(body: Text('Tab 0: Home Page')),
                   ),
                 ],
               ),

@@ -42,22 +42,30 @@ void main() {
     test('Default offsets are properly assigned for all categories', () {
       // LifePocket
       expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.bill), [3, 1]);
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.subscription), [3, 1]);
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.warranty), [30, 7, 1]);
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.purchase), [7, 1]);
+      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.subscription),
+          [3, 1]);
+      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.warranty),
+          [30, 7, 1]);
+      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.purchase),
+          [7, 1]);
 
       // FreshCheck
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.grocery), [2, 1]);
+      expect(
+          ReminderScheduler.getDefaultOffsets(ItemSubcategory.grocery), [2, 1]);
 
       // DocAlert
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.document), [30, 7, 1]);
-      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.insurance), [30, 7, 1]);
+      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.document),
+          [30, 7, 1]);
+      expect(ReminderScheduler.getDefaultOffsets(ItemSubcategory.insurance),
+          [30, 7, 1]);
     });
 
-    test('LifePocket Warranty: schedules 30, 7, and 1 day offsets correctly', () async {
+    test('LifePocket Warranty: schedules 30, 7, and 1 day offsets correctly',
+        () async {
       final now = DateTime.now();
       final futureDate = now.add(const Duration(days: 45));
-      final dateStr = '${futureDate.year}-${futureDate.month.toString().padLeft(2, '0')}-${futureDate.day.toString().padLeft(2, '0')}';
+      final dateStr =
+          '${futureDate.year}-${futureDate.month.toString().padLeft(2, '0')}-${futureDate.day.toString().padLeft(2, '0')}';
 
       final item = TrackedItem(
         id: 'item_warranty_1',
@@ -84,9 +92,12 @@ void main() {
       }
     });
 
-    test('FreshCheck Grocery: schedules offsets and ensures zero offset due today alerts', () async {
+    test(
+        'FreshCheck Grocery: schedules offsets and ensures zero offset due today alerts',
+        () async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       final item = TrackedItem(
         id: 'item_grocery_1',
@@ -112,10 +123,13 @@ void main() {
       expect(call['body'], contains('is due today!'));
       final scheduled = call['scheduledDate'] as DateTime;
       // Must not be in the past:
-      expect(scheduled.isAfter(now.subtract(const Duration(seconds: 1))), isTrue);
+      expect(
+          scheduled.isAfter(now.subtract(const Duration(seconds: 1))), isTrue);
     });
 
-    test('DocAlert Document & Insurance: IDs are uniquely generated for multiple offsets', () {
+    test(
+        'DocAlert Document & Insurance: IDs are uniquely generated for multiple offsets',
+        () {
       final id30 = NotificationIdGenerator.generate('doc_passport', 30);
       final id7 = NotificationIdGenerator.generate('doc_passport', 7);
       final id1 = NotificationIdGenerator.generate('doc_passport', 1);

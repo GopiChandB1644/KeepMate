@@ -312,8 +312,10 @@ class SettingsPage extends StatelessWidget {
                         trailing: const Icon(Icons.play_circle_fill_rounded,
                             size: 20, color: AppColors.medicineCareColor),
                         onTap: () async {
-                          final triggerTime = DateTime.now().add(const Duration(seconds: 3));
-                          final timeStr = '${triggerTime.hour.toString().padLeft(2, '0')}:${triggerTime.minute.toString().padLeft(2, '0')}';
+                          final triggerTime =
+                              DateTime.now().add(const Duration(seconds: 3));
+                          final timeStr =
+                              '${triggerTime.hour.toString().padLeft(2, '0')}:${triggerTime.minute.toString().padLeft(2, '0')}';
                           await NativeAlarmBridge().scheduleAlarm(
                             id: 999991,
                             medicineId: 'test-alarm-diag',

@@ -14,7 +14,9 @@ void main() {
       expect(cubit.state.imageFile, isNull);
     });
 
-    test('Processing empty text file emits clean empty result without mock injection', () async {
+    test(
+        'Processing empty text file emits clean empty result without mock injection',
+        () async {
       final cubit = ScannerCubit();
       final tempFile = File('test_empty_scan.png');
       await tempFile.writeAsString('');

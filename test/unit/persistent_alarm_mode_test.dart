@@ -1,6 +1,7 @@
-import 'package:drift/drift.dart' show Value;
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart' show PendingNotificationRequest;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show PendingNotificationRequest;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:keepremind/core/database/app_database.dart';
@@ -41,7 +42,8 @@ class FakeNotificationService extends NotificationService {
   }
 
   @override
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async => [];
+  Future<List<PendingNotificationRequest>> getPendingNotifications() async =>
+      [];
 }
 
 void main() {
@@ -62,7 +64,9 @@ void main() {
   setUp(() {
     nativeMethodCalls.clear();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(const MethodChannel('com.keepremind.app/alarm_manager'), (call) async {
+        .setMockMethodCallHandler(
+            const MethodChannel('com.keepremind.app/alarm_manager'),
+            (call) async {
       nativeMethodCalls.add(call);
       switch (call.method) {
         case 'scheduleAlarm':
@@ -96,13 +100,18 @@ void main() {
 
   group('Persistent Alarm Mode & Notification Mode Tests', () {
     test('MedicineReminderMode enum parses correctly and defaults safely', () {
-      expect(MedicineReminderMode.fromCode('alarm'), MedicineReminderMode.alarm);
-      expect(MedicineReminderMode.fromCode('notification'), MedicineReminderMode.notification);
-      expect(MedicineReminderMode.fromCode('unknown'), MedicineReminderMode.notification);
-      expect(MedicineReminderMode.fromCode(null), MedicineReminderMode.notification);
+      expect(
+          MedicineReminderMode.fromCode('alarm'), MedicineReminderMode.alarm);
+      expect(MedicineReminderMode.fromCode('notification'),
+          MedicineReminderMode.notification);
+      expect(MedicineReminderMode.fromCode('unknown'),
+          MedicineReminderMode.notification);
+      expect(MedicineReminderMode.fromCode(null),
+          MedicineReminderMode.notification);
     });
 
-    test('Drift database persists Alarm Mode settings with schema version 3', () async {
+    test('Drift database persists Alarm Mode settings with schema version 3',
+        () async {
       const medId = 'med-alarm-001';
       final now = DateTime.now().toIso8601String();
 
@@ -139,7 +148,8 @@ void main() {
       expect(fetched.maximumRingingDurationMinutes, 10);
     });
 
-    test('Alarm Mode routes to NativeAlarmBridge and NOT local notifications', () async {
+    test('Alarm Mode routes to NativeAlarmBridge and NOT local notifications',
+        () async {
       const medId = 'med-alarm-002';
       final now = DateTime.now().toIso8601String();
 
@@ -172,7 +182,8 @@ void main() {
 
       expect(ids.isNotEmpty, isTrue);
       // Native Alarm Bridge must have received scheduleAlarm call
-      final scheduleCalls = nativeMethodCalls.where((c) => c.method == 'scheduleAlarm').toList();
+      final scheduleCalls =
+          nativeMethodCalls.where((c) => c.method == 'scheduleAlarm').toList();
       expect(scheduleCalls.length, 1);
       expect(scheduleCalls.first.arguments['medicineId'], medId);
       expect(scheduleCalls.first.arguments['medicineName'], 'Atorvastatin');
@@ -183,7 +194,9 @@ void main() {
       expect(fakeNotifService.scheduledNotificationIds.isEmpty, isTrue);
     });
 
-    test('Notification Mode routes to local notifications and clears any native alarm', () async {
+    test(
+        'Notification Mode routes to local notifications and clears any native alarm',
+        () async {
       const medId = 'med-notif-001';
       final now = DateTime.now().toIso8601String();
 
@@ -217,11 +230,14 @@ void main() {
       expect(fakeNotifService.scheduledNotificationIds.length, 1);
 
       // Native bridge was asked to cancel any native alarm for that ID
-      final cancelCalls = nativeMethodCalls.where((c) => c.method == 'cancelAlarm').toList();
+      final cancelCalls =
+          nativeMethodCalls.where((c) => c.method == 'cancelAlarm').toList();
       expect(cancelCalls.isNotEmpty, isTrue);
     });
 
-    test('cancelMedicineSchedules clears both notification service and native alarms', () async {
+    test(
+        'cancelMedicineSchedules clears both notification service and native alarms',
+        () async {
       const medId = 'med-cancel-001';
       final now = DateTime.now().toIso8601String();
 
@@ -254,12 +270,15 @@ void main() {
       expect(fakeNotifService.cancelledNotificationIds.length, 1);
 
       // NativeAlarmBridge cancelMedicineAlarms called
-      final cancelMedCalls = nativeMethodCalls.where((c) => c.method == 'cancelMedicineAlarms').toList();
+      final cancelMedCalls = nativeMethodCalls
+          .where((c) => c.method == 'cancelMedicineAlarms')
+          .toList();
       expect(cancelMedCalls.length, 1);
       expect(cancelMedCalls.first.arguments['medicineId'], medId);
     });
 
-    test('MedicineCubit synchronizes offline pending native alarm actions', () async {
+    test('MedicineCubit synchronizes offline pending native alarm actions',
+        () async {
       const medId = 'med-sync-001';
       final now = DateTime.now().toIso8601String();
 
@@ -287,7 +306,9 @@ void main() {
 
       // Mock pending action from native Kotlin AlarmActivity
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(const MethodChannel('com.keepremind.app/alarm_manager'), (call) async {
+          .setMockMethodCallHandler(
+              const MethodChannel('com.keepremind.app/alarm_manager'),
+              (call) async {
         if (call.method == 'getPendingAlarmActions') {
           return [
             {
@@ -314,6 +335,108 @@ void main() {
       expect(takenDose.status, DoseStatus.taken);
 
       await cubit.close();
+    });
+
+    test(
+        'Completed medicine (past end date) cancels alerts and skips scheduling',
+        () async {
+      const medId = 'med-completed-001';
+      final now = DateTime.now().toIso8601String();
+
+      await repo.saveMedicine(
+        medicine: MedicinesCompanion.insert(
+          id: medId,
+          name: 'Antibiotic Course Completed',
+          medicineType: 'capsule',
+          dosage: '250 mg',
+          instructions: 'after_food',
+          startDate: '2026-11-01',
+          endDate: const Value('2026-11-10'), // Ended in the past
+          reminderMode: const Value('alarm'),
+          createdAt: now,
+          updatedAt: now,
+        ),
+        schedules: [
+          MedicineSchedulesCompanion.insert(
+            id: 'sched-completed-001',
+            medicineId: medId,
+            doseTime: '08:00',
+            createdAt: now,
+          ),
+        ],
+      );
+
+      final med = (await repo.getMedicineById(medId))!;
+      final ids = await medicineNotifService.scheduleMedicineSchedules(med);
+
+      // Should skip scheduling any future alarms
+      expect(ids.isEmpty, isTrue);
+    });
+
+    test('Disabled schedule does not register alarm or notification', () async {
+      const medId = 'med-disabled-001';
+      final now = DateTime.now().toIso8601String();
+
+      await repo.saveMedicine(
+        medicine: MedicinesCompanion.insert(
+          id: medId,
+          name: 'Vitamin D',
+          medicineType: 'tablet',
+          dosage: '1000 IU',
+          instructions: 'with_food',
+          startDate: '2026-11-15',
+          reminderMode: const Value('alarm'),
+          createdAt: now,
+          updatedAt: now,
+        ),
+        schedules: [
+          MedicineSchedulesCompanion.insert(
+            id: 'sched-disabled-001',
+            medicineId: medId,
+            doseTime: '10:00',
+            reminderEnabled: const Value(false), // Disabled
+            createdAt: now,
+          ),
+        ],
+      );
+
+      final med = (await repo.getMedicineById(medId))!;
+      final ids = await medicineNotifService.scheduleMedicineSchedules(med);
+
+      expect(ids.isEmpty, isTrue);
+    });
+
+    test(
+        'Duplicate dose recordings update in place and never insert duplicate rows',
+        () async {
+      const medId = 'med-dup-check';
+      const scheduledDate = '2026-11-15';
+      const doseTime = '08:00';
+
+      // Record first taken
+      await repo.recordDoseAction(
+        medicineId: medId,
+        scheduledDate: scheduledDate,
+        scheduledTime: doseTime,
+        status: DoseStatus.taken,
+      );
+
+      // Record second taken for same dose
+      await repo.recordDoseAction(
+        medicineId: medId,
+        scheduledDate: scheduledDate,
+        scheduledTime: doseTime,
+        status: DoseStatus.taken,
+      );
+
+      final count = await (db.select(db.medicineDoseLogs)
+            ..where((t) =>
+                t.medicineId.equals(medId) &
+                t.scheduledDate.equals(scheduledDate) &
+                t.scheduledTime.equals(doseTime)))
+          .get();
+
+      expect(count.length, 1);
     });
   });
 }

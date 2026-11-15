@@ -28,9 +28,11 @@ void main() {
   });
 
   group('Storage Cleanup & File Deletion Tests', () {
-    final storage = LocalFileStorage(integrityService: const DocumentIntegrityService());
+    final storage =
+        LocalFileStorage(integrityService: const DocumentIntegrityService());
 
-    test('LocalFileStorage saves file and deletes file by relative path', () async {
+    test('LocalFileStorage saves file and deletes file by relative path',
+        () async {
       final tempSource = File('test_source_file.txt');
       await tempSource.writeAsString('KeepRemind test document content');
 
@@ -39,7 +41,8 @@ void main() {
         expect(metadata.fileName, equals('test_source_file.txt'));
         expect(metadata.fileSize, greaterThan(0));
 
-        final diskFile = await FilePathResolver.resolveRelativePath(metadata.relativePath);
+        final diskFile =
+            await FilePathResolver.resolveRelativePath(metadata.relativePath);
         expect(await diskFile.exists(), isTrue);
 
         final deleted = await storage.deleteFile(metadata.relativePath);
@@ -50,7 +53,8 @@ void main() {
       }
     });
 
-    test('purgeOrphanedFiles deletes unreferenced files and keeps active ones', () async {
+    test('purgeOrphanedFiles deletes unreferenced files and keeps active ones',
+        () async {
       final file1 = File('test_active.txt');
       final file2 = File('test_orphan.txt');
       await file1.writeAsString('Active file');
@@ -65,8 +69,10 @@ void main() {
 
         expect(freedBytes, greaterThan(0));
 
-        final disk1 = await FilePathResolver.resolveRelativePath(meta1.relativePath);
-        final disk2 = await FilePathResolver.resolveRelativePath(meta2.relativePath);
+        final disk1 =
+            await FilePathResolver.resolveRelativePath(meta1.relativePath);
+        final disk2 =
+            await FilePathResolver.resolveRelativePath(meta2.relativePath);
 
         expect(await disk1.exists(), isTrue);
         expect(await disk2.exists(), isFalse);

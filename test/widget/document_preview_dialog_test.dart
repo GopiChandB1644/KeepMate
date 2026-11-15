@@ -8,7 +8,8 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Renders PDF view mode with Open/Share button', (tester) async {
-    final tempPdf = File('${Directory.systemTemp.path}/test_mock_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    final tempPdf = File(
+        '${Directory.systemTemp.path}/test_mock_${DateTime.now().millisecondsSinceEpoch}.pdf');
     tempPdf.writeAsStringSync('%PDF-1.4 mock content');
 
     final mockDoc = ItemDocument(

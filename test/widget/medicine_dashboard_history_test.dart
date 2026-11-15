@@ -51,13 +51,16 @@ void main() {
   }
 
   group('Phase 4: Daily Dashboard & Dose Log Tests', () {
-    testWidgets('TodaySchedulePage displays next dose hero card, counters, and dose items', (tester) async {
+    testWidgets(
+        'TodaySchedulePage displays next dose hero card, counters, and dose items',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await tester.runAsync(() async {
         await cubit.saveMedicine(
@@ -88,11 +91,13 @@ void main() {
 
       // Hero banner
       expect(find.text('NEXT DOSE'), findsOneWidget);
-      expect(find.text('Metformin'), findsNWidgets(2)); // in hero card and in dose list
+      expect(find.text('Metformin'),
+          findsNWidgets(2)); // in hero card and in dose list
       expect(find.text('Mark Taken'), findsOneWidget);
 
       // Counters strip
-      expect(find.text('Taken'), findsNWidgets(2)); // in stats row & in list card header
+      expect(find.text('Taken'),
+          findsNWidgets(2)); // in stats row & in list card header
       expect(find.text('Pending'), findsOneWidget);
       expect(find.text('Skipped'), findsOneWidget);
       expect(find.text('Unconfirmed'), findsOneWidget);
@@ -106,13 +111,15 @@ void main() {
       expect(find.textContaining('Confirmed at'), findsOneWidget);
     });
 
-    testWidgets('Marking dose skipped displays skip reason on schedule card', (tester) async {
+    testWidgets('Marking dose skipped displays skip reason on schedule card',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await tester.runAsync(() async {
         await cubit.saveMedicine(
@@ -156,7 +163,8 @@ void main() {
 
       // Mark dose skipped via cubit with reason
       await tester.runAsync(() async {
-        await cubit.markDoseSkipped(cubit.state.todayDoses.first, reason: 'Fasting');
+        await cubit.markDoseSkipped(cubit.state.todayDoses.first,
+            reason: 'Fasting');
       });
       await tester.pumpAndSettle();
 
@@ -164,13 +172,15 @@ void main() {
       expect(find.text('Reason: Fasting'), findsOneWidget);
     });
 
-    testWidgets('MedicineHistoryPage renders adherence rate and filter chips', (tester) async {
+    testWidgets('MedicineHistoryPage renders adherence rate and filter chips',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       // Save medicine & history
       await tester.runAsync(() async {
@@ -210,7 +220,8 @@ void main() {
         historyList = await repo.getAllDoseHistory();
       });
 
-      await tester.pumpWidget(buildTestableHistoryPage(future: Future.value(historyList)));
+      await tester.pumpWidget(
+          buildTestableHistoryPage(future: Future.value(historyList)));
       await tester.pumpAndSettle();
 
       // Adherence header

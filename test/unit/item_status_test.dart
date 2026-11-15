@@ -30,13 +30,15 @@ void main() {
 
     test('Explicit completed flag overrides date to completed', () {
       final pastDate = DateTime.now().subtract(const Duration(days: 10));
-      final status = AppDateUtils.deriveStatus(targetDate: pastDate, isCompleted: true);
+      final status =
+          AppDateUtils.deriveStatus(targetDate: pastDate, isCompleted: true);
       expect(status, equals(ItemStatus.completed));
     });
 
     test('Explicit consumed flag overrides date to consumed', () {
       final pastDate = DateTime.now().subtract(const Duration(days: 5));
-      final status = AppDateUtils.deriveStatus(targetDate: pastDate, isConsumed: true);
+      final status =
+          AppDateUtils.deriveStatus(targetDate: pastDate, isConsumed: true);
       expect(status, equals(ItemStatus.consumed));
     });
 
@@ -50,4 +52,3 @@ void main() {
     });
   });
 }
-

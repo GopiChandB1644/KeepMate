@@ -32,8 +32,10 @@ void main() {
     });
 
     test('ThemeMode.system resolves according to platform brightness', () {
-      expect(AppColors.computeIsDark(ThemeMode.system, Brightness.light), isFalse);
-      expect(AppColors.computeIsDark(ThemeMode.system, Brightness.dark), isTrue);
+      expect(
+          AppColors.computeIsDark(ThemeMode.system, Brightness.light), isFalse);
+      expect(
+          AppColors.computeIsDark(ThemeMode.system, Brightness.dark), isTrue);
 
       AppColors.updateTheme(ThemeMode.system, Brightness.dark);
       expect(AppColors.isDark, isTrue);
@@ -45,4 +47,3 @@ void main() {
     });
   });
 }
-

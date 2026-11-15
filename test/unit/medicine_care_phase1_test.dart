@@ -23,7 +23,8 @@ void main() {
   group('Phase 1: MedicineCare Repository Tests', () {
     test('Save and retrieve medicine with multiple schedules', () async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await repo.saveMedicine(
         medicine: MedicinesCompanion(
@@ -66,9 +67,12 @@ void main() {
       expect(meds.first.schedules[1].doseTime, '20:00');
     });
 
-    test('getDosesForDate derives pending doses and allows recording taken and skipped', () async {
+    test(
+        'getDosesForDate derives pending doses and allows recording taken and skipped',
+        () async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await repo.saveMedicine(
         medicine: MedicinesCompanion(
@@ -154,9 +158,12 @@ void main() {
   });
 
   group('Phase 1: MedicineCubit Tests', () {
-    test('MedicineCubit initializes, loads doses, and updates adherence metrics', () async {
+    test(
+        'MedicineCubit initializes, loads doses, and updates adherence metrics',
+        () async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await repo.saveMedicine(
         medicine: MedicinesCompanion(

@@ -36,7 +36,9 @@ void main() {
   }
 
   group('Phase 3: Add Medicine & Reminder Flow Tests', () {
-    testWidgets('AddEditMedicinePage renders all prescribed scheduling fields and safety disclaimer', (tester) async {
+    testWidgets(
+        'AddEditMedicinePage renders all prescribed scheduling fields and safety disclaimer',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -49,7 +51,8 @@ void main() {
       expect(find.text('Prescribed timings & reminder setup'), findsOneWidget);
 
       // Safety Disclaimer Banner
-      expect(find.textContaining('Please follow your doctor\'s prescription'), findsOneWidget);
+      expect(find.textContaining('Please follow your doctor\'s prescription'),
+          findsOneWidget);
 
       // Form fields
       expect(find.text('Medicine Name *'), findsOneWidget);
@@ -73,7 +76,9 @@ void main() {
       expect(find.text('Save Medicine Schedule'), findsOneWidget);
     });
 
-    testWidgets('Validation triggers error message when submitting empty medicine name', (tester) async {
+    testWidgets(
+        'Validation triggers error message when submitting empty medicine name',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -100,9 +105,12 @@ void main() {
       expect(find.text('40 mg'), findsOneWidget);
     });
 
-    test('MedicineCubit saves medicine with schedules into database and updates state', () async {
+    test(
+        'MedicineCubit saves medicine with schedules into database and updates state',
+        () async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await cubit.saveMedicine(
         medicine: MedicinesCompanion(
@@ -136,7 +144,9 @@ void main() {
       expect(meds.first.schedules.first.doseTime, '07:30');
     });
 
-    test('MedicineNotificationService generates deterministic IDs and action payloads', () {
+    test(
+        'MedicineNotificationService generates deterministic IDs and action payloads',
+        () {
       final notifService = MedicineNotificationService();
       final id1 = notifService.generateNotificationId('med_123', '08:00');
       final id2 = notifService.generateNotificationId('med_123', '08:00');

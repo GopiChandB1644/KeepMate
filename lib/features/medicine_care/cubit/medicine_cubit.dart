@@ -57,7 +57,11 @@ class MedicineCubit extends Cubit<MedicineState> {
     syncPendingNativeActions();
   }
 
+  bool _isSyncingPendingActions = false;
+
   Future<void> syncPendingNativeActions() async {
+    if (_isSyncingPendingActions) return;
+    _isSyncingPendingActions = true;
     try {
       final actions = await NativeAlarmBridge().getPendingAlarmActions();
       for (final item in actions) {
@@ -87,6 +91,8 @@ class MedicineCubit extends Cubit<MedicineState> {
       }
     } catch (e) {
       debugPrint('[MedicineCubit] syncPendingNativeActions error: $e');
+    } finally {
+      _isSyncingPendingActions = false;
     }
   }
 

@@ -29,10 +29,13 @@ class MockTabbedItemRepository implements ItemRepository {
 
   @override
   Stream<List<TrackedItemEntity>> watchItemsByCategory(ItemCategory category) =>
-      _controller.stream.map((list) => list.where((i) => i.category == category).toList());
+      _controller.stream
+          .map((list) => list.where((i) => i.category == category).toList());
 
   @override
-  Future<List<TrackedItemEntity>> getItemsByCategory(ItemCategory category) async => [];
+  Future<List<TrackedItemEntity>> getItemsByCategory(
+          ItemCategory category) async =>
+      [];
 
   @override
   Future<TrackedItemEntity?> getItemById(String id) async => null;
@@ -81,7 +84,8 @@ class MockTabbedItemRepository implements ItemRepository {
     String? newDocumentNumber,
     double? newAmount,
     List<ItemDocumentsCompanion>? newDocuments,
-  }) async => 'renewed-id';
+  }) async =>
+      'renewed-id';
 
   @override
   Future<List<TrackedItemEntity>> searchItems(String query) async => [];
@@ -129,7 +133,8 @@ void main() {
   }
 
   group('Phase 2: Home Screen Tab Integration Tests', () {
-    testWidgets('Top segmented bar renders 4 tabs including MedicineCare', (tester) async {
+    testWidgets('Top segmented bar renders 4 tabs including MedicineCare',
+        (tester) async {
       await tester.pumpWidget(buildTestableHome());
       await tester.pumpAndSettle();
 
@@ -139,7 +144,9 @@ void main() {
       expect(find.text('MedicineCare'), findsOneWidget);
     });
 
-    testWidgets('Switching to MedicineCare tab updates header, 2x2 cards, counters, and FAB', (tester) async {
+    testWidgets(
+        'Switching to MedicineCare tab updates header, 2x2 cards, counters, and FAB',
+        (tester) async {
       await tester.pumpWidget(buildTestableHome());
       await tester.pumpAndSettle();
 
@@ -149,7 +156,8 @@ void main() {
 
       // Section header should now be MedicineCare
       expect(find.text('MedicineCare'), findsNWidgets(2)); // pill + header
-      expect(find.text('MEDICINE SCHEDULES & FAMILY REMINDERS'), findsOneWidget);
+      expect(
+          find.text('MEDICINE SCHEDULES & FAMILY REMINDERS'), findsOneWidget);
 
       // 4 Feature Cards for MedicineCare
       expect(find.text("Today's Doses"), findsOneWidget);
@@ -170,9 +178,12 @@ void main() {
       expect(find.text('+ Add Medicine'), findsOneWidget);
     });
 
-    testWidgets('Scheduled dose renders Next Dose Hero Banner and allows one-tap Take Dose', (tester) async {
+    testWidgets(
+        'Scheduled dose renders Next Dose Hero Banner and allows one-tap Take Dose',
+        (tester) async {
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       // Seed a medicine with evening schedule via runAsync for native DB executor
       await tester.runAsync(() async {

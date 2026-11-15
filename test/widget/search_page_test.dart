@@ -40,15 +40,18 @@ class FakeItemRepository implements ItemRepository {
 
   @override
   Stream<List<TrackedItemEntity>> watchItemsByCategory(ItemCategory category) =>
-      _controller.stream.map((list) => list.where((i) => i.category == category).toList());
+      _controller.stream
+          .map((list) => list.where((i) => i.category == category).toList());
 
   @override
-  Future<List<TrackedItemEntity>> getItemsByCategory(ItemCategory category) async =>
+  Future<List<TrackedItemEntity>> getItemsByCategory(
+          ItemCategory category) async =>
       _items.where((i) => i.category == category).toList();
 
   @override
-  Future<TrackedItemEntity?> getItemById(String id) async =>
-      _items.cast<TrackedItemEntity?>().firstWhere((i) => i?.id == id, orElse: () => null);
+  Future<TrackedItemEntity?> getItemById(String id) async => _items
+      .cast<TrackedItemEntity?>()
+      .firstWhere((i) => i?.id == id, orElse: () => null);
 
   @override
   Future<void> addItem({
@@ -94,7 +97,8 @@ class FakeItemRepository implements ItemRepository {
     String? newDocumentNumber,
     double? newAmount,
     List<ItemDocumentsCompanion>? newDocuments,
-  }) async => 'new-item-id';
+  }) async =>
+      'new-item-id';
 
   @override
   Future<List<TrackedItemEntity>> searchItems(String query) async => _items;
@@ -117,7 +121,8 @@ void main() {
         subcategory: 'bill',
         title: 'Electricity Bill - BESCOM',
         description: 'Monthly office utility power bill',
-        dueDate: now.add(const Duration(days: 2)).toIso8601String().split('T').first,
+        dueDate:
+            now.add(const Duration(days: 2)).toIso8601String().split('T').first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -138,7 +143,8 @@ void main() {
         subcategory: 'grocery',
         title: 'Organic Almond Milk',
         description: 'Refrigerated pantry dairy item',
-        expiryDate: now.add(const Duration(days: 5)).toIso8601String().split('T').first,
+        expiryDate:
+            now.add(const Duration(days: 5)).toIso8601String().split('T').first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -159,7 +165,11 @@ void main() {
         subcategory: 'identity_doc',
         title: 'Driving Licence (DL-9988)',
         description: 'Smart card driving licence',
-        expiryDate: now.add(const Duration(days: 365)).toIso8601String().split('T').first,
+        expiryDate: now
+            .add(const Duration(days: 365))
+            .toIso8601String()
+            .split('T')
+            .first,
         status: 'active',
         metadataJson: '{}',
         createdAt: now.toIso8601String(),
@@ -208,7 +218,8 @@ void main() {
   }
 
   group('HomePage Search Icon & Layout Tests', () {
-    testWidgets('HomePage AppBar has search icon and no add button in AppBar', (tester) async {
+    testWidgets('HomePage AppBar has search icon and no add button in AppBar',
+        (tester) async {
       await tester.pumpWidget(buildTestableWidget(child: const HomePage()));
       await tester.pumpAndSettle();
 
@@ -236,7 +247,8 @@ void main() {
       expect(find.text('LifePocket Items (1)'), findsOneWidget);
     });
 
-    testWidgets('Tapping search icon navigates to SearchPage via router', (tester) async {
+    testWidgets('Tapping search icon navigates to SearchPage via router',
+        (tester) async {
       final router = GoRouter(
         initialLocation: AppRoutes.home,
         routes: [
@@ -269,14 +281,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should now be on SearchPage
-      expect(find.text('Find bills, warranties, groceries & docs'), findsOneWidget);
+      expect(find.text('Find bills, warranties, groceries & docs'),
+          findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('All Items'), findsOneWidget);
     });
   });
 
   group('SearchPage Dedicated Screen Tests', () {
-    testWidgets('SearchPage displays back button, search box, and category filters', (tester) async {
+    testWidgets(
+        'SearchPage displays back button, search box, and category filters',
+        (tester) async {
       await tester.pumpWidget(buildTestableWidget(child: const SearchPage()));
       await tester.pumpAndSettle();
 
@@ -284,7 +299,8 @@ void main() {
       expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
 
       // Search box with hint
-      expect(find.text('Search by item name, provider, or DL/doc number...'), findsOneWidget);
+      expect(find.text('Search by item name, provider, or DL/doc number...'),
+          findsOneWidget);
 
       // Filter chips
       expect(find.text('All Items'), findsOneWidget);
@@ -299,7 +315,8 @@ void main() {
       expect(find.text('Driving Licence (DL-9988)'), findsOneWidget);
     });
 
-    testWidgets('Searching by text filters results in real time', (tester) async {
+    testWidgets('Searching by text filters results in real time',
+        (tester) async {
       await tester.pumpWidget(buildTestableWidget(child: const SearchPage()));
       await tester.pumpAndSettle();
 
@@ -342,7 +359,9 @@ void main() {
       expect(find.text('Driving Licence (DL-9988)'), findsNothing);
     });
 
-    testWidgets('Empty search shows clean EmptyStateView with Clear Search button', (tester) async {
+    testWidgets(
+        'Empty search shows clean EmptyStateView with Clear Search button',
+        (tester) async {
       await tester.pumpWidget(buildTestableWidget(child: const SearchPage()));
       await tester.pumpAndSettle();
 
@@ -365,13 +384,15 @@ void main() {
   });
 
   group('SettingsPage Urgency Status Banner Tests', () {
-    testWidgets('SettingsPage renders status banner with safe state', (tester) async {
+    testWidgets('SettingsPage renders status banner with safe state',
+        (tester) async {
       final safeRepo = FakeItemRepository([]);
       final safeCubit = ItemsCubit(repository: safeRepo);
       final db = AppDatabase(NativeDatabase.memory());
       final settingsCubit = SettingsCubit(
         database: db,
-        fileStorage: LocalFileStorage(integrityService: const DocumentIntegrityService()),
+        fileStorage: LocalFileStorage(
+            integrityService: const DocumentIntegrityService()),
       );
 
       await tester.pumpWidget(
@@ -397,7 +418,8 @@ void main() {
       await db.close();
     });
 
-    testWidgets('SettingsPage renders urgent alert when items need attention', (tester) async {
+    testWidgets('SettingsPage renders urgent alert when items need attention',
+        (tester) async {
       final urgentItems = [
         TrackedItemEntity(
           baseItem: TrackedItem(
@@ -419,7 +441,8 @@ void main() {
       final db = AppDatabase(NativeDatabase.memory());
       final settingsCubit = SettingsCubit(
         database: db,
-        fileStorage: LocalFileStorage(integrityService: const DocumentIntegrityService()),
+        fileStorage: LocalFileStorage(
+            integrityService: const DocumentIntegrityService()),
       );
 
       await tester.pumpWidget(
@@ -436,7 +459,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('1 Items Need Attention'), findsOneWidget);
-      expect(find.text('Due today or upcoming in the next 7 days.'), findsOneWidget);
+      expect(find.text('Due today or upcoming in the next 7 days.'),
+          findsOneWidget);
 
       urgentCubit.close();
       urgentRepo.dispose();

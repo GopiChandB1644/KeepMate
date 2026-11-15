@@ -27,26 +27,10 @@ class KeepRemindAlarmReceiver : BroadcastReceiver() {
         }
 
         val storage = KeepRemindAlarmStorage(context)
-        var alarm = storage.getAlarm(alarmId)
+        val alarm = storage.getAlarm(alarmId)
         if (alarm == null) {
-            val medName = intent.getStringExtra(KeepRemindAlarmService.EXTRA_MEDICINE_NAME)
-            if (!medName.isNullOrEmpty()) {
-                alarm = KeepRemindAlarmModel(
-                    id = alarmId,
-                    medicineId = intent.getStringExtra(KeepRemindAlarmService.EXTRA_MEDICINE_ID) ?: "",
-                    medicineName = medName,
-                    dosage = intent.getStringExtra(KeepRemindAlarmService.EXTRA_DOSAGE) ?: "",
-                    mealInstruction = intent.getStringExtra(KeepRemindAlarmService.EXTRA_MEAL_INSTRUCTION) ?: "",
-                    doseTime = intent.getStringExtra(KeepRemindAlarmService.EXTRA_DOSE_TIME) ?: "08:00",
-                    triggerTimestamp = System.currentTimeMillis(),
-                    snoozeMinutes = intent.getIntExtra(KeepRemindAlarmService.EXTRA_SNOOZE_MINUTES, 5),
-                    maxDurationMinutes = intent.getIntExtra(KeepRemindAlarmService.EXTRA_MAX_DURATION_MINUTES, 10),
-                    vibrationEnabled = intent.getBooleanExtra(KeepRemindAlarmService.EXTRA_VIBRATION, true)
-                )
-            } else {
-                Log.w(TAG, "Alarm with ID $alarmId was not found in storage (cancelled or deleted). Skipping.")
-                return
-            }
+            Log.w(TAG, "Alarm with ID $alarmId is not active in storage (cancelled, deleted, or completed). Skipping.")
+            return
         }
 
         Log.d(TAG, "Alarm validated for medicine: ${alarm.medicineName} (${alarm.medicineId}) at ${alarm.doseTime}")

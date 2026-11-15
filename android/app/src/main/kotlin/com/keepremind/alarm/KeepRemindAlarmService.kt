@@ -94,12 +94,7 @@ class KeepRemindAlarmService : Service() {
             // 1. Build and show Foreground Notification with Full Screen Intent
             val notification = buildAlarmNotification()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val serviceType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-                } else {
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_NONE
-                }
-                startForeground(NOTIFICATION_ID, notification, serviceType)
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
             } else {
                 startForeground(NOTIFICATION_ID, notification)
             }
@@ -269,10 +264,24 @@ class KeepRemindAlarmService : Service() {
         }
     }
 
+    private fun releaseWakeLock() {
+        try {
+            if (wakeLock?.isHeld == true) {
+                wakeLock?.release()
+                Log.d(TAG, "WakeLock released")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error releasing wakeLock", e)
+        } finally {
+            wakeLock = null
+        }
+    }
+
     private fun stopAlarm() {
         Log.d(TAG, "Stopping KeepRemindAlarmService")
         timeoutRunnable?.let { handler.removeCallbacks(it) }
         audioPlayer?.stop()
+        releaseWakeLock()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
         } else {
@@ -282,8 +291,11 @@ class KeepRemindAlarmService : Service() {
         isRunning = false
         stopSelf()
 
-        // Inform any running activity to close
-        sendBroadcast(Intent("com.keepremind.alarm.ALARM_STOPPED"))
+        // Inform any running activity to close (package-private broadcast)
+        val stopIntent = Intent("com.keepremind.alarm.ALARM_STOPPED").apply {
+            setPackage(packageName)
+        }
+        sendBroadcast(stopIntent)
     }
 
     override fun onDestroy() {
@@ -291,13 +303,7 @@ class KeepRemindAlarmService : Service() {
         Log.d(TAG, "KeepRemindAlarmService onDestroy")
         timeoutRunnable?.let { handler.removeCallbacks(it) }
         audioPlayer?.stop()
-        try {
-            if (wakeLock?.isHeld == true) {
-                wakeLock?.release()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error releasing wakeLock", e)
-        }
+        releaseWakeLock()
         isRunning = false
     }
 

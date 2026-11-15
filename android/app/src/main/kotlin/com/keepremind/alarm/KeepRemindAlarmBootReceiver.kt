@@ -15,23 +15,50 @@ class KeepRemindAlarmBootReceiver : BroadcastReceiver() {
         val action = intent.action
         Log.d(TAG, "KeepRemindAlarmBootReceiver received action: $action")
 
-        if (action != Intent.ACTION_BOOT_COMPLETED &&
-            action != Intent.ACTION_MY_PACKAGE_REPLACED &&
-            action != "android.intent.action.QUICKBOOT_POWERON" &&
-            action != "com.htc.intent.action.QUICKBOOT_POWERON") {
+        val validActions = setOf(
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_TIME_CHANGED,
+            "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED",
+            "android.intent.action.QUICKBOOT_POWERON",
+            "com.htc.intent.action.QUICKBOOT_POWERON"
+        )
+
+        if (action !in validActions) {
             return
         }
 
         val storage = KeepRemindAlarmStorage(context)
         val allAlarms = storage.getAllAlarms()
-        Log.d(TAG, "Reboot recovery started: ${allAlarms.size} stored alarm(s) found")
+        Log.d(TAG, "System event recovery triggered ($action): ${allAlarms.size} stored alarm(s) found")
 
         val now = System.currentTimeMillis()
         var recoveredCount = 0
+        val isTimeOrTzChange = action == Intent.ACTION_TIMEZONE_CHANGED || action == Intent.ACTION_TIME_CHANGED
 
         for (alarm in allAlarms) {
             try {
-                if (alarm.triggerTimestamp > now) {
+                if (isTimeOrTzChange && !alarm.isSnooze) {
+                    // Recalculate trigger timestamp in new timezone/clock
+                    val parts = alarm.doseTime.split(":")
+                    if (parts.size == 2) {
+                        val cal = Calendar.getInstance().apply {
+                            set(Calendar.HOUR_OF_DAY, parts[0].toInt())
+                            set(Calendar.MINUTE, parts[1].toInt())
+                            set(Calendar.SECOND, 0)
+                            set(Calendar.MILLISECOND, 0)
+                        }
+                        if (cal.timeInMillis <= now) {
+                            cal.add(Calendar.DAY_OF_YEAR, 1)
+                        }
+                        val updated = alarm.copy(triggerTimestamp = cal.timeInMillis)
+                        storage.saveAlarm(updated)
+                        KeepRemindAlarmScheduler.scheduleWithAlarmManager(context, updated)
+                        recoveredCount++
+                        Log.d(TAG, "Recalculated alarm ID ${alarm.id} for new time/tz: ${cal.time}")
+                    }
+                } else if (alarm.triggerTimestamp > now) {
                     // Future alarm: re-schedule as is
                     KeepRemindAlarmScheduler.scheduleWithAlarmManager(context, alarm)
                     recoveredCount++
@@ -64,6 +91,6 @@ class KeepRemindAlarmBootReceiver : BroadcastReceiver() {
             }
         }
 
-        Log.d(TAG, "Reboot recovery complete: $recoveredCount alarm(s) successfully re-registered.")
+        Log.d(TAG, "System event recovery complete: $recoveredCount alarm(s) successfully processed.")
     }
 }

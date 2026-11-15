@@ -110,6 +110,26 @@ class MedicineNotificationService {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
 
+      // If medicine has an end date and this occurrence is past the end date, skip (completed)
+      if (medicine.endDate != null) {
+        final parsedEnd = DateTime.tryParse(medicine.endDate!);
+        if (parsedEnd != null) {
+          final endOfDay = DateTime(
+            parsedEnd.year,
+            parsedEnd.month,
+            parsedEnd.day,
+            23,
+            59,
+            59,
+          );
+          if (scheduledDate.isAfter(endOfDay)) {
+            await _notificationService.cancel(notifId);
+            await _nativeAlarmBridge.cancelAlarm(notifId);
+            continue;
+          }
+        }
+      }
+
       if (medicine.reminderMode == MedicineReminderMode.alarm) {
         // ALARM MODE: Use native Android AlarmManager for continuous ringing & full-screen UI
         // Ensure no duplicate standard notification is scheduled

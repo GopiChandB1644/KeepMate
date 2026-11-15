@@ -39,7 +39,9 @@ void main() {
   }
 
   group('Phase 5: Family Caregiver & Voice Extension Tests', () {
-    testWidgets('CaregiverContactsPage displays empty state when no caregivers are linked', (tester) async {
+    testWidgets(
+        'CaregiverContactsPage displays empty state when no caregivers are linked',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -49,10 +51,15 @@ void main() {
 
       expect(find.text('Family & Caregiver Support'), findsOneWidget);
       expect(find.text('No caregivers linked'), findsOneWidget);
-      expect(find.text('Caregivers receive respectful "Dose not confirmed" notices rather than assuming a dose was missed. Privacy is strictly protected.'), findsOneWidget);
+      expect(
+          find.text(
+              'Caregivers receive respectful "Dose not confirmed" notices rather than assuming a dose was missed. Privacy is strictly protected.'),
+          findsOneWidget);
     });
 
-    testWidgets('Adding caregiver through dialog saves contact and renders card with grace period', (tester) async {
+    testWidgets(
+        'Adding caregiver through dialog saves contact and renders card with grace period',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
@@ -95,13 +102,16 @@ void main() {
       expect(find.text('Alerts after 45 mins grace period'), findsOneWidget);
     });
 
-    testWidgets('Unconfirmed doses section renders non-accusatory warning and details', (tester) async {
+    testWidgets(
+        'Unconfirmed doses section renders non-accusatory warning and details',
+        (tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(() => tester.view.resetPhysicalSize());
 
       final now = DateTime.now();
-      final todayStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+      final todayStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
       await tester.runAsync(() async {
         // Save medicine
@@ -144,12 +154,17 @@ void main() {
 
       // Verify unconfirmed dose banner is shown
       expect(find.text('Unconfirmed Doses (1)'), findsOneWidget);
-      expect(find.text('The following doses passed the grace period without confirmation:'), findsOneWidget);
+      expect(
+          find.text(
+              'The following doses passed the grace period without confirmation:'),
+          findsOneWidget);
       expect(find.text('Aspirin (08:00)'), findsOneWidget);
       expect(find.text('Dose not confirmed'), findsOneWidget);
     });
 
-    test('MedicineVoiceService provides accurate multilingual text in Telugu, Hindi, English', () {
+    test(
+        'MedicineVoiceService provides accurate multilingual text in Telugu, Hindi, English',
+        () {
       const voiceService = MedicineVoiceService();
 
       // Telugu
@@ -183,8 +198,10 @@ void main() {
         instruction: MealInstruction.afterFood,
         language: MedicineVoiceLanguage.english,
       );
-      expect(englishText, contains('Time for your medicine: Amoxicillin, 250 mg after food'));
-      expect(englishText, contains('Please take according to your prescription'));
+      expect(englishText,
+          contains('Time for your medicine: Amoxicillin, 250 mg after food'));
+      expect(
+          englishText, contains('Please take according to your prescription'));
 
       // Respectful Caregiver Notice (Non-accusatory)
       final alertMsg = voiceService.getCaregiverAlertMessage(
@@ -197,7 +214,10 @@ void main() {
       expect(alertMsg, contains('Medication Update: Dose not confirmed'));
       expect(alertMsg, contains('past 30 mins grace period'));
       expect(alertMsg, contains('Please check gently with Father'));
-      expect(alertMsg, contains('A missed notification is not proof that medicine was not taken'));
+      expect(
+          alertMsg,
+          contains(
+              'A missed notification is not proof that medicine was not taken'));
     });
   });
 }
