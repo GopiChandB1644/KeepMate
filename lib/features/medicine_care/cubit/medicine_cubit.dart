@@ -122,6 +122,14 @@ class MedicineCubit extends Cubit<MedicineState> {
     required MedicinesCompanion medicine,
     required List<MedicineSchedulesCompanion> schedules,
   }) async {
+    // If medicine already exists (editing), cancel previous notification schedules first
+    if (notificationService != null) {
+      final existingMed = await repository.getMedicineById(medicine.id.value);
+      if (existingMed != null) {
+        await notificationService!.cancelMedicineSchedules(existingMed.id, existingMed.schedules);
+      }
+    }
+
     await repository.saveMedicine(medicine: medicine, schedules: schedules);
     if (notificationService != null) {
       final savedMed = await repository.getMedicineById(medicine.id.value);

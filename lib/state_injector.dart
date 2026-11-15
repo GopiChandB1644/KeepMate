@@ -60,7 +60,7 @@ class AppStateInjector {
     );
 
     final medicineRepo = MedicineRepositoryImpl(db: database);
-    final medicineNotifications = MedicineNotificationService();
+    final medicineNotifications = MedicineNotificationService(notificationService: notificationService);
 
     return [
       RepositoryProvider<AppDatabase>.value(value: database),

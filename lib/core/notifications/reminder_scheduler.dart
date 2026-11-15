@@ -53,13 +53,24 @@ class ReminderScheduler {
     final targetDate = AppDateUtils.parseDateOnly(targetDateStr);
     if (targetDate == null) return;
 
+    final now = DateTime.now();
+
     for (final offset in offsetDaysList) {
       final notifId = NotificationIdGenerator.generate(item.id, offset);
-      final triggerAt = calculateReminderDateTime(
+      var triggerAt = calculateReminderDateTime(
         targetDate: targetDate,
         offsetDays: offset,
         preferredTime: reminderTime,
       );
+
+      // If the reminder is for today (offset == 0) and the morning preferred time has already passed,
+      // schedule an immediate alert (e.g. 15 seconds from now) so the user gets notified today!
+      if (offset == 0 && triggerAt.isBefore(now)) {
+        final isToday = targetDate.year == now.year && targetDate.month == now.month && targetDate.day == now.day;
+        if (isToday) {
+          triggerAt = now.add(const Duration(seconds: 15));
+        }
+      }
 
       final offsetText = offset == 0
           ? 'is due today!'

@@ -270,6 +270,10 @@ class ItemRepositoryImpl implements ItemRepository {
           eventDataJson: Value('{"status": "${status.label}"}'),
           eventAt: DateTime.now().toUtc().toIso8601String(),
         ));
+
+    if (status == ItemStatus.consumed || status == ItemStatus.completed || status == ItemStatus.archived) {
+      await reminderScheduler.cancelForItem(itemId: id, offsetDaysList: [30, 7, 3, 2, 1, 0]);
+    }
   }
 
   @override

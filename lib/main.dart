@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -9,25 +10,23 @@ import 'core/notifications/firebase_notification_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_recovery_service.dart';
 import 'core/notifications/reminder_scheduler.dart';
+import 'features/medicine_care/data/repositories/medicine_repository_impl.dart';
+import 'features/medicine_care/services/medicine_notification_service.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase & Cloud Messaging on supported mobile platforms
-  if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
-    try {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-      final firebaseNotificationService = FirebaseNotificationService();
-      await firebaseNotificationService.initialize();
-    } catch (e) {
-      debugPrint('[KeepRemind] Firebase initialization note: $e');
-    }
+  // 1. Initialize Local Notifications first (Independent of Firebase & Network)
+  final notificationService = NotificationService();
+  try {
+    await notificationService.init();
+    await notificationService.requestPermissions();
+  } catch (e, st) {
+    debugPrint('[KeepRemind] Local notifications initialization error: $e\n$st');
   }
 
-  // Seamlessly migrate legacy database to KeepRemind if present
+  // 2. Seamlessly migrate legacy database to KeepRemind if present
   try {
     final appDocDir = await getApplicationDocumentsDirectory();
     final oldDb = File('${appDocDir.path}/keepmate.sqlite');
@@ -45,18 +44,39 @@ Future<void> main() async {
     debugPrint('[KeepRemind] DB migration notice: $e');
   }
 
-  // Initialize Local Notifications
-  final notificationService = NotificationService();
-  await notificationService.init();
-  await notificationService.requestPermissions();
-
-  // Initialize SQLite Database with Drift
+  // 3. Initialize SQLite Database with Drift
   final database = AppDatabase();
 
-  // Reconcile and replenish local notifications on app startup
+  // 4. Reconcile and replenish local notifications on app startup from SQLite
   final reminderScheduler = ReminderScheduler(notificationService: notificationService);
   final recoveryService = ReminderRecoveryService(database: database, scheduler: reminderScheduler);
   await recoveryService.reconcileAll();
+
+  // 5. Re-synchronize and schedule all active medicine alarms with accurate local timezone
+  try {
+    final medicineRepo = MedicineRepositoryImpl(db: database);
+    final medicineNotificationService = MedicineNotificationService(notificationService: notificationService);
+    final activeMeds = await medicineRepo.getAllMedicines();
+    for (final med in activeMeds) {
+      if (med.isActive) {
+        await medicineNotificationService.scheduleMedicineSchedules(med);
+      }
+    }
+  } catch (e) {
+    debugPrint('[KeepRemind] Medicine notification recovery note: $e');
+  }
+
+  // 6. Inspect pending notifications on startup
+  await notificationService.getPendingNotifications();
+
+  // 7. Decoupled Firebase Cloud Messaging (runs in background, never blocks UI or local reminders)
+  if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
+    unawaited(
+      Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
+          .then((_) => FirebaseNotificationService().initialize())
+          .catchError((e) => debugPrint('[KeepRemind] Firebase initialization note: $e')),
+    );
+  }
 
   runApp(
     KeepRemindApp(

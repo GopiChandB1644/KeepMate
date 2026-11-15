@@ -5,6 +5,7 @@ import '../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
+import '../../../../core/notifications/notification_service.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
@@ -240,6 +241,29 @@ class SettingsPage extends StatelessWidget {
                             final h = picked.hour.toString().padLeft(2, '0');
                             final m = picked.minute.toString().padLeft(2, '0');
                             cubit.setReminderTime('$h:$m');
+                          }
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.notifications_active_outlined, color: AppColors.freshCheckColor),
+                        title: const Text('Send Test Alert'),
+                        subtitle: const Text('Fire an instant notification to test heads-up banner & sound'),
+                        trailing: const Icon(Icons.send_rounded, size: 20, color: AppColors.freshCheckColor),
+                        onTap: () async {
+                          final notif = context.read<NotificationService>();
+                          await notif.showNotification(
+                            id: 99999,
+                            title: '🔔 KeepRemind: System Test',
+                            body: 'Local notifications, exact alarms, and notification channels are working perfectly!',
+                          );
+                          if (context.mounted) {
+                            showToast(
+                              context,
+                              'Test notification sent! Check your notification bar.',
+                              icon: Icons.check_circle_rounded,
+                              type: ToastType.success,
+                            );
                           }
                         },
                       ),

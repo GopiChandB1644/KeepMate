@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
+import '../../../../core/notifications/notification_service.dart';
 import '../domain/entities/medicine_entity.dart';
 
 class MedicineNotificationService {
-  final FlutterLocalNotificationsPlugin _plugin;
+  final NotificationService _notificationService;
 
   static const String channelId = 'medicine_reminders';
   static const String channelName = 'Medicine Reminders';
@@ -15,8 +15,10 @@ class MedicineNotificationService {
   static const String caregiverChannelName = 'Caregiver Dose Alerts';
   static const String caregiverChannelDescription = 'Unconfirmed medicine alerts sent after grace period';
 
-  MedicineNotificationService({FlutterLocalNotificationsPlugin? plugin})
-      : _plugin = plugin ?? FlutterLocalNotificationsPlugin();
+  MedicineNotificationService({
+    NotificationService? notificationService,
+    FlutterLocalNotificationsPlugin? plugin,
+  }) : _notificationService = notificationService ?? NotificationService();
 
   NotificationDetails _medicineNotificationDetails({
     required String medicineName,
@@ -30,6 +32,9 @@ class MedicineNotificationService {
       importance: Importance.max,
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
+      playSound: true,
+      enableVibration: true,
+      enableLights: true,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           'action_taken',
@@ -72,7 +77,8 @@ class MedicineNotificationService {
     return hash;
   }
 
-  Future<void> scheduleMedicineSchedules(MedicineEntity medicine) async {
+  Future<List<int>> scheduleMedicineSchedules(MedicineEntity medicine) async {
+    final scheduledIds = <int>[];
     for (final schedule in medicine.schedules) {
       if (!schedule.reminderEnabled) continue;
 
@@ -106,39 +112,40 @@ class MedicineNotificationService {
         'scheduleId': schedule.id,
       });
 
-      try {
-        await _plugin.zonedSchedule(
-          notifId,
-          'Time for medicine: ${medicine.name}',
-          '${medicine.dosage} • ${medicine.instructions.label}. Please take according to your prescription.',
-          scheduledDate,
-          _medicineNotificationDetails(
-            medicineName: medicine.name,
-            dosage: medicine.dosage,
-            mealInstruction: medicine.instructions.label,
-          ),
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-          matchDateTimeComponents: DateTimeComponents.time, // Daily recurring
-          payload: payload,
-        );
-      } catch (e) {
-        debugPrint('[MedicineNotificationService] Scheduling error: $e');
+      final details = _medicineNotificationDetails(
+        medicineName: medicine.name,
+        dosage: medicine.dosage,
+        mealInstruction: medicine.instructions.label,
+      );
+
+      final success = await _notificationService.scheduleZonedNotification(
+        id: notifId,
+        title: 'Time for medicine: ${medicine.name}',
+        body: '${medicine.dosage} • ${medicine.instructions.label}. Please take according to your prescription.',
+        scheduledDate: scheduledDate,
+        notificationDetails: details,
+        matchDateTimeComponents: DateTimeComponents.time, // Daily recurring
+        payload: payload,
+      );
+
+      if (success) {
+        scheduledIds.add(notifId);
       }
     }
+
+    // Inspect pending notifications for diagnostics
+    await _notificationService.getPendingNotifications();
+    return scheduledIds;
   }
 
   Future<void> cancelMedicineSchedules(String medicineId, List<MedicineScheduleEntity> schedules) async {
     for (final schedule in schedules) {
       final notifId = generateNotificationId(medicineId, schedule.doseTime);
-      try {
-        await _plugin.cancel(notifId);
-      } catch (e) {
-        debugPrint('[MedicineNotificationService] Cancel error: $e');
-      }
+      await _notificationService.cancel(notifId);
     }
   }
 
-  Future<void> scheduleSnoozeNotification({
+  Future<bool> scheduleSnoozeNotification({
     required String medicineId,
     required String medicineName,
     required String dosage,
@@ -155,22 +162,22 @@ class MedicineNotificationService {
       'dosage': dosage,
     });
 
-    try {
-      await _plugin.zonedSchedule(
-        notifId,
-        'Reminder: $medicineName',
-        '$dosage • $mealInstruction (Snoozed $minutes mins ago)',
-        scheduledDate,
-        _medicineNotificationDetails(
-          medicineName: medicineName,
-          dosage: dosage,
-          mealInstruction: mealInstruction,
-        ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        payload: payload,
-      );
-    } catch (e) {
-      debugPrint('[MedicineNotificationService] Snooze error: $e');
-    }
+    final details = _medicineNotificationDetails(
+      medicineName: medicineName,
+      dosage: dosage,
+      mealInstruction: mealInstruction,
+    );
+
+    final success = await _notificationService.scheduleZonedNotification(
+      id: notifId,
+      title: 'Reminder: $medicineName',
+      body: '$dosage • $mealInstruction (Snoozed $minutes mins ago)',
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
+      payload: payload,
+    );
+
+    await _notificationService.getPendingNotifications();
+    return success;
   }
 }
