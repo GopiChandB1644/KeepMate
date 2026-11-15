@@ -23,6 +23,11 @@ class Medicines extends Table {
       integer().withDefault(const Constant(5))();
   IntColumn get maximumRingingDurationMinutes =>
       integer().withDefault(const Constant(10))();
+  TextColumn get reminderMode => text().withDefault(const Constant('notification'))(); // notification or alarm
+  TextColumn get alarmSound => text().nullable()();
+  BoolColumn get vibrationEnabled => boolean().withDefault(const Constant(true))();
+  IntColumn get snoozeDurationMinutes => integer().withDefault(const Constant(5))();
+  IntColumn get maximumRingingDurationMinutes => integer().withDefault(const Constant(10))();
   TextColumn get createdAt => text()();
   TextColumn get updatedAt => text()();
   TextColumn get deletedAt => text().nullable()();
