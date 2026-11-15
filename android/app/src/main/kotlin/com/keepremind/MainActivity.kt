@@ -1,4 +1,4 @@
-package com.keepmate.app.keepmate
+package com.keepremind
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -134,4 +134,3 @@ class MainActivity : FlutterActivity() {
         super.cleanUpFlutterEngine(flutterEngine)
     }
 }
-

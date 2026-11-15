@@ -46,6 +46,8 @@ class ItemSummaryCard extends StatelessWidget {
         return AppColors.freshCheckColor;
       case ItemCategory.docAlert:
         return AppColors.docAlertColor;
+      case ItemCategory.medicineCare:
+        return AppColors.medicineCareColor;
     }
   }
 

@@ -46,18 +46,12 @@ class MainShell extends StatelessWidget {
                 ),
                 _navItem(
                   index: 1,
-                  label: 'Categories',
-                  icon: Icons.grid_view_rounded,
-                  activeIcon: Icons.grid_view_rounded,
-                ),
-                _navItem(
-                  index: 2,
                   label: 'Vault',
                   icon: Icons.folder_shared_rounded,
                   activeIcon: Icons.folder_shared_rounded,
                 ),
                 _navItem(
-                  index: 3,
+                  index: 2,
                   label: 'Settings',
                   icon: Icons.settings_rounded,
                   activeIcon: Icons.settings_rounded,

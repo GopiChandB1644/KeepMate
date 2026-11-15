@@ -5,10 +5,10 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = keepmate
+PRODUCT_NAME = keepremind
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.keepmate.app.keepmate
+PRODUCT_BUNDLE_IDENTIFIER = com.keepremind
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.keepmate.app. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 com.keepremind. All rights reserved.

@@ -1,6 +1,6 @@
 {
-    "name": "keepmate",
-    "short_name": "keepmate",
+    "name": "KeepRemind",
+    "short_name": "KeepRemind",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

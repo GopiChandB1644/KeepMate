@@ -14,6 +14,11 @@ import '../../features/tracked_items/domain/entities/tracked_item_entity.dart';
 import '../../features/tracked_items/pages/add_edit_item_page.dart';
 import '../../features/tracked_items/pages/item_detail_page.dart';
 import '../../features/tracked_items/pages/renewal_flow_page.dart';
+import '../../features/medicine_care/presentation/add_edit_medicine_page.dart';
+import '../../features/medicine_care/presentation/today_schedule_page.dart';
+import '../../features/medicine_care/presentation/medicine_history_page.dart';
+import '../../features/medicine_care/presentation/caregiver_contacts_page.dart';
+import '../../features/medicine_care/domain/entities/medicine_entity.dart';
 import '../shell/main_shell.dart';
 import 'app_routes.dart';
 
@@ -38,16 +43,7 @@ GoRouter createRouter() {
               ),
             ],
           ),
-          // Branch 1: Categories
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: AppRoutes.categories,
-                builder: (context, state) => const CategoriesHubPage(),
-              ),
-            ],
-          ),
-          // Branch 2: Vault
+          // Branch 1: Vault
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -56,7 +52,7 @@ GoRouter createRouter() {
               ),
             ],
           ),
-          // Branch 3: Settings
+          // Branch 2: Settings
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -69,6 +65,11 @@ GoRouter createRouter() {
       ),
 
       // Direct routes outside bottom nav
+      GoRoute(
+        path: AppRoutes.categories,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CategoriesHubPage(),
+      ),
       GoRoute(
         path: AppRoutes.lifePocket,
         parentNavigatorKey: rootNavigatorKey,
@@ -103,6 +104,12 @@ GoRouter createRouter() {
             return AddEditItemPage(existingItem: extra);
           } else if (extra is ItemSubcategory) {
             return AddEditItemPage(initialSubcategory: extra);
+          } else if (extra is Map<String, dynamic>) {
+            return AddEditItemPage(
+              initialSubcategory: extra['subcategory'] as ItemSubcategory?,
+              initialTitle: extra['title'] as String?,
+              initialStorageLocation: extra['storageLocation'] as StorageLocation?,
+            );
           }
           return const AddEditItemPage();
         },
@@ -122,6 +129,31 @@ GoRouter createRouter() {
           final item = state.extra as TrackedItemEntity;
           return RenewalFlowPage(item: item);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.medicineAdd,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra;
+          return AddEditMedicinePage(
+            existingMedicine: extra is MedicineEntity ? extra : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.medicineToday,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const TodaySchedulePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.medicineHistory,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const MedicineHistoryPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.medicineFamily,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const CaregiverContactsPage(),
       ),
     ],
   );

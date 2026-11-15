@@ -45,6 +45,7 @@ class AppColors {
   static const Color lifePocketColor = Color(0xFF4F46E5); // Indigo
   static const Color freshCheckColor = Color(0xFF059669); // Emerald
   static const Color docAlertColor = Color(0xFFD97706); // Amber/Bronze
+  static const Color medicineCareColor = Color(0xFFE11D48); // Rose / Crimson
   static const Color vaultColor = Color(0xFF7C3AED); // Violet
 
   // Surfaces & Backgrounds

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.keepmate.app" "\0"
-            VALUE "FileDescription", "keepmate" "\0"
+            VALUE "CompanyName", "com.keepremind" "\0"
+            VALUE "FileDescription", "keepremind" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "keepmate" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.keepmate.app. All rights reserved." "\0"
-            VALUE "OriginalFilename", "keepmate.exe" "\0"
-            VALUE "ProductName", "keepmate" "\0"
+            VALUE "InternalName", "keepremind" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 com.keepremind. All rights reserved." "\0"
+            VALUE "OriginalFilename", "keepremind.exe" "\0"
+            VALUE "ProductName", "keepremind" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

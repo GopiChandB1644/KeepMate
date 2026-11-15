@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "570316321027",
+    "project_id": "keepremind-e9727",
+    "storage_bucket": "keepremind-e9727.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:570316321027:android:056e5ac611ab7a827c3936",
+        "android_client_info": {
+          "package_name": "com.keepremind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ9ZYX5dUCnmDIVJe3YoT9sMgrqEkPLac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

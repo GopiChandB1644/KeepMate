@@ -10,6 +10,8 @@ import 'package:keepremind/core/enums/item_enums.dart';
 import 'package:keepremind/core/storage/document_integrity_service.dart';
 import 'package:keepremind/core/storage/local_file_storage.dart';
 import 'package:keepremind/features/home/pages/home_page.dart';
+import 'package:keepremind/features/medicine_care/cubit/medicine_cubit.dart';
+import 'package:keepremind/features/medicine_care/data/repositories/medicine_repository_impl.dart';
 import 'package:keepremind/features/search/pages/search_page.dart';
 import 'package:keepremind/features/settings/cubit/settings_cubit.dart';
 import 'package:keepremind/features/settings/pages/settings_page.dart';
@@ -174,20 +176,31 @@ void main() {
 
   late FakeItemRepository repository;
   late ItemsCubit itemsCubit;
+  late AppDatabase db;
+  late MedicineRepositoryImpl medicineRepo;
+  late MedicineCubit medicineCubit;
 
   setUp(() {
     repository = FakeItemRepository(testItems);
     itemsCubit = ItemsCubit(repository: repository);
+    db = AppDatabase(NativeDatabase.memory());
+    medicineRepo = MedicineRepositoryImpl(db: db);
+    medicineCubit = MedicineCubit(repository: medicineRepo);
   });
 
   tearDown(() {
     itemsCubit.close();
+    medicineCubit.close();
+    db.close();
     repository.dispose();
   });
 
   Widget buildTestableWidget({required Widget child}) {
-    return BlocProvider<ItemsCubit>.value(
-      value: itemsCubit,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ItemsCubit>.value(value: itemsCubit),
+        BlocProvider<MedicineCubit>.value(value: medicineCubit),
+      ],
       child: MaterialApp(
         home: child,
       ),
@@ -203,9 +216,9 @@ void main() {
       expect(find.byIcon(Icons.search_rounded), findsOneWidget);
       expect(find.byTooltip('Search'), findsOneWidget);
 
-      // Floating action button still provides '+ Add Item'
+      // Floating action button provides tab-aware add action
       expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.text('+ Add Item'), findsOneWidget);
+      expect(find.text('+ Add Bill / Warranty'), findsOneWidget);
 
       // Embedded search TextField in body should be removed
       expect(find.byType(TextField), findsNothing);
@@ -214,12 +227,13 @@ void main() {
       // 'Everything is Safe!' banner should be removed from HomePage
       expect(find.text('Everything is Safe!'), findsNothing);
 
-      // Core home widgets should be cleanly visible
+      // Core home widgets and feature cards should be cleanly visible
       expect(find.text('KeepRemind'), findsOneWidget);
-      expect(find.text('Quick Categories'), findsOneWidget);
+      expect(find.text('Bills & Receipts'), findsOneWidget);
+      expect(find.text('Warranties'), findsOneWidget);
 
-      await tester.scrollUntilVisible(find.text('All Tracked Items (3)'), 100);
-      expect(find.text('All Tracked Items (3)'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('LifePocket Items (1)'), 100);
+      expect(find.text('LifePocket Items (1)'), findsOneWidget);
     });
 
     testWidgets('Tapping search icon navigates to SearchPage via router', (tester) async {
@@ -238,8 +252,11 @@ void main() {
       );
 
       await tester.pumpWidget(
-        BlocProvider<ItemsCubit>.value(
-          value: itemsCubit,
+        MultiBlocProvider(
+          providers: [
+            BlocProvider<ItemsCubit>.value(value: itemsCubit),
+            BlocProvider<MedicineCubit>.value(value: medicineCubit),
+          ],
           child: MaterialApp.router(
             routerConfig: router,
           ),

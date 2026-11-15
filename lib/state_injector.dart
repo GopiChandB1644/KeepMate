@@ -18,6 +18,10 @@ import 'features/settings/cubit/settings_cubit.dart';
 import 'features/tracked_items/cubit/items_cubit.dart';
 import 'features/tracked_items/data/repositories/item_repository_impl.dart';
 import 'features/tracked_items/domain/repositories/item_repository.dart';
+import 'features/medicine_care/cubit/medicine_cubit.dart';
+import 'features/medicine_care/data/repositories/medicine_repository_impl.dart';
+import 'features/medicine_care/domain/repositories/medicine_repository.dart';
+import 'features/medicine_care/services/medicine_notification_service.dart';
 
 class AppStateInjector {
   AppStateInjector._();
@@ -55,6 +59,9 @@ class AppStateInjector {
       reminderScheduler: reminderScheduler,
     );
 
+    final medicineRepo = MedicineRepositoryImpl(db: database);
+    final medicineNotifications = MedicineNotificationService();
+
     return [
       RepositoryProvider<AppDatabase>.value(value: database),
       RepositoryProvider<NotificationService>.value(value: notificationService),
@@ -64,6 +71,8 @@ class AppStateInjector {
       RepositoryProvider<BackupExportService>.value(value: exportService),
       RepositoryProvider<BackupImportService>.value(value: importService),
       RepositoryProvider<ItemRepository>.value(value: itemRepo),
+      RepositoryProvider<MedicineRepository>.value(value: medicineRepo),
+      RepositoryProvider<MedicineNotificationService>.value(value: medicineNotifications),
     ];
   }
 
@@ -95,6 +104,12 @@ class AppStateInjector {
         BlocProvider<ScannerCubit>(
           create: (context) => ScannerCubit(
             parserService: const OcrParserService(),
+          ),
+        ),
+        BlocProvider<MedicineCubit>(
+          create: (context) => MedicineCubit(
+            repository: context.read<MedicineRepository>(),
+            notificationService: context.read<MedicineNotificationService>(),
           ),
         ),
       ];

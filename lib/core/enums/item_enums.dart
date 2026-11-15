@@ -1,7 +1,8 @@
 enum ItemCategory {
   lifePocket('life_pocket', 'LifePocket', 'Bills, Warranties & Subscriptions'),
   freshCheck('fresh_check', 'FreshCheck', 'Groceries & Expiries'),
-  docAlert('doc_alert', 'DocAlert', 'Personal & Vehicle Documents');
+  docAlert('doc_alert', 'DocAlert', 'Personal & Vehicle Documents'),
+  medicineCare('medicine_care', 'MedicineCare', 'Daily Doses, Schedules & Caregiver Alerts');
 
   final String code;
   final String displayName;

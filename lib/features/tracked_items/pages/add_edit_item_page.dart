@@ -11,6 +11,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
+import '../../../../core/notifications/reminder_scheduler.dart';
 import '../../../../core/storage/local_file_storage.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../core/utils/image_compressor.dart';
@@ -23,11 +24,15 @@ import '../domain/entities/tracked_item_entity.dart';
 class AddEditItemPage extends StatefulWidget {
   final TrackedItemEntity? existingItem;
   final ItemSubcategory? initialSubcategory;
+  final String? initialTitle;
+  final StorageLocation? initialStorageLocation;
 
   const AddEditItemPage({
     super.key,
     this.existingItem,
     this.initialSubcategory,
+    this.initialTitle,
+    this.initialStorageLocation,
   });
 
   @override
@@ -63,7 +68,11 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     final item = widget.existingItem;
     _selectedSubcategory = item?.subcategory ?? widget.initialSubcategory ?? ItemSubcategory.bill;
 
-    _titleController = TextEditingController(text: item?.title ?? '');
+    if (widget.initialStorageLocation != null) {
+      _selectedStorage = widget.initialStorageLocation!;
+    }
+
+    _titleController = TextEditingController(text: item?.title ?? widget.initialTitle ?? '');
     _descriptionController = TextEditingController(text: item?.description ?? '');
     _providerOrSellerController = TextEditingController(
       text: item?.billDetails?.providerName ??
@@ -101,6 +110,17 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     if (item?.groceryDetails != null) {
       _selectedStorage = StorageLocation.fromCode(item!.groceryDetails!.storageLocation);
       _quantityUnit = item.groceryDetails!.quantityUnit;
+    }
+
+    if (item == null) {
+      _reminderOffsets.clear();
+      _reminderOffsets.addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
+    } else {
+      _reminderOffsets.clear();
+      _reminderOffsets.addAll(item.reminderRules.map((r) => r.offsetDays));
+      if (_reminderOffsets.isEmpty) {
+        _reminderOffsets.addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
+      }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -157,6 +177,227 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       case ItemSubcategory.document:
         return ItemCategory.docAlert;
     }
+  }
+
+  Color get _categoryThemeColor {
+    switch (_categoryForSubcategory) {
+      case ItemCategory.lifePocket:
+        return AppColors.lifePocketColor;
+      case ItemCategory.freshCheck:
+        return AppColors.freshCheckColor;
+      case ItemCategory.docAlert:
+        return AppColors.docAlertColor;
+      case ItemCategory.medicineCare:
+        return AppColors.medicineCareColor;
+    }
+  }
+
+  IconData get _categoryIcon {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return Icons.receipt_long_rounded;
+      case ItemSubcategory.warranty:
+        return Icons.verified_user_rounded;
+      case ItemSubcategory.insurance:
+        return Icons.health_and_safety_rounded;
+      case ItemSubcategory.subscription:
+        return Icons.subscriptions_rounded;
+      case ItemSubcategory.purchase:
+        return Icons.shopping_bag_rounded;
+      case ItemSubcategory.grocery:
+        return Icons.apple_rounded;
+      case ItemSubcategory.document:
+        return Icons.badge_rounded;
+    }
+  }
+
+  String get _appBarTitle {
+    if (widget.existingItem != null) {
+      return 'Edit ${_selectedSubcategory.displayName}';
+    }
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Add Bill / Receipt';
+      case ItemSubcategory.warranty:
+        return 'Add Warranty';
+      case ItemSubcategory.subscription:
+        return 'Add Subscription';
+      case ItemSubcategory.insurance:
+        return 'Add Insurance Policy';
+      case ItemSubcategory.purchase:
+        return 'Add Purchase / Invoice';
+      case ItemSubcategory.grocery:
+        return 'Add Food / Grocery';
+      case ItemSubcategory.document:
+        return 'Add Official Document';
+    }
+  }
+
+  String get _appBarSubtitle {
+    if (widget.existingItem != null) {
+      return 'Update details & reminders';
+    }
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Scan bill or enter payment due date';
+      case ItemSubcategory.warranty:
+        return 'Scan receipt or enter warranty details';
+      case ItemSubcategory.subscription:
+        return 'Track recurring payments & renewal date';
+      case ItemSubcategory.insurance:
+        return 'Scan policy or enter coverage expiry';
+      case ItemSubcategory.purchase:
+        return 'Save purchase proof & return deadline';
+      case ItemSubcategory.grocery:
+        return 'Track food expiry & storage location';
+      case ItemSubcategory.document:
+        return 'Scan official ID or document validity';
+    }
+  }
+
+  String get _scanBannerTitle {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Have a bill or receipt?';
+      case ItemSubcategory.warranty:
+        return 'Have an invoice or warranty card?';
+      case ItemSubcategory.subscription:
+        return 'Have a subscription invoice?';
+      case ItemSubcategory.insurance:
+        return 'Have a policy document or card?';
+      case ItemSubcategory.purchase:
+        return 'Have a store receipt or invoice?';
+      case ItemSubcategory.grocery:
+        return 'Have a grocery label or receipt?';
+      case ItemSubcategory.document:
+        return 'Have your document or card?';
+    }
+  }
+
+  String get _scanBannerSubtitle {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Snap photo or upload PDF to auto-fill due date & amount';
+      case ItemSubcategory.warranty:
+        return 'Snap photo or upload invoice to auto-fill warranty dates';
+      case ItemSubcategory.subscription:
+        return 'Snap receipt to auto-fill service & renewal date';
+      case ItemSubcategory.insurance:
+        return 'Snap photo or upload PDF to auto-fill policy details';
+      case ItemSubcategory.purchase:
+        return 'Snap receipt to auto-fill store & purchase price';
+      case ItemSubcategory.grocery:
+        return 'Snap package label to read product & expiry date';
+      case ItemSubcategory.document:
+        return 'Snap DL, RC, or Passport to auto-fill ID numbers & dates';
+    }
+  }
+
+  String get _titleFieldLabel {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Bill Name *';
+      case ItemSubcategory.warranty:
+        return 'Product / Item Name *';
+      case ItemSubcategory.subscription:
+        return 'Service / Platform Name *';
+      case ItemSubcategory.insurance:
+        return 'Policy / Plan Name *';
+      case ItemSubcategory.purchase:
+        return 'Product / Store Name *';
+      case ItemSubcategory.grocery:
+        return 'Food / Item Name *';
+      case ItemSubcategory.document:
+        return 'Document Name *';
+    }
+  }
+
+  String get _titleFieldHint {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'e.g. Electricity Bill, WiFi, Water';
+      case ItemSubcategory.warranty:
+        return 'e.g. MacBook Pro, Samsung TV, Refrigerator';
+      case ItemSubcategory.subscription:
+        return 'e.g. Netflix, Spotify, Gym Membership';
+      case ItemSubcategory.insurance:
+        return 'e.g. Car Insurance, Family Health Plan';
+      case ItemSubcategory.purchase:
+        return 'e.g. Nike Shoes, Wireless Earbuds';
+      case ItemSubcategory.grocery:
+        return 'e.g. Fresh Milk, Brown Bread, Tomatoes';
+      case ItemSubcategory.document:
+        return 'e.g. Driving Licence, Vehicle RC, Passport';
+    }
+  }
+
+  String get _targetDateFieldLabel {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.bill:
+        return 'Payment Due Date *';
+      case ItemSubcategory.subscription:
+        return 'Next Payment Date *';
+      default:
+        return 'Expiry Date *';
+    }
+  }
+
+  List<Map<String, dynamic>> get _quickDatePresets {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.grocery:
+        return [
+          {'label': 'Tomorrow', 'days': 1},
+          {'label': 'In 3 Days', 'days': 3},
+          {'label': 'In 1 Week', 'days': 7},
+          {'label': 'In 2 Weeks', 'days': 14},
+          {'label': 'In 1 Month', 'days': 30},
+        ];
+      case ItemSubcategory.bill:
+      case ItemSubcategory.subscription:
+        return [
+          {'label': 'Tomorrow', 'days': 1},
+          {'label': 'In 3 Days', 'days': 3},
+          {'label': 'In 1 Week', 'days': 7},
+          {'label': 'In 15 Days', 'days': 15},
+          {'label': 'In 1 Month', 'days': 30},
+        ];
+      case ItemSubcategory.warranty:
+      case ItemSubcategory.insurance:
+      case ItemSubcategory.document:
+      case ItemSubcategory.purchase:
+        return [
+          {'label': 'In 6 Months', 'days': 180},
+          {'label': 'In 1 Year', 'days': 365},
+          {'label': 'In 2 Years', 'days': 730},
+          {'label': 'In 3 Years', 'days': 1095},
+          {'label': 'In 5 Years', 'days': 1825},
+        ];
+    }
+  }
+
+  List<int> get _availableReminderOffsets {
+    switch (_selectedSubcategory) {
+      case ItemSubcategory.grocery:
+        return [7, 3, 2, 1, 0];
+      case ItemSubcategory.bill:
+      case ItemSubcategory.subscription:
+        return [15, 7, 3, 1, 0];
+      case ItemSubcategory.warranty:
+      case ItemSubcategory.insurance:
+      case ItemSubcategory.document:
+      case ItemSubcategory.purchase:
+        return [60, 30, 15, 7, 1];
+    }
+  }
+
+  void _onSubcategoryChanged(ItemSubcategory sub) {
+    setState(() {
+      _selectedSubcategory = sub;
+      if (widget.existingItem == null) {
+        _reminderOffsets.clear();
+        _reminderOffsets.addAll(ReminderScheduler.getDefaultOffsets(sub));
+      }
+    });
   }
 
   Future<void> _pickAttachment() async {
@@ -568,8 +809,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
     return Scaffold(
       appBar: KeepRemindAppBar(
-        title: isEditing ? 'Edit Details' : 'Add New Item',
-        subtitle: isEditing ? 'Update item details' : 'Enter details or attach document / photo',
+        title: _appBarTitle,
+        subtitle: _appBarSubtitle,
         showBack: true,
       ),
       body: SafeArea(
@@ -578,50 +819,93 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // 1. Choose Item Type (Subcategory Chips)
-              if (!isEditing) ...[
-                Text('What are you tracking?', style: AppText.label),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: ItemSubcategory.values.map((sub) {
-                    final isSel = _selectedSubcategory == sub;
-                    return ChoiceChip(
-                      label: Text(sub.displayName),
-                      selected: isSel,
-                      selectedColor: AppColors.primary,
-                      labelStyle: TextStyle(
-                        color: isSel ? Colors.white : AppColors.textPrimary,
-                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                      ),
-                      onSelected: (val) {
-                        if (val) {
-                          setState(() {
-                            _selectedSubcategory = sub;
-                          });
-                        }
-                      },
-                    );
-                  }).toList(),
+              // 1. Focused Category & Selected Type Badge (No unrelated clutter!)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _categoryThemeColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _categoryThemeColor.withValues(alpha: 0.25)),
                 ),
-                const SizedBox(height: 20),
-              ],
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _categoryThemeColor.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(_categoryIcon, color: _categoryThemeColor, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _categoryForSubcategory.displayName.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: _categoryThemeColor,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            _selectedSubcategory.displayName,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (!isEditing)
+                      PopupMenuButton<ItemSubcategory>(
+                        tooltip: 'Change Type',
+                        icon: Icon(Icons.swap_horiz_rounded, color: _categoryThemeColor),
+                        onSelected: _onSubcategoryChanged,
+                        itemBuilder: (context) {
+                          return ItemSubcategory.values.map((sub) {
+                            return PopupMenuItem(
+                              value: sub,
+                              child: Row(
+                                children: [
+                                  if (sub == _selectedSubcategory)
+                                    const Icon(Icons.check_rounded, size: 16, color: AppColors.primary)
+                                  else
+                                    const SizedBox(width: 16),
+                                  const SizedBox(width: 8),
+                                  Text(sub.displayName),
+                                ],
+                              ),
+                            );
+                          }).toList();
+                        },
+                      ),
+                  ],
+                ),
+              ),
 
-              // 2. Scan / Attach Document Banner
+              const SizedBox(height: 16),
+
+              // 2. Scan / Attach Document Banner (Tailored to selected type!)
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.08),
+                  color: _categoryThemeColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                  border: Border.all(color: _categoryThemeColor.withValues(alpha: 0.25)),
                 ),
                 child: Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
+                      decoration: BoxDecoration(
+                        color: _categoryThemeColor,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 24),
@@ -631,25 +915,28 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Have a photo or bill?', style: AppText.h3),
-                          Text('Take a snap to auto-fill details!', style: AppText.bodySmall),
+                          Text(_scanBannerTitle, style: AppText.h3),
+                          const SizedBox(height: 2),
+                          Text(_scanBannerSubtitle, style: AppText.bodySmall),
                         ],
                       ),
                     ),
-                    ElevatedButton(
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
                       onPressed: _isExtractingText ? null : _pickAttachment,
+                      icon: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),
+                      label: _isExtractingText
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text('Scan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: _categoryThemeColor,
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         minimumSize: Size.zero,
                       ),
-                      child: _isExtractingText
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                            )
-                          : const Text('Add File'),
                     ),
                   ],
                 ),
@@ -700,36 +987,27 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               const SizedBox(height: 24),
 
               // 3. Name / Title
-              Text('Name / Title *', style: AppText.label),
+              Text(_titleFieldLabel, style: AppText.label),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  hintText: _selectedSubcategory == ItemSubcategory.bill
-                      ? 'e.g. Electricity Bill, WiFi'
-                      : _selectedSubcategory == ItemSubcategory.grocery
-                          ? 'e.g. Fresh Milk, Tomatoes'
-                          : _selectedSubcategory == ItemSubcategory.insurance
-                              ? 'e.g. Car Insurance, Health Plan'
-                              : 'e.g. Laptop Warranty, Driving Licence',
+                  hintText: _titleFieldHint,
                 ),
                 validator: (val) => val == null || val.trim().isEmpty ? 'Please enter a name' : null,
               ),
 
               const SizedBox(height: 20),
 
-              // 4. Expiry or Due Date
+              // 4. Target Date (Due Date or Expiry Date)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _selectedSubcategory == ItemSubcategory.bill ? 'Payment Due Date *' : 'Expiry Date *',
-                    style: AppText.label,
-                  ),
+                  Text(_targetDateFieldLabel, style: AppText.label),
                   if (_selectedTargetDate != null)
                     Text(
                       AppDateUtils.getRelativeTimeLabel(_selectedTargetDate),
-                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(color: _categoryThemeColor, fontWeight: FontWeight.bold, fontSize: 13),
                     ),
                 ],
               ),
@@ -746,7 +1024,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_month_rounded, color: AppColors.primary),
+                      Icon(Icons.calendar_month_rounded, color: _categoryThemeColor),
                       const SizedBox(width: 12),
                       Text(
                         _selectedTargetDate != null
@@ -761,30 +1039,29 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 ),
               ),
 
-              // Quick preset chips
+              // Quick preset chips tailored to this subcategory
               const SizedBox(height: 10),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: [
-                    ActionChip(label: const Text('Tomorrow'), onPressed: () => _applyQuickDatePreset(1)),
-                    const SizedBox(width: 6),
-                    ActionChip(label: const Text('In 3 Days'), onPressed: () => _applyQuickDatePreset(3)),
-                    const SizedBox(width: 6),
-                    ActionChip(label: const Text('In 1 Week'), onPressed: () => _applyQuickDatePreset(7)),
-                    const SizedBox(width: 6),
-                    ActionChip(label: const Text('In 1 Month'), onPressed: () => _applyQuickDatePreset(30)),
-                    const SizedBox(width: 6),
-                    ActionChip(label: const Text('In 1 Year'), onPressed: () => _applyQuickDatePreset(365)),
-                  ],
+                  children: _quickDatePresets.map((preset) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ActionChip(
+                        label: Text(preset['label'] as String),
+                        onPressed: () => _applyQuickDatePreset(preset['days'] as int),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // 5. Category-Specific Extra Fields
-              // Optional Start / Issue / Registration Date
-              if (_selectedSubcategory != ItemSubcategory.grocery) ...[
+              // 5. Category-Specific Fields (Only relevant fields!)
+              // Start / Purchase / Issue Date (NOT for grocery or subscription)
+              if (_selectedSubcategory != ItemSubcategory.grocery &&
+                  _selectedSubcategory != ItemSubcategory.subscription) ...[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -793,9 +1070,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                           ? 'Issue / Registration Date'
                           : _selectedSubcategory == ItemSubcategory.warranty || _selectedSubcategory == ItemSubcategory.purchase
                               ? 'Purchase Date'
-                              : _selectedSubcategory == ItemSubcategory.bill
-                                  ? 'Bill Date'
-                                  : 'Start Date',
+                              : 'Bill Date',
                       style: AppText.label,
                     ),
                     if (_selectedStartDate != null)
@@ -819,7 +1094,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.event_available_rounded, color: AppColors.primary, size: 20),
+                        Icon(Icons.event_available_rounded, color: _categoryThemeColor, size: 20),
                         const SizedBox(width: 12),
                         Text(
                           _selectedStartDate != null
@@ -836,8 +1111,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 const SizedBox(height: 16),
               ],
 
-              // Document / Policy / Account / Consumer Number
-              if (_selectedSubcategory != ItemSubcategory.grocery) ...[
+              // Identifier / Document / Policy Number (NOT for grocery or subscription)
+              if (_selectedSubcategory != ItemSubcategory.grocery &&
+                  _selectedSubcategory != ItemSubcategory.subscription) ...[
                 Text(
                   _selectedSubcategory == ItemSubcategory.document
                       ? 'Document / Registration Number'
@@ -864,7 +1140,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 const SizedBox(height: 16),
               ],
 
-              // Issuing Authority / Provider / Seller
+              // Provider / Seller / Authority (NOT for grocery)
               if (_selectedSubcategory != ItemSubcategory.grocery) ...[
                 Text(
                   _selectedSubcategory == ItemSubcategory.document
@@ -874,7 +1150,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                           : _selectedSubcategory == ItemSubcategory.bill
                               ? 'Biller / Service Provider'
                               : _selectedSubcategory == ItemSubcategory.subscription
-                                  ? 'Service / Platform'
+                                  ? 'Platform / Company'
                                   : 'Seller / Store / Brand',
                   style: AppText.label,
                 ),
@@ -888,20 +1164,22 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                             ? 'e.g. HDFC Ergo, Star Health'
                             : _selectedSubcategory == ItemSubcategory.bill
                                 ? 'e.g. APCPDCL, BESCOM, Airtel'
-                                : 'e.g. Amazon, Croma',
+                                : _selectedSubcategory == ItemSubcategory.subscription
+                                    ? 'e.g. Netflix, Spotify, Amazon'
+                                    : 'e.g. Amazon, Croma, Apple',
                   ),
                 ),
                 const SizedBox(height: 16),
               ],
 
-              // Vehicle Registration Number (for Insurance & Vehicle Documents)
+              // Vehicle Registration Number (ONLY for Insurance & Vehicle Documents)
               if (_selectedSubcategory == ItemSubcategory.insurance || _selectedSubcategory == ItemSubcategory.document) ...[
                 Text('Vehicle Registration Number', style: AppText.label),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _vehicleNumberController,
                   textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(hintText: 'e.g. AP04TE1234, KA01AB1234'),
+                  decoration: const InputDecoration(hintText: 'e.g. AP04TE1234, KA01AB1234 (optional)'),
                   onChanged: (val) {
                     if (_selectedSubcategory == ItemSubcategory.document && _docNumberController.text.trim().isEmpty) {
                       _docNumberController.text = val;
@@ -911,22 +1189,32 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 const SizedBox(height: 16),
               ],
 
-              // Amount
+              // Amount (₹) (For Bills, Warranties, Subscriptions, Insurance, Purchases)
               if (_selectedSubcategory == ItemSubcategory.bill ||
                   _selectedSubcategory == ItemSubcategory.insurance ||
                   _selectedSubcategory == ItemSubcategory.subscription ||
                   _selectedSubcategory == ItemSubcategory.warranty ||
                   _selectedSubcategory == ItemSubcategory.purchase) ...[
-                Text('Amount (₹)', style: AppText.label),
+                Text(
+                  _selectedSubcategory == ItemSubcategory.insurance
+                      ? 'Premium Amount (₹)'
+                      : _selectedSubcategory == ItemSubcategory.bill
+                          ? 'Bill Amount (₹)'
+                          : _selectedSubcategory == ItemSubcategory.subscription
+                              ? 'Recurring Amount (₹)'
+                              : 'Amount / Price (₹)',
+                  style: AppText.label,
+                ),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _amountController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(hintText: 'e.g. 1500'),
+                  decoration: const InputDecoration(hintText: 'e.g. 1500 (optional)'),
                 ),
                 const SizedBox(height: 16),
               ],
 
+              // Grocery-Specific: Quantity & Storage Location
               if (_selectedSubcategory == ItemSubcategory.grocery) ...[
                 Row(
                   children: [
@@ -971,17 +1259,24 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 const SizedBox(height: 16),
               ],
 
-              // 6. Reminder Preferences
+              // 6. Automatic Reminder Preferences
               Text('Automatic Reminder Alerts', style: AppText.label),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
-                children: [30, 7, 3, 1, 0].map((days) {
+                children: _availableReminderOffsets.map((days) {
                   final isChecked = _reminderOffsets.contains(days);
-                  final label = days == 0 ? 'On due date' : '$days days before';
+                  final label = days == 0
+                      ? (_selectedSubcategory == ItemSubcategory.bill ? 'On due date' : 'On expiry day')
+                      : '$days days before';
                   return FilterChip(
                     label: Text(label),
                     selected: isChecked,
+                    selectedColor: _categoryThemeColor.withValues(alpha: 0.15),
+                    labelStyle: TextStyle(
+                      color: isChecked ? _categoryThemeColor : AppColors.textPrimary,
+                      fontWeight: isChecked ? FontWeight.w700 : FontWeight.w500,
+                    ),
                     onSelected: (val) {
                       setState(() {
                         if (val) {
@@ -998,15 +1293,26 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               const SizedBox(height: 32),
 
               // 7. Save Action
-              ElevatedButton(
+              ElevatedButton.icon(
                 onPressed: _isSaving ? null : _save,
+                icon: _isSaving
+                    ? const SizedBox.shrink()
+                    : const Icon(Icons.check_circle_rounded, color: Colors.white),
+                label: _isSaving
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : Text(
+                        isEditing ? 'Save Changes' : 'Save & Set Reminder',
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.safeGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
-                child: _isSaving
-                    ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                    : Text(isEditing ? 'Save Changes' : 'Save & Remember', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 40),
             ],

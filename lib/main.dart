@@ -1,14 +1,31 @@
 import 'dart:io';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'app/keepremind_app.dart';
 import 'core/database/app_database.dart';
+import 'core/notifications/firebase_notification_service.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_recovery_service.dart';
 import 'core/notifications/reminder_scheduler.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase & Cloud Messaging on supported mobile platforms
+  if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      final firebaseNotificationService = FirebaseNotificationService();
+      await firebaseNotificationService.initialize();
+    } catch (e) {
+      debugPrint('[KeepRemind] Firebase initialization note: $e');
+    }
+  }
 
   // Seamlessly migrate legacy database to KeepRemind if present
   try {
