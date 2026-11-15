@@ -32,8 +32,10 @@ class AppStateInjector {
   }) {
     final integrityService = const DocumentIntegrityService();
     final fileStorage = LocalFileStorage(integrityService: integrityService);
-    final reminderScheduler = ReminderScheduler(notificationService: notificationService);
-    final reminderRecovery = ReminderRecoveryService(database: database, scheduler: reminderScheduler);
+    final reminderScheduler =
+        ReminderScheduler(notificationService: notificationService);
+    final reminderRecovery = ReminderRecoveryService(
+        database: database, scheduler: reminderScheduler);
 
     final encryptionService = const EncryptionService();
     final archiveService = const ArchiveService();
@@ -60,19 +62,22 @@ class AppStateInjector {
     );
 
     final medicineRepo = MedicineRepositoryImpl(db: database);
-    final medicineNotifications = MedicineNotificationService(notificationService: notificationService);
+    final medicineNotifications =
+        MedicineNotificationService(notificationService: notificationService);
 
     return [
       RepositoryProvider<AppDatabase>.value(value: database),
       RepositoryProvider<NotificationService>.value(value: notificationService),
       RepositoryProvider<LocalFileStorage>.value(value: fileStorage),
       RepositoryProvider<ReminderScheduler>.value(value: reminderScheduler),
-      RepositoryProvider<ReminderRecoveryService>.value(value: reminderRecovery),
+      RepositoryProvider<ReminderRecoveryService>.value(
+          value: reminderRecovery),
       RepositoryProvider<BackupExportService>.value(value: exportService),
       RepositoryProvider<BackupImportService>.value(value: importService),
       RepositoryProvider<ItemRepository>.value(value: itemRepo),
       RepositoryProvider<MedicineRepository>.value(value: medicineRepo),
-      RepositoryProvider<MedicineNotificationService>.value(value: medicineNotifications),
+      RepositoryProvider<MedicineNotificationService>.value(
+          value: medicineNotifications),
     ];
   }
 
@@ -114,4 +119,3 @@ class AppStateInjector {
         ),
       ];
 }
-

@@ -95,7 +95,8 @@ class BackupImportService {
       final archivePath = 'documents/${doc.relativePath}'.replaceAll('\\', '/');
       final bytes = preview.files[archivePath];
       if (bytes != null) {
-        final diskFile = await FilePathResolver.resolveRelativePath(doc.relativePath);
+        final diskFile =
+            await FilePathResolver.resolveRelativePath(doc.relativePath);
         if (!await diskFile.parent.exists()) {
           await diskFile.parent.create(recursive: true);
         }
@@ -146,34 +147,46 @@ class BackupImportService {
       }
 
       // Populate category details
-      for (final json in (preview.dbData['billDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['billDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.billDetails).insert(BillDetailsCompanion.insert(
+        await database
+            .into(database.billDetails)
+            .insert(BillDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               providerName: map['providerName'] as String,
               accountNumber: Value(map['accountNumber'] as String?),
               amount: Value((map['amount'] as num?)?.toDouble()),
               currencyCode: Value(map['currencyCode'] as String? ?? 'INR'),
               billingPeriod: Value(map['billingPeriod'] as String?),
-              paymentStatus: Value(map['paymentStatus'] as String? ?? 'pending'),
+              paymentStatus:
+                  Value(map['paymentStatus'] as String? ?? 'pending'),
             ));
       }
 
-      for (final json in (preview.dbData['warrantyDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['warrantyDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.warrantyDetails).insert(WarrantyDetailsCompanion.insert(
+        await database
+            .into(database.warrantyDetails)
+            .insert(WarrantyDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               productName: map['productName'] as String,
               seller: Value(map['seller'] as String?),
-              purchaseAmount: Value((map['purchaseAmount'] as num?)?.toDouble()),
-              warrantyDurationMonths: Value(map['warrantyDurationMonths'] as int?),
+              purchaseAmount:
+                  Value((map['purchaseAmount'] as num?)?.toDouble()),
+              warrantyDurationMonths:
+                  Value(map['warrantyDurationMonths'] as int?),
               warrantyProvider: Value(map['warrantyProvider'] as String?),
             ));
       }
 
-      for (final json in (preview.dbData['insuranceDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['insuranceDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.insuranceDetails).insert(InsuranceDetailsCompanion.insert(
+        await database
+            .into(database.insuranceDetails)
+            .insert(InsuranceDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               provider: map['provider'] as String,
               policyNumber: Value(map['policyNumber'] as String?),
@@ -183,9 +196,12 @@ class BackupImportService {
             ));
       }
 
-      for (final json in (preview.dbData['subscriptionDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['subscriptionDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.subscriptionDetails).insert(SubscriptionDetailsCompanion.insert(
+        await database
+            .into(database.subscriptionDetails)
+            .insert(SubscriptionDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               serviceName: map['serviceName'] as String,
               billingCycle: map['billingCycle'] as String,
@@ -194,32 +210,44 @@ class BackupImportService {
             ));
       }
 
-      for (final json in (preview.dbData['purchaseDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['purchaseDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.purchaseDetails).insert(PurchaseDetailsCompanion.insert(
+        await database
+            .into(database.purchaseDetails)
+            .insert(PurchaseDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               productName: map['productName'] as String,
               seller: Value(map['seller'] as String?),
-              purchaseAmount: Value((map['purchaseAmount'] as num?)?.toDouble()),
+              purchaseAmount:
+                  Value((map['purchaseAmount'] as num?)?.toDouble()),
               returnDeadline: Value(map['returnDeadline'] as String?),
             ));
       }
 
-      for (final json in (preview.dbData['groceryDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['groceryDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.groceryDetails).insert(GroceryDetailsCompanion.insert(
+        await database
+            .into(database.groceryDetails)
+            .insert(GroceryDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               productName: map['productName'] as String,
               batchNumber: Value(map['batchNumber'] as String?),
-              storageLocation: Value(map['storageLocation'] as String? ?? 'pantry'),
-              quantityRemaining: Value((map['quantityRemaining'] as num?)?.toDouble() ?? 1.0),
+              storageLocation:
+                  Value(map['storageLocation'] as String? ?? 'pantry'),
+              quantityRemaining:
+                  Value((map['quantityRemaining'] as num?)?.toDouble() ?? 1.0),
               quantityUnit: Value(map['quantityUnit'] as String? ?? 'units'),
             ));
       }
 
-      for (final json in (preview.dbData['documentDetails'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['documentDetails'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.documentDetails).insert(DocumentDetailsCompanion.insert(
+        await database
+            .into(database.documentDetails)
+            .insert(DocumentDetailsCompanion.insert(
               itemId: map['itemId'] as String,
               documentNumber: Value(map['documentNumber'] as String?),
               issuingAuthority: Value(map['issuingAuthority'] as String?),
@@ -228,9 +256,12 @@ class BackupImportService {
       }
 
       // Populate item documents
-      for (final json in (preview.dbData['itemDocuments'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['itemDocuments'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.itemDocuments).insert(ItemDocumentsCompanion.insert(
+        await database
+            .into(database.itemDocuments)
+            .insert(ItemDocumentsCompanion.insert(
               id: map['id'] as String,
               itemId: Value(map['itemId'] as String?),
               fileName: map['fileName'] as String,
@@ -245,9 +276,12 @@ class BackupImportService {
       }
 
       // Populate reminder rules
-      for (final json in (preview.dbData['reminderRules'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['reminderRules'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.reminderRules).insert(ReminderRulesCompanion.insert(
+        await database
+            .into(database.reminderRules)
+            .insert(ReminderRulesCompanion.insert(
               id: map['id'] as String,
               itemId: map['itemId'] as String,
               offsetDays: map['offsetDays'] as int,
@@ -258,9 +292,12 @@ class BackupImportService {
       }
 
       // Populate item history
-      for (final json in (preview.dbData['itemHistory'] as List<dynamic>? ?? [])) {
+      for (final json
+          in (preview.dbData['itemHistory'] as List<dynamic>? ?? [])) {
         final map = json as Map<String, dynamic>;
-        await database.into(database.itemHistory).insert(ItemHistoryCompanion.insert(
+        await database
+            .into(database.itemHistory)
+            .insert(ItemHistoryCompanion.insert(
               id: map['id'] as String,
               itemId: map['itemId'] as String,
               eventType: map['eventType'] as String,
@@ -274,4 +311,3 @@ class BackupImportService {
     await recoveryService.reconcileAll();
   }
 }
-

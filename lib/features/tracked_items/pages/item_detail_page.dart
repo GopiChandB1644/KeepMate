@@ -56,15 +56,18 @@ class ItemDetailPage extends StatelessWidget {
           'This will remove this item and cancel all upcoming reminder alerts. Associated documents will be kept in your vault.',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
               context.read<ItemsCubit>().deleteItem(item.id);
-              showToast(context, 'Item deleted', icon: Icons.delete_sweep_rounded, type: ToastType.info);
+              showToast(context, 'Item deleted',
+                  icon: Icons.delete_sweep_rounded, type: ToastType.info);
               context.pop();
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.dangerRed)),
+            child: const Text('Delete',
+                style: TextStyle(color: AppColors.dangerRed)),
           ),
         ],
       ),
@@ -115,13 +118,17 @@ class ItemDetailPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(sub.displayName.toUpperCase(),
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary)),
                     StatusChip(status: item.status),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Text(item.title, style: AppText.h1),
-                if (item.description != null && item.description!.isNotEmpty) ...[
+                if (item.description != null &&
+                    item.description!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(item.description!, style: AppText.bodyMedium),
                 ],
@@ -130,31 +137,39 @@ class ItemDetailPage extends StatelessWidget {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const Icon(Icons.alarm_rounded, color: AppColors.warningOrange, size: 24),
+                    const Icon(Icons.alarm_rounded,
+                        color: AppColors.warningOrange, size: 24),
                     const SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          item.subcategory == ItemSubcategory.bill ? 'Due Date' : 'Expiry Date',
+                          item.subcategory == ItemSubcategory.bill
+                              ? 'Due Date'
+                              : 'Expiry Date',
                           style: AppText.bodySmall,
                         ),
                         Text(
-                          item.targetDate != null ? AppDateUtils.formatDisplay(item.targetDate) : 'No date set',
+                          item.targetDate != null
+                              ? AppDateUtils.formatDisplay(item.targetDate)
+                              : 'No date set',
                           style: AppText.h3,
                         ),
                       ],
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         item.relativeTimeLabel,
-                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -185,36 +200,53 @@ class ItemDetailPage extends StatelessWidget {
                   if (item.billDetails != null) ...[
                     _detailRow('Provider', item.billDetails!.providerName),
                     if (item.billDetails!.accountNumber != null)
-                      _detailRow('Account No', item.billDetails!.accountNumber!),
+                      _detailRow(
+                          'Account No', item.billDetails!.accountNumber!),
                     if (item.billDetails!.amount != null)
-                      _detailRow('Amount Due', '₹${item.billDetails!.amount!.toStringAsFixed(2)}'),
-                    _detailRow('Payment Status', item.billDetails!.paymentStatus.toUpperCase()),
+                      _detailRow('Amount Due',
+                          '₹${item.billDetails!.amount!.toStringAsFixed(2)}'),
+                    _detailRow('Payment Status',
+                        item.billDetails!.paymentStatus.toUpperCase()),
                   ],
                   if (item.insuranceDetails != null) ...[
-                    _detailRow('Insurance Company', item.insuranceDetails!.provider),
+                    _detailRow(
+                        'Insurance Company', item.insuranceDetails!.provider),
                     if (item.insuranceDetails!.policyNumber != null)
-                      _detailRow('Policy Number', item.insuranceDetails!.policyNumber!),
+                      _detailRow('Policy Number',
+                          item.insuranceDetails!.policyNumber!),
                     if (item.insuranceDetails!.vehicleNumber != null)
-                      _detailRow('Vehicle Reg No', item.insuranceDetails!.vehicleNumber!),
+                      _detailRow('Vehicle Reg No',
+                          item.insuranceDetails!.vehicleNumber!),
                     if (item.insuranceDetails!.premiumAmount != null)
-                      _detailRow('Premium Amount', '₹${item.insuranceDetails!.premiumAmount!.toStringAsFixed(2)}'),
+                      _detailRow('Premium Amount',
+                          '₹${item.insuranceDetails!.premiumAmount!.toStringAsFixed(2)}'),
                   ],
                   if (item.groceryDetails != null) ...[
-                    _detailRow('Storage Location', StorageLocation.fromCode(item.groceryDetails!.storageLocation).label),
-                    _detailRow('Quantity Remaining', '${item.groceryDetails!.quantityRemaining} ${item.groceryDetails!.quantityUnit}'),
+                    _detailRow(
+                        'Storage Location',
+                        StorageLocation.fromCode(
+                                item.groceryDetails!.storageLocation)
+                            .label),
+                    _detailRow('Quantity Remaining',
+                        '${item.groceryDetails!.quantityRemaining} ${item.groceryDetails!.quantityUnit}'),
                     if (item.groceryDetails!.batchNumber != null)
-                      _detailRow('Batch Number', item.groceryDetails!.batchNumber!),
+                      _detailRow(
+                          'Batch Number', item.groceryDetails!.batchNumber!),
                   ],
                   if (item.warrantyDetails != null) ...[
                     if (item.warrantyDetails!.seller != null)
-                      _detailRow('Store / Seller', item.warrantyDetails!.seller!),
+                      _detailRow(
+                          'Store / Seller', item.warrantyDetails!.seller!),
                     if (item.warrantyDetails!.purchaseAmount != null)
-                      _detailRow('Purchase Price', '₹${item.warrantyDetails!.purchaseAmount!.toStringAsFixed(2)}'),
+                      _detailRow('Purchase Price',
+                          '₹${item.warrantyDetails!.purchaseAmount!.toStringAsFixed(2)}'),
                   ],
                   if (item.subscriptionDetails != null) ...[
-                    _detailRow('Billing Cycle', item.subscriptionDetails!.billingCycle.toUpperCase()),
+                    _detailRow('Billing Cycle',
+                        item.subscriptionDetails!.billingCycle.toUpperCase()),
                     if (item.subscriptionDetails!.amount != null)
-                      _detailRow('Price', '₹${item.subscriptionDetails!.amount!.toStringAsFixed(2)}'),
+                      _detailRow('Price',
+                          '₹${item.subscriptionDetails!.amount!.toStringAsFixed(2)}'),
                   ],
                 ],
               ),
@@ -223,7 +255,8 @@ class ItemDetailPage extends StatelessWidget {
           ],
 
           // Quick Action Buttons
-          if (item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed) ...[
+          if (item.subcategory == ItemSubcategory.bill &&
+              item.status != ItemStatus.completed) ...[
             ElevatedButton.icon(
               onPressed: () {
                 context.read<ItemsCubit>().markPaid(item.id);
@@ -231,7 +264,8 @@ class ItemDetailPage extends StatelessWidget {
               },
               icon: const Icon(Icons.check_circle_rounded),
               label: const Text('Mark as Paid'),
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.safeGreen),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.safeGreen),
             ),
             const SizedBox(height: 12),
           ],
@@ -249,7 +283,8 @@ class ItemDetailPage extends StatelessWidget {
                     },
                     icon: const Icon(Icons.check_rounded),
                     label: const Text('Used / Consumed'),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.safeGreen),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.safeGreen),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -275,13 +310,15 @@ class ItemDetailPage extends StatelessWidget {
               onPressed: () => context.push(AppRoutes.renewal, extra: item),
               icon: const Icon(Icons.autorenew_rounded),
               label: const Text('Renew This Policy / Document'),
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             ),
             const SizedBox(height: 20),
           ],
 
           // Documents section
-          Text('Attached Documents & Receipts (${item.documents.length})', style: AppText.label),
+          Text('Attached Documents & Receipts (${item.documents.length})',
+              style: AppText.label),
           const SizedBox(height: 10),
           if (item.documents.isEmpty)
             Container(
@@ -290,7 +327,8 @@ class ItemDetailPage extends StatelessWidget {
                 color: AppColors.surfaceRaised,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Text('No files attached. You can edit this item to attach invoices or certificates.'),
+              child: const Text(
+                  'No files attached. You can edit this item to attach invoices or certificates.'),
             )
           else
             ...item.documents.map((doc) {
@@ -298,11 +336,15 @@ class ItemDetailPage extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
                   leading: Icon(
-                    doc.fileName.toLowerCase().endsWith('.pdf') ? Icons.picture_as_pdf_rounded : Icons.image_rounded,
+                    doc.fileName.toLowerCase().endsWith('.pdf')
+                        ? Icons.picture_as_pdf_rounded
+                        : Icons.image_rounded,
                     color: AppColors.primary,
                   ),
-                  title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  subtitle: Text('${(doc.fileSize / 1024).toStringAsFixed(1)} KB'),
+                  title: Text(doc.fileName,
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  subtitle:
+                      Text('${(doc.fileSize / 1024).toStringAsFixed(1)} KB'),
                   trailing: const Icon(Icons.visibility_rounded),
                   onTap: () => _openDocument(context, doc),
                 ),

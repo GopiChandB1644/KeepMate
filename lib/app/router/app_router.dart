@@ -22,7 +22,8 @@ import '../../features/medicine_care/domain/entities/medicine_entity.dart';
 import '../shell/main_shell.dart';
 import 'app_routes.dart';
 
-final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+final GlobalKey<NavigatorState> rootNavigatorKey =
+    GlobalKey<NavigatorState>(debugLabel: 'root');
 
 GoRouter createRouter() {
   return GoRouter(
@@ -108,7 +109,8 @@ GoRouter createRouter() {
             return AddEditItemPage(
               initialSubcategory: extra['subcategory'] as ItemSubcategory?,
               initialTitle: extra['title'] as String?,
-              initialStorageLocation: extra['storageLocation'] as StorageLocation?,
+              initialStorageLocation:
+                  extra['storageLocation'] as StorageLocation?,
             );
           }
           return const AddEditItemPage();
@@ -158,4 +160,3 @@ GoRouter createRouter() {
     ],
   );
 }
-

@@ -12,4 +12,3 @@ class BackupConstants {
   static const String legacyDatabaseFileName = 'keepmate_data.json';
   static const String preferencesFileName = 'preferences.json';
 }
-

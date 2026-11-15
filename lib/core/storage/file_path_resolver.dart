@@ -65,4 +65,3 @@ class FilePathResolver {
     return rel.replaceAll('\\', '/');
   }
 }
-

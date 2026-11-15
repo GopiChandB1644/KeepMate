@@ -17,13 +17,24 @@ import '../domain/entities/dose_log_entity.dart';
 class CaregiverContactsPage extends StatelessWidget {
   const CaregiverContactsPage({super.key});
 
-  void _showAddEditCaregiverDialog(BuildContext context, [CaregiverEntity? existing]) {
+  void _showAddEditCaregiverDialog(BuildContext context,
+      [CaregiverEntity? existing]) {
     final nameCtrl = TextEditingController(text: existing?.name ?? '');
-    final relationCtrl = TextEditingController(text: existing?.relationship ?? 'Son');
-    final contactCtrl = TextEditingController(text: existing?.phoneOrEmail ?? '');
+    final relationCtrl =
+        TextEditingController(text: existing?.relationship ?? 'Son');
+    final contactCtrl =
+        TextEditingController(text: existing?.phoneOrEmail ?? '');
     int gracePeriod = existing?.gracePeriodMinutes ?? 30;
 
-    final relationships = ['Son', 'Daughter', 'Spouse', 'Parent', 'Doctor', 'Nurse / Caregiver', 'Other'];
+    final relationships = [
+      'Son',
+      'Daughter',
+      'Spouse',
+      'Parent',
+      'Doctor',
+      'Nurse / Caregiver',
+      'Other'
+    ];
 
     showDialog(
       context: context,
@@ -35,44 +46,58 @@ class CaregiverContactsPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Caregiver Name *', style: AppText.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                Text('Caregiver Name *',
+                    style: AppText.bodySmall
+                        .copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: nameCtrl,
                   decoration: InputDecoration(
                     hintText: 'e.g. Rajesh, Anita',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
                 const SizedBox(height: 14),
-
-                Text('Relationship', style: AppText.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                Text('Relationship',
+                    style: AppText.bodySmall
+                        .copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 DropdownButtonFormField<String>(
-                  value: relationships.contains(relationCtrl.text) ? relationCtrl.text : relationships.first,
+                  value: relationships.contains(relationCtrl.text)
+                      ? relationCtrl.text
+                      : relationships.first,
                   decoration: InputDecoration(
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
-                  items: relationships.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                  items: relationships
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                      .toList(),
                   onChanged: (val) {
-                    if (val != null) setDialogState(() => relationCtrl.text = val);
+                    if (val != null) {
+                      setDialogState(() => relationCtrl.text = val);
+                    }
                   },
                 ),
                 const SizedBox(height: 14),
-
-                Text('Phone or Email *', style: AppText.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                Text('Phone or Email *',
+                    style: AppText.bodySmall
+                        .copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 6),
                 TextField(
                   controller: contactCtrl,
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     hintText: '+91 98765 43210 or email@domain.com',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
                 const SizedBox(height: 14),
-
-                Text('Grace Period for Alert', style: AppText.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                Text('Grace Period for Alert',
+                    style: AppText.bodySmall
+                        .copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Text(
                   'Caregiver will be alerted if dose is unconfirmed after this time.',
@@ -87,13 +112,20 @@ class CaregiverContactsPage extends StatelessWidget {
                       child: ChoiceChip(
                         label: Text('${mins}m'),
                         selected: isSel,
-                        selectedColor: AppColors.medicineCareColor.withValues(alpha: 0.2),
+                        selectedColor:
+                            AppColors.medicineCareColor.withValues(alpha: 0.2),
                         backgroundColor: AppColors.surface,
                         labelStyle: TextStyle(
-                          color: isSel ? AppColors.medicineCareColor : AppColors.textSecondary,
-                          fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
+                          color: isSel
+                              ? AppColors.medicineCareColor
+                              : AppColors.textSecondary,
+                          fontWeight:
+                              isSel ? FontWeight.bold : FontWeight.normal,
                         ),
-                        side: BorderSide(color: isSel ? AppColors.medicineCareColor : AppColors.cardBorder),
+                        side: BorderSide(
+                            color: isSel
+                                ? AppColors.medicineCareColor
+                                : AppColors.cardBorder),
                         onSelected: (val) {
                           if (val) setDialogState(() => gracePeriod = mins);
                         },
@@ -110,12 +142,14 @@ class CaregiverContactsPage extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.medicineCareColor),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.medicineCareColor),
               onPressed: () async {
                 final name = nameCtrl.text.trim();
                 final contact = contactCtrl.text.trim();
                 if (name.isEmpty || contact.isEmpty) {
-                  showToast(context, 'Please fill name and contact info', type: ToastType.warning);
+                  showToast(context, 'Please fill name and contact info',
+                      type: ToastType.warning);
                   return;
                 }
 
@@ -127,16 +161,19 @@ class CaregiverContactsPage extends StatelessWidget {
                   phoneOrEmail: drift.Value(contact),
                   gracePeriodMinutes: drift.Value(gracePeriod),
                   notifyUnconfirmed: const drift.Value(true),
-                  createdAt: drift.Value(existing?.createdAt ?? DateTime.now().toIso8601String()),
+                  createdAt: drift.Value(
+                      existing?.createdAt ?? DateTime.now().toIso8601String()),
                 );
 
                 Navigator.pop(ctx);
                 await context.read<MedicineCubit>().saveCaregiver(companion);
                 if (context.mounted) {
-                  showToast(context, 'Caregiver linked successfully!', type: ToastType.success);
+                  showToast(context, 'Caregiver linked successfully!',
+                      type: ToastType.success);
                 }
               },
-              child: const Text('Save Caregiver', style: TextStyle(color: Colors.white)),
+              child: const Text('Save Caregiver',
+                  style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -145,20 +182,25 @@ class CaregiverContactsPage extends StatelessWidget {
   }
 
   void _shareCaregiverSummary(BuildContext context, MedicineState state) {
-    final unconfirmed = state.todayDoses.where((d) => d.status == DoseStatus.unconfirmed).toList();
+    final unconfirmed = state.todayDoses
+        .where((d) => d.status == DoseStatus.unconfirmed)
+        .toList();
     final buffer = StringBuffer();
     buffer.writeln('📋 KeepRemind - Medication Update');
-    buffer.writeln('Today\'s Summary: ${state.takenCount} taken, ${state.pendingCount} pending');
+    buffer.writeln(
+        'Today\'s Summary: ${state.takenCount} taken, ${state.pendingCount} pending');
 
     if (unconfirmed.isNotEmpty) {
       buffer.writeln('\n⚠️ Unconfirmed Doses (beyond grace period):');
       for (final d in unconfirmed) {
-        buffer.writeln('• ${d.medicine.name} (${d.medicine.dosage}) scheduled at ${d.scheduledTime} - Dose not confirmed yet');
+        buffer.writeln(
+            '• ${d.medicine.name} (${d.medicine.dosage}) scheduled at ${d.scheduledTime} - Dose not confirmed yet');
       }
     } else {
       buffer.writeln('\nAll doses up to this time are in order.');
     }
-    buffer.writeln('\n(Note: A missed notification is not proof of skipping. Please check gently with your family member.)');
+    buffer.writeln(
+        '\n(Note: A missed notification is not proof of skipping. Please check gently with your family member.)');
 
     Share.share(buffer.toString(), subject: 'Medication Update');
   }
@@ -168,7 +210,9 @@ class CaregiverContactsPage extends StatelessWidget {
     return BlocBuilder<MedicineCubit, MedicineState>(
       builder: (context, state) {
         final caregivers = state.caregivers;
-        final unconfirmedDoses = state.todayDoses.where((d) => d.status == DoseStatus.unconfirmed).toList();
+        final unconfirmedDoses = state.todayDoses
+            .where((d) => d.status == DoseStatus.unconfirmed)
+            .toList();
 
         return Scaffold(
           appBar: KeepRemindAppBar(
@@ -197,17 +241,20 @@ class CaregiverContactsPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: AppColors.infoBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.infoBlue.withValues(alpha: 0.2)),
+                  border: Border.all(
+                      color: AppColors.infoBlue.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.shield_outlined, color: AppColors.infoBlue, size: 22),
+                    const Icon(Icons.shield_outlined,
+                        color: AppColors.infoBlue, size: 22),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Caregivers receive respectful "Dose not confirmed" notices rather than assuming a dose was missed. Privacy is strictly protected.',
-                        style: AppText.bodySmall.copyWith(color: AppColors.textPrimary, height: 1.35),
+                        style: AppText.bodySmall.copyWith(
+                            color: AppColors.textPrimary, height: 1.35),
                       ),
                     ),
                   ],
@@ -223,18 +270,22 @@ class CaregiverContactsPage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: AppColors.warningOrange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: AppColors.warningOrange.withValues(alpha: 0.3)),
+                    border: Border.all(
+                        color: AppColors.warningOrange.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.warning_amber_rounded, color: AppColors.warningOrange, size: 20),
+                          const Icon(Icons.warning_amber_rounded,
+                              color: AppColors.warningOrange, size: 20),
                           const SizedBox(width: 8),
                           Text(
                             'Unconfirmed Doses (${unconfirmedDoses.length})',
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.warningOrange),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.warningOrange),
                           ),
                         ],
                       ),
@@ -248,10 +299,17 @@ class CaregiverContactsPage extends StatelessWidget {
                             padding: const EdgeInsets.only(bottom: 4),
                             child: Row(
                               children: [
-                                const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                Text('${d.medicine.name} (${d.scheduledTime})', style: const TextStyle(fontWeight: FontWeight.w600)),
+                                const Text('• ',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Text('${d.medicine.name} (${d.scheduledTime})',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600)),
                                 const Spacer(),
-                                const Text('Dose not confirmed', style: TextStyle(fontSize: 11, color: AppColors.dangerRed)),
+                                const Text('Dose not confirmed',
+                                    style: TextStyle(
+                                        fontSize: 11,
+                                        color: AppColors.dangerRed)),
                               ],
                             ),
                           )),
@@ -264,7 +322,8 @@ class CaregiverContactsPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Linked Caregivers (${caregivers.length})', style: AppText.h3),
+                  Text('Linked Caregivers (${caregivers.length})',
+                      style: AppText.h3),
                   TextButton.icon(
                     onPressed: () => _showAddEditCaregiverDialog(context),
                     icon: const Icon(Icons.add_rounded, size: 18),
@@ -278,7 +337,8 @@ class CaregiverContactsPage extends StatelessWidget {
                 const EmptyStateView(
                   icon: Icons.family_restroom_rounded,
                   title: 'No caregivers linked',
-                  description: 'Add a family member, son, daughter, or doctor to receive unconfirmed dose alerts if you ever forget a medicine.',
+                  description:
+                      'Add a family member, son, daughter, or doctor to receive unconfirmed dose alerts if you ever forget a medicine.',
                 )
               else
                 ...caregivers.map((cg) => _buildCaregiverCard(context, cg)),
@@ -310,7 +370,8 @@ class CaregiverContactsPage extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(
-              child: Icon(Icons.person_rounded, color: AppColors.medicineCareColor, size: 22),
+              child: Icon(Icons.person_rounded,
+                  color: AppColors.medicineCareColor, size: 22),
             ),
           ),
           const SizedBox(width: 12),
@@ -318,7 +379,9 @@ class CaregiverContactsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(cg.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                Text(cg.name,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15)),
                 const SizedBox(height: 2),
                 Text(
                   '${cg.relationship} • ${cg.phoneOrEmail}',
@@ -338,7 +401,8 @@ class CaregiverContactsPage extends StatelessWidget {
             onPressed: () => _showAddEditCaregiverDialog(context, cg),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: AppColors.dangerRed, size: 20),
+            icon: const Icon(Icons.delete_outline_rounded,
+                color: AppColors.dangerRed, size: 20),
             tooltip: 'Remove',
             onPressed: () async {
               await cubit.deleteCaregiver(cg.id);

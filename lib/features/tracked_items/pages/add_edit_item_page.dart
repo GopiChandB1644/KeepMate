@@ -66,14 +66,17 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
   void initState() {
     super.initState();
     final item = widget.existingItem;
-    _selectedSubcategory = item?.subcategory ?? widget.initialSubcategory ?? ItemSubcategory.bill;
+    _selectedSubcategory =
+        item?.subcategory ?? widget.initialSubcategory ?? ItemSubcategory.bill;
 
     if (widget.initialStorageLocation != null) {
       _selectedStorage = widget.initialStorageLocation!;
     }
 
-    _titleController = TextEditingController(text: item?.title ?? widget.initialTitle ?? '');
-    _descriptionController = TextEditingController(text: item?.description ?? '');
+    _titleController =
+        TextEditingController(text: item?.title ?? widget.initialTitle ?? '');
+    _descriptionController =
+        TextEditingController(text: item?.description ?? '');
     _providerOrSellerController = TextEditingController(
       text: item?.billDetails?.providerName ??
           item?.warrantyDetails?.seller ??
@@ -108,24 +111,28 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     _selectedStartDate = item?.startDate;
 
     if (item?.groceryDetails != null) {
-      _selectedStorage = StorageLocation.fromCode(item!.groceryDetails!.storageLocation);
+      _selectedStorage =
+          StorageLocation.fromCode(item!.groceryDetails!.storageLocation);
       _quantityUnit = item.groceryDetails!.quantityUnit;
     }
 
     if (item == null) {
       _reminderOffsets.clear();
-      _reminderOffsets.addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
+      _reminderOffsets
+          .addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
     } else {
       _reminderOffsets.clear();
       _reminderOffsets.addAll(item.reminderRules.map((r) => r.offsetDays));
       if (_reminderOffsets.isEmpty) {
-        _reminderOffsets.addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
+        _reminderOffsets
+            .addAll(ReminderScheduler.getDefaultOffsets(_selectedSubcategory));
       }
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkLostData();
-      LostDataService.instance.recoveredFileNotifier.addListener(_onRecoveredFileChanged);
+      LostDataService.instance.recoveredFileNotifier
+          .addListener(_onRecoveredFileChanged);
     });
   }
 
@@ -143,7 +150,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       if (response.isEmpty) return;
       final file = response.file;
       if (file != null && mounted) {
-        final compressed = await ImageCompressor.compress(file.path, purpose: ImagePurpose.document);
+        final compressed = await ImageCompressor.compress(file.path,
+            purpose: ImagePurpose.document);
         await _processAttachedFile(File(compressed));
       }
     } catch (e) {
@@ -153,7 +161,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
 
   @override
   void dispose() {
-    LostDataService.instance.recoveredFileNotifier.removeListener(_onRecoveredFileChanged);
+    LostDataService.instance.recoveredFileNotifier
+        .removeListener(_onRecoveredFileChanged);
     _titleController.dispose();
     _descriptionController.dispose();
     _providerOrSellerController.dispose();
@@ -404,7 +413,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -414,9 +424,11 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               Text('Attach Photo or Document', style: AppText.h3),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                leading: const Icon(Icons.camera_alt_rounded,
+                    color: AppColors.primary),
                 title: const Text('Take a Photo'),
-                subtitle: const Text('Capture document, bill, or item with camera'),
+                subtitle:
+                    const Text('Capture document, bill, or item with camera'),
                 onTap: () async {
                   Navigator.pop(ctx);
                   final picker = ImagePicker();
@@ -426,13 +438,16 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     imageQuality: 85,
                   );
                   if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
+                    final compressed = await ImageCompressor.compress(
+                        picked.path,
+                        purpose: ImagePurpose.document);
                     await _processAttachedFile(File(compressed));
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
+                leading: const Icon(Icons.photo_library_rounded,
+                    color: AppColors.secondary),
                 title: const Text('Choose from Gallery'),
                 subtitle: const Text('Select photo from gallery'),
                 onTap: () async {
@@ -444,13 +459,16 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     imageQuality: 85,
                   );
                   if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
+                    final compressed = await ImageCompressor.compress(
+                        picked.path,
+                        purpose: ImagePurpose.document);
                     await _processAttachedFile(File(compressed));
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.dangerRed),
+                leading: const Icon(Icons.picture_as_pdf_rounded,
+                    color: AppColors.dangerRed),
                 title: const Text('Upload PDF Document'),
                 subtitle: const Text('Select PDF bill, receipt, or policy'),
                 onTap: () async {
@@ -463,11 +481,13 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   if (result != null && result.files.isNotEmpty) {
                     final pickedFile = result.files.single;
                     File? fileToProcess;
-                    if (pickedFile.path != null && File(pickedFile.path!).existsSync()) {
+                    if (pickedFile.path != null &&
+                        File(pickedFile.path!).existsSync()) {
                       fileToProcess = File(pickedFile.path!);
                     } else if (pickedFile.bytes != null) {
                       final tempDir = await getTemporaryDirectory();
-                      final safeName = pickedFile.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+                      final safeName = pickedFile.name
+                          .replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
                       final tempFile = File('${tempDir.path}/$safeName');
                       await tempFile.writeAsBytes(pickedFile.bytes!);
                       fileToProcess = tempFile;
@@ -528,10 +548,13 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       }
 
       final parser = const OcrParserService();
-      final parsed = parser.parse(text: rawText, expectedSubcategory: _selectedSubcategory);
+      final parsed = parser.parse(
+          text: rawText, expectedSubcategory: _selectedSubcategory);
 
       setState(() {
-        if (parsed.title != null && (_titleController.text.trim().isEmpty || _isGenericTitle(_titleController.text))) {
+        if (parsed.title != null &&
+            (_titleController.text.trim().isEmpty ||
+                _isGenericTitle(_titleController.text))) {
           _titleController.text = parsed.title!;
         }
         if (parsed.providerOrSeller != null) {
@@ -547,7 +570,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
           }
         }
         if (parsed.amount != null) {
-          _amountController.text = parsed.amount!.toStringAsFixed(parsed.amount! % 1 == 0 ? 0 : 2);
+          _amountController.text =
+              parsed.amount!.toStringAsFixed(parsed.amount! % 1 == 0 ? 0 : 2);
         }
         if (parsed.expiryDate != null) {
           _selectedTargetDate = parsed.expiryDate;
@@ -649,14 +673,18 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     final nowIso = DateTime.now().toUtc().toIso8601String();
     final itemId = widget.existingItem?.id ?? uuid.v4();
     final targetDateStr = AppDateUtils.formatDateOnly(_selectedTargetDate!);
-    final startDateStr = _selectedStartDate != null ? AppDateUtils.formatDateOnly(_selectedStartDate!) : null;
+    final startDateStr = _selectedStartDate != null
+        ? AppDateUtils.formatDateOnly(_selectedStartDate!)
+        : null;
 
     final baseItem = TrackedItemsCompanion(
       id: drift.Value(itemId),
       category: drift.Value(_categoryForSubcategory.code),
       subcategory: drift.Value(_selectedSubcategory.code),
       title: drift.Value(_titleController.text.trim()),
-      description: drift.Value(_descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim()),
+      description: drift.Value(_descriptionController.text.trim().isEmpty
+          ? null
+          : _descriptionController.text.trim()),
       purchaseDate: drift.Value(startDateStr),
       issueDate: drift.Value(startDateStr),
       startDate: drift.Value(startDateStr),
@@ -682,8 +710,13 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       case ItemSubcategory.bill:
         bill = BillDetailsCompanion(
           itemId: drift.Value(itemId),
-          providerName: drift.Value(_providerOrSellerController.text.trim().isEmpty ? _titleController.text.trim() : _providerOrSellerController.text.trim()),
-          accountNumber: drift.Value(_docNumberController.text.trim().isEmpty ? null : _docNumberController.text.trim()),
+          providerName: drift.Value(
+              _providerOrSellerController.text.trim().isEmpty
+                  ? _titleController.text.trim()
+                  : _providerOrSellerController.text.trim()),
+          accountNumber: drift.Value(_docNumberController.text.trim().isEmpty
+              ? null
+              : _docNumberController.text.trim()),
           amount: drift.Value(parsedAmount),
           paymentStatus: const drift.Value('pending'),
         );
@@ -692,16 +725,25 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         warranty = WarrantyDetailsCompanion(
           itemId: drift.Value(itemId),
           productName: drift.Value(_titleController.text.trim()),
-          seller: drift.Value(_providerOrSellerController.text.trim().isEmpty ? null : _providerOrSellerController.text.trim()),
+          seller: drift.Value(_providerOrSellerController.text.trim().isEmpty
+              ? null
+              : _providerOrSellerController.text.trim()),
           purchaseAmount: drift.Value(parsedAmount),
         );
         break;
       case ItemSubcategory.insurance:
         insurance = InsuranceDetailsCompanion(
           itemId: drift.Value(itemId),
-          provider: drift.Value(_providerOrSellerController.text.trim().isEmpty ? 'Insurance Provider' : _providerOrSellerController.text.trim()),
-          policyNumber: drift.Value(_docNumberController.text.trim().isEmpty ? null : _docNumberController.text.trim()),
-          vehicleNumber: drift.Value(_vehicleNumberController.text.trim().isEmpty ? null : _vehicleNumberController.text.trim()),
+          provider: drift.Value(_providerOrSellerController.text.trim().isEmpty
+              ? 'Insurance Provider'
+              : _providerOrSellerController.text.trim()),
+          policyNumber: drift.Value(_docNumberController.text.trim().isEmpty
+              ? null
+              : _docNumberController.text.trim()),
+          vehicleNumber: drift.Value(
+              _vehicleNumberController.text.trim().isEmpty
+                  ? null
+                  : _vehicleNumberController.text.trim()),
           premiumAmount: drift.Value(parsedAmount),
         );
         break;
@@ -717,7 +759,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         purchase = PurchaseDetailsCompanion(
           itemId: drift.Value(itemId),
           productName: drift.Value(_titleController.text.trim()),
-          seller: drift.Value(_providerOrSellerController.text.trim().isEmpty ? null : _providerOrSellerController.text.trim()),
+          seller: drift.Value(_providerOrSellerController.text.trim().isEmpty
+              ? null
+              : _providerOrSellerController.text.trim()),
           purchaseAmount: drift.Value(parsedAmount),
         );
         break;
@@ -725,20 +769,28 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
         grocery = GroceryDetailsCompanion(
           itemId: drift.Value(itemId),
           productName: drift.Value(_titleController.text.trim()),
-          batchNumber: drift.Value(_docNumberController.text.trim().isEmpty ? null : _docNumberController.text.trim()),
+          batchNumber: drift.Value(_docNumberController.text.trim().isEmpty
+              ? null
+              : _docNumberController.text.trim()),
           storageLocation: drift.Value(_selectedStorage.code),
-          quantityRemaining: drift.Value(double.tryParse(_quantityController.text.trim()) ?? 1.0),
+          quantityRemaining: drift.Value(
+              double.tryParse(_quantityController.text.trim()) ?? 1.0),
           quantityUnit: drift.Value(_quantityUnit),
         );
         break;
       case ItemSubcategory.document:
         final docNum = _docNumberController.text.trim().isNotEmpty
             ? _docNumberController.text.trim()
-            : (_vehicleNumberController.text.trim().isNotEmpty ? _vehicleNumberController.text.trim() : null);
+            : (_vehicleNumberController.text.trim().isNotEmpty
+                ? _vehicleNumberController.text.trim()
+                : null);
         document = DocumentDetailsCompanion(
           itemId: drift.Value(itemId),
           documentNumber: drift.Value(docNum),
-          issuingAuthority: drift.Value(_providerOrSellerController.text.trim().isEmpty ? null : _providerOrSellerController.text.trim()),
+          issuingAuthority: drift.Value(
+              _providerOrSellerController.text.trim().isEmpty
+                  ? null
+                  : _providerOrSellerController.text.trim()),
           documentType: drift.Value(_selectedSubcategory.displayName),
         );
         break;
@@ -754,7 +806,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
           itemId: drift.Value(itemId),
           fileName: stored.fileName,
           relativePath: stored.relativePath,
-          mimeType: stored.fileName.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+          mimeType: stored.fileName.toLowerCase().endsWith('.pdf')
+              ? 'application/pdf'
+              : 'image/jpeg',
           fileSize: stored.fileSize,
           checksumSha256: stored.checksum,
           source: 'user_attachment',
@@ -795,7 +849,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
     if (mounted) {
       showToast(
         context,
-        widget.existingItem != null ? 'Item updated successfully!' : 'Item saved successfully!',
+        widget.existingItem != null
+            ? 'Item updated successfully!'
+            : 'Item saved successfully!',
         icon: Icons.check_circle_rounded,
         type: ToastType.success,
       );
@@ -821,11 +877,13 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
             children: [
               // 1. Focused Category & Selected Type Badge (No unrelated clutter!)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: _categoryThemeColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _categoryThemeColor.withValues(alpha: 0.25)),
+                  border: Border.all(
+                      color: _categoryThemeColor.withValues(alpha: 0.25)),
                 ),
                 child: Row(
                   children: [
@@ -835,7 +893,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                         color: _categoryThemeColor.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(_categoryIcon, color: _categoryThemeColor, size: 20),
+                      child: Icon(_categoryIcon,
+                          color: _categoryThemeColor, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -866,7 +925,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     if (!isEditing)
                       PopupMenuButton<ItemSubcategory>(
                         tooltip: 'Change Type',
-                        icon: Icon(Icons.swap_horiz_rounded, color: _categoryThemeColor),
+                        icon: Icon(Icons.swap_horiz_rounded,
+                            color: _categoryThemeColor),
                         onSelected: _onSubcategoryChanged,
                         itemBuilder: (context) {
                           return ItemSubcategory.values.map((sub) {
@@ -875,7 +935,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                               child: Row(
                                 children: [
                                   if (sub == _selectedSubcategory)
-                                    const Icon(Icons.check_rounded, size: 16, color: AppColors.primary)
+                                    const Icon(Icons.check_rounded,
+                                        size: 16, color: AppColors.primary)
                                   else
                                     const SizedBox(width: 16),
                                   const SizedBox(width: 8),
@@ -898,7 +959,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 decoration: BoxDecoration(
                   color: _categoryThemeColor.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _categoryThemeColor.withValues(alpha: 0.25)),
+                  border: Border.all(
+                      color: _categoryThemeColor.withValues(alpha: 0.25)),
                 ),
                 child: Row(
                   children: [
@@ -908,7 +970,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                         color: _categoryThemeColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.document_scanner_rounded, color: Colors.white, size: 24),
+                      child: const Icon(Icons.document_scanner_rounded,
+                          color: Colors.white, size: 24),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -924,17 +987,23 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       onPressed: _isExtractingText ? null : _pickAttachment,
-                      icon: const Icon(Icons.camera_alt_rounded, size: 16, color: Colors.white),
+                      icon: const Icon(Icons.camera_alt_rounded,
+                          size: 16, color: Colors.white),
                       label: _isExtractingText
                           ? const SizedBox(
                               width: 14,
                               height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
                             )
-                          : const Text('Scan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          : const Text('Scan',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _categoryThemeColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 10),
                         minimumSize: Size.zero,
                       ),
                     ),
@@ -945,20 +1014,26 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               if (_isExtractingText) ...[
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+                    border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.25)),
                   ),
                   child: Row(
                     children: const [
-                      SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                      SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2)),
                       SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Reading document and auto-filling form details...',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w500),
                         ),
                       ),
                     ],
@@ -973,7 +1048,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   children: _attachedFiles.map((f) {
                     return Chip(
                       avatar: const Icon(Icons.attachment_rounded, size: 16),
-                      label: Text(f.uri.pathSegments.last, style: const TextStyle(fontSize: 12)),
+                      label: Text(f.uri.pathSegments.last,
+                          style: const TextStyle(fontSize: 12)),
                       onDeleted: () {
                         setState(() {
                           _attachedFiles.remove(f);
@@ -994,7 +1070,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 decoration: InputDecoration(
                   hintText: _titleFieldHint,
                 ),
-                validator: (val) => val == null || val.trim().isEmpty ? 'Please enter a name' : null,
+                validator: (val) => val == null || val.trim().isEmpty
+                    ? 'Please enter a name'
+                    : null,
               ),
 
               const SizedBox(height: 20),
@@ -1007,7 +1085,10 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   if (_selectedTargetDate != null)
                     Text(
                       AppDateUtils.getRelativeTimeLabel(_selectedTargetDate),
-                      style: TextStyle(color: _categoryThemeColor, fontWeight: FontWeight.bold, fontSize: 13),
+                      style: TextStyle(
+                          color: _categoryThemeColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13),
                     ),
                 ],
               ),
@@ -1016,7 +1097,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceRaised,
                     borderRadius: BorderRadius.circular(12),
@@ -1024,7 +1106,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.calendar_month_rounded, color: _categoryThemeColor),
+                      Icon(Icons.calendar_month_rounded,
+                          color: _categoryThemeColor),
                       const SizedBox(width: 12),
                       Text(
                         _selectedTargetDate != null
@@ -1049,7 +1132,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                       padding: const EdgeInsets.only(right: 6),
                       child: ActionChip(
                         label: Text(preset['label'] as String),
-                        onPressed: () => _applyQuickDatePreset(preset['days'] as int),
+                        onPressed: () =>
+                            _applyQuickDatePreset(preset['days'] as int),
                       ),
                     );
                   }).toList(),
@@ -1068,16 +1152,23 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     Text(
                       _selectedSubcategory == ItemSubcategory.document
                           ? 'Issue / Registration Date'
-                          : _selectedSubcategory == ItemSubcategory.warranty || _selectedSubcategory == ItemSubcategory.purchase
+                          : _selectedSubcategory == ItemSubcategory.warranty ||
+                                  _selectedSubcategory ==
+                                      ItemSubcategory.purchase
                               ? 'Purchase Date'
                               : 'Bill Date',
                       style: AppText.label,
                     ),
                     if (_selectedStartDate != null)
                       TextButton(
-                        onPressed: () => setState(() => _selectedStartDate = null),
-                        style: TextButton.styleFrom(visualDensity: VisualDensity.compact, padding: EdgeInsets.zero),
-                        child: Text('Clear', style: TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        onPressed: () =>
+                            setState(() => _selectedStartDate = null),
+                        style: TextButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero),
+                        child: Text('Clear',
+                            style: TextStyle(
+                                fontSize: 12, color: AppColors.textMuted)),
                       ),
                   ],
                 ),
@@ -1086,7 +1177,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   onTap: _pickStartDate,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceRaised,
                       borderRadius: BorderRadius.circular(12),
@@ -1094,13 +1186,16 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.event_available_rounded, color: _categoryThemeColor, size: 20),
+                        Icon(Icons.event_available_rounded,
+                            color: _categoryThemeColor, size: 20),
                         const SizedBox(width: 12),
                         Text(
                           _selectedStartDate != null
                               ? AppDateUtils.formatDisplay(_selectedStartDate)
                               : 'Select date (optional)',
-                          style: _selectedStartDate != null ? AppText.bodyLarge : AppText.bodySmall,
+                          style: _selectedStartDate != null
+                              ? AppText.bodyLarge
+                              : AppText.bodySmall,
                         ),
                         const Spacer(),
                         const Icon(Icons.arrow_drop_down_rounded),
@@ -1149,7 +1244,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                           ? 'Insurance Provider / Company'
                           : _selectedSubcategory == ItemSubcategory.bill
                               ? 'Biller / Service Provider'
-                              : _selectedSubcategory == ItemSubcategory.subscription
+                              : _selectedSubcategory ==
+                                      ItemSubcategory.subscription
                                   ? 'Platform / Company'
                                   : 'Seller / Store / Brand',
                   style: AppText.label,
@@ -1164,7 +1260,8 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                             ? 'e.g. HDFC Ergo, Star Health'
                             : _selectedSubcategory == ItemSubcategory.bill
                                 ? 'e.g. APCPDCL, BESCOM, Airtel'
-                                : _selectedSubcategory == ItemSubcategory.subscription
+                                : _selectedSubcategory ==
+                                        ItemSubcategory.subscription
                                     ? 'e.g. Netflix, Spotify, Amazon'
                                     : 'e.g. Amazon, Croma, Apple',
                   ),
@@ -1173,15 +1270,18 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
               ],
 
               // Vehicle Registration Number (ONLY for Insurance & Vehicle Documents)
-              if (_selectedSubcategory == ItemSubcategory.insurance || _selectedSubcategory == ItemSubcategory.document) ...[
+              if (_selectedSubcategory == ItemSubcategory.insurance ||
+                  _selectedSubcategory == ItemSubcategory.document) ...[
                 Text('Vehicle Registration Number', style: AppText.label),
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _vehicleNumberController,
                   textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(hintText: 'e.g. AP04TE1234, KA01AB1234 (optional)'),
+                  decoration: const InputDecoration(
+                      hintText: 'e.g. AP04TE1234, KA01AB1234 (optional)'),
                   onChanged: (val) {
-                    if (_selectedSubcategory == ItemSubcategory.document && _docNumberController.text.trim().isEmpty) {
+                    if (_selectedSubcategory == ItemSubcategory.document &&
+                        _docNumberController.text.trim().isEmpty) {
                       _docNumberController.text = val;
                     }
                   },
@@ -1208,8 +1308,10 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 const SizedBox(height: 6),
                 TextFormField(
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(hintText: 'e.g. 1500 (optional)'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  decoration:
+                      const InputDecoration(hintText: 'e.g. 1500 (optional)'),
                 ),
                 const SizedBox(height: 16),
               ],
@@ -1243,12 +1345,17 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                           const SizedBox(height: 6),
                           DropdownButtonFormField<StorageLocation>(
                             initialValue: _selectedStorage,
-                            decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
+                            decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 12)),
                             items: StorageLocation.values.map((loc) {
-                              return DropdownMenuItem(value: loc, child: Text(loc.label));
+                              return DropdownMenuItem(
+                                  value: loc, child: Text(loc.label));
                             }).toList(),
                             onChanged: (val) {
-                              if (val != null) setState(() => _selectedStorage = val);
+                              if (val != null) {
+                                setState(() => _selectedStorage = val);
+                              }
                             },
                           ),
                         ],
@@ -1267,14 +1374,18 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 children: _availableReminderOffsets.map((days) {
                   final isChecked = _reminderOffsets.contains(days);
                   final label = days == 0
-                      ? (_selectedSubcategory == ItemSubcategory.bill ? 'On due date' : 'On expiry day')
+                      ? (_selectedSubcategory == ItemSubcategory.bill
+                          ? 'On due date'
+                          : 'On expiry day')
                       : '$days days before';
                   return FilterChip(
                     label: Text(label),
                     selected: isChecked,
                     selectedColor: _categoryThemeColor.withValues(alpha: 0.15),
                     labelStyle: TextStyle(
-                      color: isChecked ? _categoryThemeColor : AppColors.textPrimary,
+                      color: isChecked
+                          ? _categoryThemeColor
+                          : AppColors.textPrimary,
                       fontWeight: isChecked ? FontWeight.w700 : FontWeight.w500,
                     ),
                     onSelected: (val) {
@@ -1297,21 +1408,27 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                 onPressed: _isSaving ? null : _save,
                 icon: _isSaving
                     ? const SizedBox.shrink()
-                    : const Icon(Icons.check_circle_rounded, color: Colors.white),
+                    : const Icon(Icons.check_circle_rounded,
+                        color: Colors.white),
                 label: _isSaving
                     ? const SizedBox(
                         height: 22,
                         width: 22,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5),
                       )
                     : Text(
                         isEditing ? 'Save Changes' : 'Save & Set Reminder',
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
                       ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.safeGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                 ),
               ),
               const SizedBox(height: 40),

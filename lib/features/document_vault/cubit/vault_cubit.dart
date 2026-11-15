@@ -80,7 +80,8 @@ class VaultCubit extends Cubit<VaultState> {
     }
   }
 
-  Future<void> deleteDocument(ItemDocument doc, {bool deleteFromDisk = true}) async {
+  Future<void> deleteDocument(ItemDocument doc,
+      {bool deleteFromDisk = true}) async {
     try {
       // Soft-delete in database
       await (database.update(database.itemDocuments)

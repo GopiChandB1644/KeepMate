@@ -140,7 +140,8 @@ class EncryptionService {
     }
 
     if (diff != 0) {
-      throw const BackupException('Incorrect password or corrupted backup file');
+      throw const BackupException(
+          'Incorrect password or corrupted backup file');
     }
 
     // Decrypt
@@ -175,4 +176,3 @@ class EncryptionService {
     return output;
   }
 }
-

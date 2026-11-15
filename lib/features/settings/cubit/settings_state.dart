@@ -22,8 +22,12 @@ class SettingsState {
   });
 
   String get formattedStorageUsed {
-    if (storageBytesUsed < 1024) return '$storageBytesUsed B';
-    if (storageBytesUsed < 1024 * 1024) return '${(storageBytesUsed / 1024).toStringAsFixed(1)} KB';
+    if (storageBytesUsed < 1024) {
+      return '$storageBytesUsed B';
+    }
+    if (storageBytesUsed < 1024 * 1024) {
+      return '${(storageBytesUsed / 1024).toStringAsFixed(1)} KB';
+    }
     return '${(storageBytesUsed / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
 
@@ -40,7 +44,8 @@ class SettingsState {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
-      preferredReminderTime: preferredReminderTime ?? this.preferredReminderTime,
+      preferredReminderTime:
+          preferredReminderTime ?? this.preferredReminderTime,
       storageBytesUsed: storageBytesUsed ?? this.storageBytesUsed,
       totalItemsCount: totalItemsCount ?? this.totalItemsCount,
       totalDocumentsCount: totalDocumentsCount ?? this.totalDocumentsCount,
@@ -49,4 +54,3 @@ class SettingsState {
     );
   }
 }
-

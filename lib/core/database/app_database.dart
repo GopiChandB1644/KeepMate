@@ -30,10 +30,11 @@ part 'app_database.g.dart';
   CaregiverContacts,
 ])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? e]) : super(e ?? driftDatabase(name: 'keepremind'));
+  AppDatabase([QueryExecutor? e])
+      : super(e ?? driftDatabase(name: 'keepremind'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -48,6 +49,13 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(medicineDoseLogs);
           await m.createTable(caregiverContacts);
         }
+        if (from < 3) {
+          await m.addColumn(medicines, medicines.reminderMode);
+          await m.addColumn(medicines, medicines.alarmSound);
+          await m.addColumn(medicines, medicines.vibrationEnabled);
+          await m.addColumn(medicines, medicines.snoozeDurationMinutes);
+          await m.addColumn(medicines, medicines.maximumRingingDurationMinutes);
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON;');
@@ -55,4 +63,3 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 }
-

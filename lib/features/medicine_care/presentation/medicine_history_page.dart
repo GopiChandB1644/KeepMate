@@ -27,7 +27,8 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
   }
 
   void _loadHistory() {
-    _historyFuture = widget.historyFuture ?? context.read<MedicineRepository>().getAllDoseHistory();
+    _historyFuture = widget.historyFuture ??
+        context.read<MedicineRepository>().getAllDoseHistory();
   }
 
   @override
@@ -50,18 +51,27 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
             return const EmptyStateView(
               icon: Icons.history_rounded,
               title: 'No dose records yet',
-              description: 'Your logged doses and medication adherence history will appear here once you take or skip scheduled doses.',
+              description:
+                  'Your logged doses and medication adherence history will appear here once you take or skip scheduled doses.',
             );
           }
 
-          final takenCount = history.where((d) => d.status == DoseStatus.taken).length;
-          final skippedCount = history.where((d) => d.status == DoseStatus.skipped).length;
+          final takenCount =
+              history.where((d) => d.status == DoseStatus.taken).length;
+          final skippedCount =
+              history.where((d) => d.status == DoseStatus.skipped).length;
           final totalActioned = takenCount + skippedCount;
-          final adherencePercent = totalActioned > 0 ? ((takenCount / totalActioned) * 100).round() : 100;
+          final adherencePercent = totalActioned > 0
+              ? ((takenCount / totalActioned) * 100).round()
+              : 100;
 
           final filtered = history.where((d) {
-            if (_selectedFilter == 'taken') return d.status == DoseStatus.taken;
-            if (_selectedFilter == 'skipped') return d.status == DoseStatus.skipped;
+            if (_selectedFilter == 'taken') {
+              return d.status == DoseStatus.taken;
+            }
+            if (_selectedFilter == 'skipped') {
+              return d.status == DoseStatus.skipped;
+            }
             return true;
           }).toList();
 
@@ -85,15 +95,19 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                           width: 64,
                           height: 64,
                           child: CircularProgressIndicator(
-                            value: totalActioned > 0 ? (takenCount / totalActioned) : 1.0,
+                            value: totalActioned > 0
+                                ? (takenCount / totalActioned)
+                                : 1.0,
                             strokeWidth: 6,
                             backgroundColor: AppColors.cardBorder,
-                            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.safeGreen),
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.safeGreen),
                           ),
                         ),
                         Text(
                           '$adherencePercent%',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -104,7 +118,8 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                         children: [
                           const Text(
                             'Medication Adherence',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -153,7 +168,8 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
         fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
         color: isSel ? AppColors.medicineCareColor : AppColors.textSecondary,
       ),
-      side: BorderSide(color: isSel ? AppColors.medicineCareColor : AppColors.cardBorder),
+      side: BorderSide(
+          color: isSel ? AppColors.medicineCareColor : AppColors.cardBorder),
       onSelected: (val) {
         if (val) setState(() => _selectedFilter = code);
       },
@@ -185,7 +201,8 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
               children: [
                 Text(
                   dose.medicine.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -196,7 +213,10 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                   const SizedBox(height: 2),
                   Text(
                     'Reason: ${dose.skipReason}',
-                    style: TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMuted,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ],
@@ -205,7 +225,9 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: isTaken ? AppColors.safeGreen.withValues(alpha: 0.12) : Colors.grey.withValues(alpha: 0.12),
+              color: isTaken
+                  ? AppColors.safeGreen.withValues(alpha: 0.12)
+                  : Colors.grey.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(

@@ -20,4 +20,3 @@ class AppRoutes {
   static const String itemDetail = '/item-detail';
   static const String renewal = '/renewal';
 }
-

@@ -24,7 +24,8 @@ class SettingsCubit extends Cubit<SettingsState> with WidgetsBindingObserver {
   void didChangePlatformBrightness() {
     if (state.themeMode == ThemeMode.system) {
       try {
-        final platformBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        final platformBrightness =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness;
         AppColors.updateTheme(ThemeMode.system, platformBrightness);
       } catch (_) {
         AppColors.updateTheme(ThemeMode.system);
@@ -55,7 +56,10 @@ class SettingsCubit extends Cubit<SettingsState> with WidgetsBindingObserver {
       final itemsCount = await database.select(database.trackedItems).get();
       final docsCount = await database.select(database.itemDocuments).get();
       final backups = await (database.select(database.backupHistory)
-            ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
+            ]))
           .get();
 
       final lastBackup = backups.isNotEmpty ? backups.first.createdAt : null;

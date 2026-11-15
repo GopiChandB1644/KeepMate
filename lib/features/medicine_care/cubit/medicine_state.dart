@@ -46,15 +46,26 @@ class MedicineState {
   }
 
   // Statistics & helpers
-  int get takenCount => todayDoses.where((d) => d.status == DoseStatus.taken).length;
-  int get pendingCount => todayDoses.where((d) => d.status == DoseStatus.pending || d.status == DoseStatus.snoozed).length;
-  int get skippedCount => todayDoses.where((d) => d.status == DoseStatus.skipped).length;
-  int get unconfirmedCount => todayDoses.where((d) => d.status == DoseStatus.unconfirmed || d.status == DoseStatus.missed).length;
+  int get takenCount =>
+      todayDoses.where((d) => d.status == DoseStatus.taken).length;
+  int get pendingCount => todayDoses
+      .where((d) =>
+          d.status == DoseStatus.pending || d.status == DoseStatus.snoozed)
+      .length;
+  int get skippedCount =>
+      todayDoses.where((d) => d.status == DoseStatus.skipped).length;
+  int get unconfirmedCount => todayDoses
+      .where((d) =>
+          d.status == DoseStatus.unconfirmed || d.status == DoseStatus.missed)
+      .length;
   int get totalDosesCount => todayDoses.length;
 
   double get adherenceRate {
     if (todayDoses.isEmpty) return 1.0;
-    final actionable = todayDoses.where((d) => d.status != DoseStatus.pending && d.status != DoseStatus.snoozed).toList();
+    final actionable = todayDoses
+        .where((d) =>
+            d.status != DoseStatus.pending && d.status != DoseStatus.snoozed)
+        .toList();
     if (actionable.isEmpty) return 1.0;
     return takenCount / actionable.length;
   }
@@ -64,13 +75,17 @@ class MedicineState {
     final nowTime = DateFormat('HH:mm').format(DateTime.now());
     // Find first pending or snoozed dose at or after nowTime
     final upcoming = todayDoses.where((d) {
-      return (d.status == DoseStatus.pending || d.status == DoseStatus.snoozed) &&
+      return (d.status == DoseStatus.pending ||
+              d.status == DoseStatus.snoozed) &&
           d.scheduledTime.compareTo(nowTime) >= 0;
     }).toList();
     if (upcoming.isNotEmpty) return upcoming.first;
 
     // Otherwise find any pending dose from earlier today
-    final remaining = todayDoses.where((d) => d.status == DoseStatus.pending || d.status == DoseStatus.snoozed).toList();
+    final remaining = todayDoses
+        .where((d) =>
+            d.status == DoseStatus.pending || d.status == DoseStatus.snoozed)
+        .toList();
     if (remaining.isNotEmpty) return remaining.first;
 
     return null;

@@ -23,7 +23,9 @@ class ReminderRecoveryService {
           .get();
 
       for (final item in activeItems) {
-        if (item.status == 'completed' || item.status == 'consumed' || item.status == 'archived') {
+        if (item.status == 'completed' ||
+            item.status == 'consumed' ||
+            item.status == 'archived') {
           continue;
         }
 
@@ -53,12 +55,15 @@ class ReminderRecoveryService {
           succeeded++;
         } catch (itemErr, st) {
           failed++;
-          debugPrint('[ReminderRecoveryService] Failed to reschedule item "${item.title}" (${item.id}): $itemErr\n$st');
+          debugPrint(
+              '[ReminderRecoveryService] Failed to reschedule item "${item.title}" (${item.id}): $itemErr\n$st');
         }
       }
-      debugPrint('[ReminderRecoveryService] Reconcile completed: $succeeded item(s) restored, $failed failed.');
+      debugPrint(
+          '[ReminderRecoveryService] Reconcile completed: $succeeded item(s) restored, $failed failed.');
     } catch (e, st) {
-      debugPrint('[ReminderRecoveryService] Database recovery query failed: $e\n$st');
+      debugPrint(
+          '[ReminderRecoveryService] Database recovery query failed: $e\n$st');
     }
 
     return (succeeded: succeeded, failed: failed);

@@ -18,7 +18,8 @@ class TodaySchedulePage extends StatelessWidget {
   String _formatTime12Hour(String hhmm) {
     try {
       final parts = hhmm.split(':');
-      final time = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      final time =
+          TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
       final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.period == DayPeriod.am ? 'AM' : 'PM';
@@ -30,7 +31,12 @@ class TodaySchedulePage extends StatelessWidget {
 
   void _showSkipDialog(BuildContext context, DoseLogEntity dose) {
     final reasonController = TextEditingController();
-    final commonReasons = ['Felt nauseous / sick', 'Doctor advised to stop', 'Forgot / away from home', 'Fasting'];
+    final commonReasons = [
+      'Felt nauseous / sick',
+      'Doctor advised to stop',
+      'Forgot / away from home',
+      'Fasting'
+    ];
 
     showDialog(
       context: context,
@@ -40,7 +46,8 @@ class TodaySchedulePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Why is ${dose.medicine.name} being skipped?', style: AppText.bodyMedium),
+            Text('Why is ${dose.medicine.name} being skipped?',
+                style: AppText.bodyMedium),
             const SizedBox(height: 12),
             Wrap(
               spacing: 6,
@@ -59,7 +66,8 @@ class TodaySchedulePage extends StatelessWidget {
               controller: reasonController,
               decoration: InputDecoration(
                 hintText: 'Enter reason or select above',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
           ],
@@ -70,16 +78,20 @@ class TodaySchedulePage extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.dangerRed),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: AppColors.dangerRed),
             onPressed: () async {
               final reason = reasonController.text.trim();
               Navigator.pop(ctx);
-              await context.read<MedicineCubit>().markDoseSkipped(dose, reason: reason.isNotEmpty ? reason : null);
+              await context.read<MedicineCubit>().markDoseSkipped(dose,
+                  reason: reason.isNotEmpty ? reason : null);
               if (context.mounted) {
-                showToast(context, 'Dose marked as skipped', type: ToastType.info);
+                showToast(context, 'Dose marked as skipped',
+                    type: ToastType.info);
               }
             },
-            child: const Text('Skip Dose', style: TextStyle(color: Colors.white)),
+            child:
+                const Text('Skip Dose', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -99,8 +111,11 @@ class TodaySchedulePage extends StatelessWidget {
 
         return Scaffold(
           appBar: KeepRemindAppBar(
-            title: isToday ? "Today's Medicines" : DateFormat('EEE, dd MMM').format(state.selectedDate),
-            subtitle: '${state.takenCount} taken • ${state.pendingCount} pending',
+            title: isToday
+                ? "Today's Medicines"
+                : DateFormat('EEE, dd MMM').format(state.selectedDate),
+            subtitle:
+                '${state.takenCount} taken • ${state.pendingCount} pending',
             showBack: true,
             actions: [
               IconButton(
@@ -110,7 +125,8 @@ class TodaySchedulePage extends StatelessWidget {
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: state.selectedDate,
-                    firstDate: DateTime.now().subtract(const Duration(days: 90)),
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 90)),
                     lastDate: DateTime.now().add(const Duration(days: 90)),
                   );
                   if (picked != null) {
@@ -189,7 +205,8 @@ class TodaySchedulePage extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
@@ -201,7 +218,10 @@ class TodaySchedulePage extends StatelessWidget {
                     SizedBox(width: 4),
                     Text(
                       'NEXT DOSE',
-                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -209,19 +229,24 @@ class TodaySchedulePage extends StatelessWidget {
               const Spacer(),
               Text(
                 _formatTime12Hour(dose.scheduledTime),
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             dose.medicine.name,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             '${dose.medicine.dosage} • ${dose.medicine.instructions.label}',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14),
+            style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.9), fontSize: 14),
           ),
           const SizedBox(height: 16),
           Row(
@@ -232,14 +257,18 @@ class TodaySchedulePage extends StatelessWidget {
                     backgroundColor: Colors.white,
                     foregroundColor: AppColors.medicineCareColor,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.check_circle_rounded, size: 18),
-                  label: const Text('Mark Taken', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: const Text('Mark Taken',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     await cubit.markDoseTaken(dose);
                     if (context.mounted) {
-                      showToast(context, '${dose.medicine.name} marked as taken!', type: ToastType.success);
+                      showToast(
+                          context, '${dose.medicine.name} marked as taken!',
+                          type: ToastType.success);
                     }
                   },
                 ),
@@ -249,13 +278,16 @@ class TodaySchedulePage extends StatelessWidget {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white,
                   side: const BorderSide(color: Colors.white, width: 1.2),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 onPressed: () async {
                   await cubit.snoozeDose(dose, minutes: 15);
                   if (context.mounted) {
-                    showToast(context, 'Snoozed for 15 minutes', type: ToastType.info);
+                    showToast(context, 'Snoozed for 15 minutes',
+                        type: ToastType.info);
                   }
                 },
                 child: const Row(
@@ -301,10 +333,13 @@ class TodaySchedulePage extends StatelessWidget {
           children: [
             Text(
               '$count',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: color),
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, color: color),
             ),
             const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 10, color: AppColors.textSecondary), maxLines: 1),
+            Text(label,
+                style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                maxLines: 1),
           ],
         ),
       ),
@@ -348,7 +383,8 @@ class TodaySchedulePage extends StatelessWidget {
                   children: [
                     Text(
                       dose.medicine.name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -363,7 +399,8 @@ class TodaySchedulePage extends StatelessWidget {
                 children: [
                   Text(
                     _formatTime12Hour(dose.scheduledTime),
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   _statusBadge(dose.status),
@@ -382,35 +419,46 @@ class TodaySchedulePage extends StatelessWidget {
               children: [
                 TextButton.icon(
                   onPressed: () => _showSkipDialog(context, dose),
-                  icon: Icon(Icons.close_rounded, size: 16, color: AppColors.textMuted),
-                  label: Text('Skip', style: TextStyle(color: AppColors.textMuted)),
+                  icon: Icon(Icons.close_rounded,
+                      size: 16, color: AppColors.textMuted),
+                  label: Text('Skip',
+                      style: TextStyle(color: AppColors.textMuted)),
                 ),
                 const SizedBox(width: 4),
                 TextButton.icon(
                   onPressed: () async {
                     await cubit.snoozeDose(dose, minutes: 15);
                     if (context.mounted) {
-                      showToast(context, 'Snoozed for 15 minutes', type: ToastType.info);
+                      showToast(context, 'Snoozed for 15 minutes',
+                          type: ToastType.info);
                     }
                   },
-                  icon: const Icon(Icons.snooze_rounded, size: 16, color: AppColors.accent),
-                  label: const Text('Snooze', style: TextStyle(color: AppColors.accent)),
+                  icon: const Icon(Icons.snooze_rounded,
+                      size: 16, color: AppColors.accent),
+                  label: const Text('Snooze',
+                      style: TextStyle(color: AppColors.accent)),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.safeGreen,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                   onPressed: () async {
                     await cubit.markDoseTaken(dose);
                     if (context.mounted) {
-                      showToast(context, 'Marked as taken!', type: ToastType.success);
+                      showToast(context, 'Marked as taken!',
+                          type: ToastType.success);
                     }
                   },
-                  icon: const Icon(Icons.check_rounded, color: Colors.white, size: 16),
-                  label: const Text('Taken', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.check_rounded,
+                      color: Colors.white, size: 16),
+                  label: const Text('Taken',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -418,13 +466,19 @@ class TodaySchedulePage extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Confirmed at ${DateFormat('hh:mm a').format(DateTime.parse(dose.actionTime!))}',
-              style: TextStyle(fontSize: 11, color: AppColors.safeGreen, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.safeGreen,
+                  fontWeight: FontWeight.w600),
             ),
           ] else if (dose.isSkipped && dose.skipReason != null) ...[
             const SizedBox(height: 6),
             Text(
               'Reason: ${dose.skipReason}',
-              style: TextStyle(fontSize: 11, color: AppColors.textMuted, fontStyle: FontStyle.italic),
+              style: TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textMuted,
+                  fontStyle: FontStyle.italic),
             ),
           ],
         ],

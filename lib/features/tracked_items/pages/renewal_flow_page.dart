@@ -40,7 +40,8 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
     );
     final oldExpiry = widget.item.expiryDate ?? DateTime.now();
     _newStartDate = oldExpiry;
-    _newExpiryDate = DateTime(oldExpiry.year + 1, oldExpiry.month, oldExpiry.day);
+    _newExpiryDate =
+        DateTime(oldExpiry.year + 1, oldExpiry.month, oldExpiry.day);
   }
 
   @override
@@ -53,7 +54,8 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
   Future<void> _pickDate() async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: _newExpiryDate ?? DateTime.now().add(const Duration(days: 365)),
+      initialDate:
+          _newExpiryDate ?? DateTime.now().add(const Duration(days: 365)),
       firstDate: DateTime.now(),
       lastDate: DateTime(2045),
     );
@@ -73,7 +75,9 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
       oldItemId: widget.item.id,
       newExpiryDate: _newExpiryDate!,
       newStartDate: _newStartDate,
-      newDocumentNumber: _docNumberController.text.trim().isEmpty ? null : _docNumberController.text.trim(),
+      newDocumentNumber: _docNumberController.text.trim().isEmpty
+          ? null
+          : _docNumberController.text.trim(),
       newAmount: parsedAmount,
     );
 
@@ -108,11 +112,13 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.history_rounded, color: AppColors.primary, size: 28),
+                    const Icon(Icons.history_rounded,
+                        color: AppColors.primary, size: 28),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Text(
@@ -130,7 +136,8 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
                 onTap: _pickDate,
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   decoration: BoxDecoration(
                     color: AppColors.surfaceRaised,
                     borderRadius: BorderRadius.circular(12),
@@ -138,10 +145,13 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.event_available_rounded, color: AppColors.primary),
+                      const Icon(Icons.event_available_rounded,
+                          color: AppColors.primary),
                       const SizedBox(width: 12),
                       Text(
-                        _newExpiryDate != null ? AppDateUtils.formatDisplay(_newExpiryDate) : 'Select date',
+                        _newExpiryDate != null
+                            ? AppDateUtils.formatDisplay(_newExpiryDate)
+                            : 'Select date',
                         style: AppText.bodyLarge,
                       ),
                       const Spacer(),
@@ -151,18 +161,21 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('New Policy / Certificate / Document No', style: AppText.label),
+              Text('New Policy / Certificate / Document No',
+                  style: AppText.label),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _docNumberController,
-                decoration: const InputDecoration(hintText: 'e.g. POL-2027-8910'),
+                decoration:
+                    const InputDecoration(hintText: 'e.g. POL-2027-8910'),
               ),
               const SizedBox(height: 20),
               Text('Renewal Fee / Premium Amount (₹)', style: AppText.label),
               const SizedBox(height: 6),
               TextFormField(
                 controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(hintText: 'e.g. 5200'),
               ),
               const SizedBox(height: 32),
@@ -173,8 +186,14 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isSaving
-                    ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                    : const Text('Confirm Renewal', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5))
+                    : const Text('Confirm Renewal',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

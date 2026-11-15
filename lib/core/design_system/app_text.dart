@@ -54,4 +54,3 @@ class AppText {
         letterSpacing: 0.2,
       );
 }
-

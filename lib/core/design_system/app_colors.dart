@@ -13,7 +13,8 @@ class AppColors {
     Brightness? platform = platformBrightness;
     if (platform == null) {
       try {
-        platform = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        platform =
+            WidgetsBinding.instance.platformDispatcher.platformBrightness;
       } catch (_) {
         platform = Brightness.light;
       }
@@ -49,16 +50,24 @@ class AppColors {
   static const Color vaultColor = Color(0xFF7C3AED); // Violet
 
   // Surfaces & Backgrounds
-  static Color get background => _p(const Color(0xFFF8FAFC), const Color(0xFF0F172A));
-  static Color get surface => _p(const Color(0xFFFFFFFF), const Color(0xFF1E293B));
-  static Color get surfaceRaised => _p(const Color(0xFFF1F5F9), const Color(0xFF334155));
-  static Color get cardBorder => _p(const Color(0xFFE2E8F0), const Color(0xFF334155));
+  static Color get background =>
+      _p(const Color(0xFFF8FAFC), const Color(0xFF0F172A));
+  static Color get surface =>
+      _p(const Color(0xFFFFFFFF), const Color(0xFF1E293B));
+  static Color get surfaceRaised =>
+      _p(const Color(0xFFF1F5F9), const Color(0xFF334155));
+  static Color get cardBorder =>
+      _p(const Color(0xFFE2E8F0), const Color(0xFF334155));
 
   // Text Colors
-  static Color get textPrimary => _p(const Color(0xFF0F172A), const Color(0xFFF8FAFC));
-  static Color get textSecondary => _p(const Color(0xFF475569), const Color(0xFF94A3B8));
-  static Color get textMuted => _p(const Color(0xFF94A3B8), const Color(0xFF64748B));
+  static Color get textPrimary =>
+      _p(const Color(0xFF0F172A), const Color(0xFFF8FAFC));
+  static Color get textSecondary =>
+      _p(const Color(0xFF475569), const Color(0xFF94A3B8));
+  static Color get textMuted =>
+      _p(const Color(0xFF94A3B8), const Color(0xFF64748B));
 
   // Shimmer / Divider
-  static Color get divider => _p(const Color(0xFFE2E8F0), const Color(0xFF1E293B));
+  static Color get divider =>
+      _p(const Color(0xFFE2E8F0), const Color(0xFF1E293B));
 }

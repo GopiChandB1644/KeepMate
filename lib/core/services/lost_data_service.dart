@@ -27,7 +27,8 @@ class LostDataService {
         );
         final recoveredFile = File(compressed);
         recoveredFileNotifier.value = recoveredFile;
-        debugPrint('LostDataService: Successfully recovered lost camera file at ${recoveredFile.path}');
+        debugPrint(
+            'LostDataService: Successfully recovered lost camera file at ${recoveredFile.path}');
         return recoveredFile;
       }
     } catch (e) {
@@ -40,4 +41,3 @@ class LostDataService {
     recoveredFileNotifier.value = null;
   }
 }
-

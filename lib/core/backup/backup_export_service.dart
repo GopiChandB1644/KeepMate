@@ -63,18 +63,21 @@ class BackupExportService {
       'appSettings': settings.map((e) => e.toJson()).toList(),
     };
 
-    fileMap[BackupConstants.databaseFileName] = Uint8List.fromList(utf8.encode(jsonEncode(dbData)));
+    fileMap[BackupConstants.databaseFileName] =
+        Uint8List.fromList(utf8.encode(jsonEncode(dbData)));
 
     // 2. Gather all associated document files
     final documentEntries = <BackupDocumentEntry>[];
     for (final doc in itemDocs) {
       if (doc.deletedAt != null) continue;
       try {
-        final diskFile = await FilePathResolver.resolveRelativePath(doc.relativePath);
+        final diskFile =
+            await FilePathResolver.resolveRelativePath(doc.relativePath);
         if (await diskFile.exists()) {
           final bytes = await diskFile.readAsBytes();
           final checksum = integrityService.calculateBytesChecksum(bytes);
-          final archivePath = 'documents/${doc.relativePath}'.replaceAll('\\', '/');
+          final archivePath =
+              'documents/${doc.relativePath}'.replaceAll('\\', '/');
           fileMap[archivePath] = bytes;
 
           documentEntries.add(BackupDocumentEntry(
@@ -96,7 +99,8 @@ class BackupExportService {
       itemCount: items.length,
       documents: documentEntries,
     );
-    fileMap[BackupConstants.manifestFileName] = Uint8List.fromList(utf8.encode(manifest.encode()));
+    fileMap[BackupConstants.manifestFileName] =
+        Uint8List.fromList(utf8.encode(manifest.encode()));
 
     // 4. Compress to ZIP archive
     final zipBytes = archiveService.createArchive(fileMap);
@@ -110,12 +114,15 @@ class BackupExportService {
     // 6. Write .kmb file to backups directory
     final backupsDir = await FilePathResolver.backupsDirectory;
     final dateStr = DateFormat('yyyy-MM-dd_HHmmss').format(DateTime.now());
-    final backupFile = File(p.join(backupsDir.path, 'KeepRemind_Backup_$dateStr.kmb'));
+    final backupFile =
+        File(p.join(backupsDir.path, 'KeepRemind_Backup_$dateStr.kmb'));
     await backupFile.writeAsBytes(encryptedBytes);
 
     // 7. Record in backup_history table
     final checksum = integrityService.calculateBytesChecksum(encryptedBytes);
-    await database.into(database.backupHistory).insert(BackupHistoryCompanion.insert(
+    await database
+        .into(database.backupHistory)
+        .insert(BackupHistoryCompanion.insert(
           id: const Uuid().v4(),
           backupId: backupId,
           backupType: 'manual_encrypted',

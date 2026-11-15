@@ -85,4 +85,3 @@ class AppDateUtils {
     return ItemStatus.active;
   }
 }
-

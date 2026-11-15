@@ -66,4 +66,3 @@ abstract class ItemRepository {
   /// Get item lifecycle history events
   Future<List<ItemHistoryData>> getItemHistory(String itemId);
 }
-

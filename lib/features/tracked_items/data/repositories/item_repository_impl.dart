@@ -18,19 +18,35 @@ class ItemRepositoryImpl implements ItemRepository {
   });
 
   Future<TrackedItemEntity> _populateEntity(TrackedItem base) async {
-    final bill = await (db.select(db.billDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final warranty = await (db.select(db.warrantyDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final insurance = await (db.select(db.insuranceDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final subscription = await (db.select(db.subscriptionDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final purchase = await (db.select(db.purchaseDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final grocery = await (db.select(db.groceryDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
-    final doc = await (db.select(db.documentDetails)..where((t) => t.itemId.equals(base.id))).getSingleOrNull();
+    final bill = await (db.select(db.billDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final warranty = await (db.select(db.warrantyDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final insurance = await (db.select(db.insuranceDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final subscription = await (db.select(db.subscriptionDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final purchase = await (db.select(db.purchaseDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final grocery = await (db.select(db.groceryDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
+    final doc = await (db.select(db.documentDetails)
+          ..where((t) => t.itemId.equals(base.id)))
+        .getSingleOrNull();
 
     final docs = await (db.select(db.itemDocuments)
           ..where((t) => t.itemId.equals(base.id) & t.deletedAt.isNull()))
         .get();
 
-    final rules = await (db.select(db.reminderRules)..where((t) => t.itemId.equals(base.id))).get();
+    final rules = await (db.select(db.reminderRules)
+          ..where((t) => t.itemId.equals(base.id)))
+        .get();
 
     return TrackedItemEntity(
       baseItem: base,
@@ -50,7 +66,10 @@ class ItemRepositoryImpl implements ItemRepository {
   Stream<List<TrackedItemEntity>> watchAllItems() {
     return (db.select(db.trackedItems)
           ..where((t) => t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)]))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
+          ]))
         .watch()
         .asyncMap((items) async {
       return Future.wait(items.map(_populateEntity));
@@ -61,7 +80,10 @@ class ItemRepositoryImpl implements ItemRepository {
   Future<List<TrackedItemEntity>> getAllItems() async {
     final items = await (db.select(db.trackedItems)
           ..where((t) => t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)]))
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
+          ]))
         .get();
     return Future.wait(items.map(_populateEntity));
   }
@@ -69,8 +91,12 @@ class ItemRepositoryImpl implements ItemRepository {
   @override
   Stream<List<TrackedItemEntity>> watchItemsByCategory(ItemCategory category) {
     return (db.select(db.trackedItems)
-          ..where((t) => t.category.equals(category.code) & t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)]))
+          ..where(
+              (t) => t.category.equals(category.code) & t.deletedAt.isNull())
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
+          ]))
         .watch()
         .asyncMap((items) async {
       return Future.wait(items.map(_populateEntity));
@@ -78,10 +104,15 @@ class ItemRepositoryImpl implements ItemRepository {
   }
 
   @override
-  Future<List<TrackedItemEntity>> getItemsByCategory(ItemCategory category) async {
+  Future<List<TrackedItemEntity>> getItemsByCategory(
+      ItemCategory category) async {
     final items = await (db.select(db.trackedItems)
-          ..where((t) => t.category.equals(category.code) & t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)]))
+          ..where(
+              (t) => t.category.equals(category.code) & t.deletedAt.isNull())
+          ..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
+          ]))
         .get();
     return Future.wait(items.map(_populateEntity));
   }
@@ -113,13 +144,27 @@ class ItemRepositoryImpl implements ItemRepository {
       final itemId = item.id.value;
       await db.into(db.trackedItems).insert(item);
 
-      if (bill != null) await db.into(db.billDetails).insert(bill);
-      if (warranty != null) await db.into(db.warrantyDetails).insert(warranty);
-      if (insurance != null) await db.into(db.insuranceDetails).insert(insurance);
-      if (subscription != null) await db.into(db.subscriptionDetails).insert(subscription);
-      if (purchase != null) await db.into(db.purchaseDetails).insert(purchase);
-      if (grocery != null) await db.into(db.groceryDetails).insert(grocery);
-      if (document != null) await db.into(db.documentDetails).insert(document);
+      if (bill != null) {
+        await db.into(db.billDetails).insert(bill);
+      }
+      if (warranty != null) {
+        await db.into(db.warrantyDetails).insert(warranty);
+      }
+      if (insurance != null) {
+        await db.into(db.insuranceDetails).insert(insurance);
+      }
+      if (subscription != null) {
+        await db.into(db.subscriptionDetails).insert(subscription);
+      }
+      if (purchase != null) {
+        await db.into(db.purchaseDetails).insert(purchase);
+      }
+      if (grocery != null) {
+        await db.into(db.groceryDetails).insert(grocery);
+      }
+      if (document != null) {
+        await db.into(db.documentDetails).insert(document);
+      }
 
       for (final doc in documents) {
         await db.into(db.itemDocuments).insert(doc);
@@ -145,7 +190,9 @@ class ItemRepositoryImpl implements ItemRepository {
           ));
     });
 
-    final inserted = await (db.select(db.trackedItems)..where((t) => t.id.equals(item.id.value))).getSingle();
+    final inserted = await (db.select(db.trackedItems)
+          ..where((t) => t.id.equals(item.id.value)))
+        .getSingle();
     await reminderScheduler.scheduleForItem(
       item: inserted,
       offsetDaysList: reminderOffsets,
@@ -170,7 +217,8 @@ class ItemRepositoryImpl implements ItemRepository {
     final itemId = item.id.value;
 
     await db.transaction(() async {
-      await (db.update(db.trackedItems)..where((t) => t.id.equals(itemId))).write(item);
+      await (db.update(db.trackedItems)..where((t) => t.id.equals(itemId)))
+          .write(item);
 
       if (bill != null) {
         await db.into(db.billDetails).insertOnConflictUpdate(bill);
@@ -182,7 +230,9 @@ class ItemRepositoryImpl implements ItemRepository {
         await db.into(db.insuranceDetails).insertOnConflictUpdate(insurance);
       }
       if (subscription != null) {
-        await db.into(db.subscriptionDetails).insertOnConflictUpdate(subscription);
+        await db
+            .into(db.subscriptionDetails)
+            .insertOnConflictUpdate(subscription);
       }
       if (purchase != null) {
         await db.into(db.purchaseDetails).insertOnConflictUpdate(purchase);
@@ -201,7 +251,9 @@ class ItemRepositoryImpl implements ItemRepository {
       }
 
       if (reminderOffsets != null) {
-        await (db.delete(db.reminderRules)..where((t) => t.itemId.equals(itemId))).go();
+        await (db.delete(db.reminderRules)
+              ..where((t) => t.itemId.equals(itemId)))
+            .go();
         for (final offset in reminderOffsets) {
           await db.into(db.reminderRules).insert(ReminderRulesCompanion.insert(
                 id: _uuid.v4(),
@@ -223,9 +275,12 @@ class ItemRepositoryImpl implements ItemRepository {
           ));
     });
 
-    final updated = await (db.select(db.trackedItems)..where((t) => t.id.equals(itemId))).getSingle();
+    final updated = await (db.select(db.trackedItems)
+          ..where((t) => t.id.equals(itemId)))
+        .getSingle();
     if (reminderOffsets != null) {
-      await reminderScheduler.cancelForItem(itemId: itemId, offsetDaysList: [30, 7, 3, 2, 1, 0]);
+      await reminderScheduler
+          .cancelForItem(itemId: itemId, offsetDaysList: [30, 7, 3, 2, 1, 0]);
       await reminderScheduler.scheduleForItem(
         item: updated,
         offsetDaysList: reminderOffsets,
@@ -251,7 +306,8 @@ class ItemRepositoryImpl implements ItemRepository {
           eventAt: DateTime.now().toUtc().toIso8601String(),
         ));
 
-    await reminderScheduler.cancelForItem(itemId: id, offsetDaysList: [30, 7, 3, 2, 1, 0]);
+    await reminderScheduler
+        .cancelForItem(itemId: id, offsetDaysList: [30, 7, 3, 2, 1, 0]);
   }
 
   @override
@@ -271,8 +327,11 @@ class ItemRepositoryImpl implements ItemRepository {
           eventAt: DateTime.now().toUtc().toIso8601String(),
         ));
 
-    if (status == ItemStatus.consumed || status == ItemStatus.completed || status == ItemStatus.archived) {
-      await reminderScheduler.cancelForItem(itemId: id, offsetDaysList: [30, 7, 3, 2, 1, 0]);
+    if (status == ItemStatus.consumed ||
+        status == ItemStatus.completed ||
+        status == ItemStatus.archived) {
+      await reminderScheduler
+          .cancelForItem(itemId: id, offsetDaysList: [30, 7, 3, 2, 1, 0]);
     }
   }
 
@@ -291,11 +350,13 @@ class ItemRepositoryImpl implements ItemRepository {
     final newItemId = _uuid.v4();
     final nowIso = DateTime.now().toUtc().toIso8601String();
     final newExpiryStr = AppDateUtils.formatDateOnly(newExpiryDate);
-    final newStartStr = newStartDate != null ? AppDateUtils.formatDateOnly(newStartDate) : null;
+    final newStartStr =
+        newStartDate != null ? AppDateUtils.formatDateOnly(newStartDate) : null;
 
     await db.transaction(() async {
       // 1. Mark old item as archived / renewed
-      await (db.update(db.trackedItems)..where((t) => t.id.equals(oldItemId))).write(
+      await (db.update(db.trackedItems)..where((t) => t.id.equals(oldItemId)))
+          .write(
         TrackedItemsCompanion(
           status: const Value('archived'),
           updatedAt: Value(nowIso),
@@ -322,13 +383,17 @@ class ItemRepositoryImpl implements ItemRepository {
 
       // 3. Duplicate and update specific category details
       if (old.insuranceDetails != null) {
-        await db.into(db.insuranceDetails).insert(InsuranceDetailsCompanion.insert(
+        await db
+            .into(db.insuranceDetails)
+            .insert(InsuranceDetailsCompanion.insert(
               itemId: newItemId,
               provider: old.insuranceDetails!.provider,
-              policyNumber: Value(newDocumentNumber ?? old.insuranceDetails!.policyNumber),
+              policyNumber: Value(
+                  newDocumentNumber ?? old.insuranceDetails!.policyNumber),
               vehicleNumber: Value(old.insuranceDetails!.vehicleNumber),
               coverageType: Value(old.insuranceDetails!.coverageType),
-              premiumAmount: Value(newAmount ?? old.insuranceDetails!.premiumAmount),
+              premiumAmount:
+                  Value(newAmount ?? old.insuranceDetails!.premiumAmount),
             ));
       } else if (old.billDetails != null) {
         await db.into(db.billDetails).insert(BillDetailsCompanion.insert(
@@ -340,9 +405,12 @@ class ItemRepositoryImpl implements ItemRepository {
               paymentStatus: const Value('pending'),
             ));
       } else if (old.documentDetails != null) {
-        await db.into(db.documentDetails).insert(DocumentDetailsCompanion.insert(
+        await db
+            .into(db.documentDetails)
+            .insert(DocumentDetailsCompanion.insert(
               itemId: newItemId,
-              documentNumber: Value(newDocumentNumber ?? old.documentDetails!.documentNumber),
+              documentNumber: Value(
+                  newDocumentNumber ?? old.documentDetails!.documentNumber),
               issuingAuthority: Value(old.documentDetails!.issuingAuthority),
               documentType: old.documentDetails!.documentType,
             ));
@@ -351,12 +419,15 @@ class ItemRepositoryImpl implements ItemRepository {
       // 4. Attach new documents if supplied
       if (newDocuments != null) {
         for (final doc in newDocuments) {
-          await db.into(db.itemDocuments).insert(doc.copyWith(itemId: Value(newItemId)));
+          await db
+              .into(db.itemDocuments)
+              .insert(doc.copyWith(itemId: Value(newItemId)));
         }
       }
 
       // 5. Default reminder rules for renewed item
-      final defaultOffsets = ReminderScheduler.getDefaultOffsets(old.subcategory);
+      final defaultOffsets =
+          ReminderScheduler.getDefaultOffsets(old.subcategory);
       for (final offset in defaultOffsets) {
         await db.into(db.reminderRules).insert(ReminderRulesCompanion.insert(
               id: _uuid.v4(),
@@ -373,14 +444,18 @@ class ItemRepositoryImpl implements ItemRepository {
             id: _uuid.v4(),
             itemId: newItemId,
             eventType: 'renewed',
-            eventDataJson: Value('{"renewedFrom": "$oldItemId", "newExpiry": "$newExpiryStr"}'),
+            eventDataJson: Value(
+                '{"renewedFrom": "$oldItemId", "newExpiry": "$newExpiryStr"}'),
             eventAt: nowIso,
           ));
     });
 
     // Cancel old reminders and schedule new reminders
-    await reminderScheduler.cancelForItem(itemId: oldItemId, offsetDaysList: [30, 7, 3, 2, 1, 0]);
-    final newItem = await (db.select(db.trackedItems)..where((t) => t.id.equals(newItemId))).getSingle();
+    await reminderScheduler
+        .cancelForItem(itemId: oldItemId, offsetDaysList: [30, 7, 3, 2, 1, 0]);
+    final newItem = await (db.select(db.trackedItems)
+          ..where((t) => t.id.equals(newItemId)))
+        .getSingle();
     await reminderScheduler.scheduleForItem(
       item: newItem,
       offsetDaysList: ReminderScheduler.getDefaultOffsets(old.subcategory),
@@ -393,7 +468,10 @@ class ItemRepositoryImpl implements ItemRepository {
   Future<List<TrackedItemEntity>> searchItems(String query) async {
     final lower = '%${query.toLowerCase().trim()}%';
     final items = await (db.select(db.trackedItems)
-          ..where((t) => (t.title.lower().like(lower) | t.description.lower().like(lower)) & t.deletedAt.isNull()))
+          ..where((t) =>
+              (t.title.lower().like(lower) |
+                  t.description.lower().like(lower)) &
+              t.deletedAt.isNull()))
         .get();
     return Future.wait(items.map(_populateEntity));
   }
@@ -402,8 +480,9 @@ class ItemRepositoryImpl implements ItemRepository {
   Future<List<ItemHistoryData>> getItemHistory(String itemId) {
     return (db.select(db.itemHistory)
           ..where((t) => t.itemId.equals(itemId))
-          ..orderBy([(t) => OrderingTerm(expression: t.eventAt, mode: OrderingMode.desc)]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.eventAt, mode: OrderingMode.desc)
+          ]))
         .get();
   }
 }
-

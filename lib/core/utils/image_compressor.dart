@@ -33,7 +33,8 @@ class ImageCompressor {
 
   /// Compressed copy of [path] for [purpose], or [path] itself when it is
   /// already small enough or cannot be compressed.
-  static Future<String> compress(String path, {ImagePurpose purpose = ImagePurpose.document}) async {
+  static Future<String> compress(String path,
+      {ImagePurpose purpose = ImagePurpose.document}) async {
     if (kIsWeb) return path;
     try {
       final source = File(path);
@@ -42,7 +43,8 @@ class ImageCompressor {
       final originalKb = await source.length() ~/ 1024;
       if (originalKb <= purpose.maxKb && _isJpeg(path)) return path;
 
-      final target = '${source.parent.path}/${_baseName(path)}_${DateTime.now().microsecondsSinceEpoch}_c.jpg';
+      final target =
+          '${source.parent.path}/${_baseName(path)}_${DateTime.now().microsecondsSinceEpoch}_c.jpg';
       var quality = _startQuality;
       XFile? out;
       var outKb = 0;
@@ -60,7 +62,8 @@ class ImageCompressor {
         quality -= 10;
       } while (outKb > purpose.maxKb && quality >= _minQuality);
 
-      debugPrint('ImageCompressor(${purpose.name}): ${originalKb}KB -> ${outKb}KB at q${quality + 10}');
+      debugPrint(
+          'ImageCompressor(${purpose.name}): ${originalKb}KB -> ${outKb}KB at q${quality + 10}');
       return outKb < originalKb ? out.path : path;
     } catch (e) {
       debugPrint('ImageCompressor: kept original ($e)');

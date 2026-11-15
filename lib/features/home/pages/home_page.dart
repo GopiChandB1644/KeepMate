@@ -30,7 +30,9 @@ class _HomePageState extends State<HomePage> {
         return BlocBuilder<MedicineCubit, MedicineState>(
           builder: (context, medState) {
             final cubit = context.read<ItemsCubit>();
-            final tabItems = state.items.where((e) => e.category == _selectedCategory).toList();
+            final tabItems = state.items
+                .where((e) => e.category == _selectedCategory)
+                .toList();
             final urgentTabItems = tabItems
                 .where((e) =>
                     e.status == ItemStatus.dueToday ||
@@ -38,9 +40,12 @@ class _HomePageState extends State<HomePage> {
                     e.status == ItemStatus.expired)
                 .toList();
 
-            final tabDueToday = tabItems.where((e) => e.status == ItemStatus.dueToday).length;
-            final tabUpcoming = tabItems.where((e) => e.status == ItemStatus.upcoming).length;
-            final tabActive = tabItems.where((e) => e.status == ItemStatus.active).length;
+            final tabDueToday =
+                tabItems.where((e) => e.status == ItemStatus.dueToday).length;
+            final tabUpcoming =
+                tabItems.where((e) => e.status == ItemStatus.upcoming).length;
+            final tabActive =
+                tabItems.where((e) => e.status == ItemStatus.active).length;
 
             final fabConfig = _getFabConfig();
 
@@ -52,7 +57,8 @@ class _HomePageState extends State<HomePage> {
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.bookmark_added_rounded, color: Colors.white, size: 20),
+                  child: const Icon(Icons.bookmark_added_rounded,
+                      color: Colors.white, size: 20),
                 ),
                 title: 'KeepRemind',
                 subtitle: 'Never miss an expiry or bill',
@@ -72,7 +78,10 @@ class _HomePageState extends State<HomePage> {
                 icon: const Icon(Icons.add_rounded, color: Colors.white),
                 label: Text(
                   fabConfig.label,
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
                 ),
               ),
               body: ListView(
@@ -149,7 +158,8 @@ class _HomePageState extends State<HomePage> {
                     if (urgentTabItems.isNotEmpty) ...[
                       Row(
                         children: [
-                          const Icon(Icons.notification_important_rounded, color: AppColors.dangerRed, size: 22),
+                          const Icon(Icons.notification_important_rounded,
+                              color: AppColors.dangerRed, size: 22),
                           const SizedBox(width: 8),
                           Text('Action Required', style: AppText.h3),
                         ],
@@ -158,17 +168,20 @@ class _HomePageState extends State<HomePage> {
                       ...urgentTabItems.map((item) {
                         return ItemSummaryCard(
                           item: item,
-                          onTap: () => context.push(AppRoutes.itemDetail, extra: item),
-                          quickActionLabel: item.subcategory == ItemSubcategory.bill
-                              ? 'Mark Paid'
-                              : item.subcategory == ItemSubcategory.grocery
-                                  ? 'Used Up'
-                                  : null,
-                          onQuickAction: item.subcategory == ItemSubcategory.bill
-                              ? () => cubit.markPaid(item.id)
-                              : item.subcategory == ItemSubcategory.grocery
-                                  ? () => cubit.markConsumed(item.id)
-                                  : null,
+                          onTap: () =>
+                              context.push(AppRoutes.itemDetail, extra: item),
+                          quickActionLabel:
+                              item.subcategory == ItemSubcategory.bill
+                                  ? 'Mark Paid'
+                                  : item.subcategory == ItemSubcategory.grocery
+                                      ? 'Used Up'
+                                      : null,
+                          onQuickAction:
+                              item.subcategory == ItemSubcategory.bill
+                                  ? () => cubit.markPaid(item.id)
+                                  : item.subcategory == ItemSubcategory.grocery
+                                      ? () => cubit.markConsumed(item.id)
+                                      : null,
                         );
                       }),
                       const SizedBox(height: 16),
@@ -185,7 +198,9 @@ class _HomePageState extends State<HomePage> {
                         if (tabItems.isNotEmpty)
                           Text(
                             '$tabActive active',
-                            style: AppText.bodySmall.copyWith(color: AppColors.safeGreen, fontWeight: FontWeight.bold),
+                            style: AppText.bodySmall.copyWith(
+                                color: AppColors.safeGreen,
+                                fontWeight: FontWeight.bold),
                           ),
                       ],
                     ),
@@ -197,15 +212,22 @@ class _HomePageState extends State<HomePage> {
                       ...tabItems.map((item) {
                         return ItemSummaryCard(
                           item: item,
-                          onTap: () => context.push(AppRoutes.itemDetail, extra: item),
-                          quickActionLabel: item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed
+                          onTap: () =>
+                              context.push(AppRoutes.itemDetail, extra: item),
+                          quickActionLabel: item.subcategory ==
+                                      ItemSubcategory.bill &&
+                                  item.status != ItemStatus.completed
                               ? 'Mark Paid'
-                              : item.subcategory == ItemSubcategory.grocery && item.status != ItemStatus.consumed
+                              : item.subcategory == ItemSubcategory.grocery &&
+                                      item.status != ItemStatus.consumed
                                   ? 'Used Up'
                                   : null,
-                          onQuickAction: item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed
+                          onQuickAction: item.subcategory ==
+                                      ItemSubcategory.bill &&
+                                  item.status != ItemStatus.completed
                               ? () => cubit.markPaid(item.id)
-                              : item.subcategory == ItemSubcategory.grocery && item.status != ItemStatus.consumed
+                              : item.subcategory == ItemSubcategory.grocery &&
+                                      item.status != ItemStatus.consumed
                                   ? () => cubit.markConsumed(item.id)
                                   : null,
                         );
@@ -221,7 +243,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   /// Segmented Control with pills matching brand colors
-  Widget _buildCategorySegmentedControl(ItemsState state, MedicineState medState) {
+  Widget _buildCategorySegmentedControl(
+      ItemsState state, MedicineState medState) {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -236,7 +259,9 @@ class _HomePageState extends State<HomePage> {
             label: 'LifePocket',
             icon: Icons.account_balance_wallet_rounded,
             activeColor: AppColors.lifePocketColor,
-            count: state.items.where((e) => e.category == ItemCategory.lifePocket).length,
+            count: state.items
+                .where((e) => e.category == ItemCategory.lifePocket)
+                .length,
           ),
           const SizedBox(width: 4),
           _categoryTabPill(
@@ -244,7 +269,9 @@ class _HomePageState extends State<HomePage> {
             label: 'FreshCheck',
             icon: Icons.apple_rounded,
             activeColor: AppColors.freshCheckColor,
-            count: state.items.where((e) => e.category == ItemCategory.freshCheck).length,
+            count: state.items
+                .where((e) => e.category == ItemCategory.freshCheck)
+                .length,
           ),
           const SizedBox(width: 4),
           _categoryTabPill(
@@ -252,7 +279,9 @@ class _HomePageState extends State<HomePage> {
             label: 'DocAlert',
             icon: Icons.shield_rounded,
             activeColor: AppColors.docAlertColor,
-            count: state.items.where((e) => e.category == ItemCategory.docAlert).length,
+            count: state.items
+                .where((e) => e.category == ItemCategory.docAlert)
+                .length,
           ),
           const SizedBox(width: 4),
           _categoryTabPill(
@@ -283,7 +312,9 @@ class _HomePageState extends State<HomePage> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? activeColor.withValues(alpha: 0.14) : Colors.transparent,
+            color: isSelected
+                ? activeColor.withValues(alpha: 0.14)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: isSelected ? activeColor : Colors.transparent,
@@ -341,12 +372,17 @@ class _HomePageState extends State<HomePage> {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.3),
+          style: const TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.3),
         ),
         const SizedBox(height: 2),
         Text(
           subtitle,
-          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.textMuted, letterSpacing: 0.6),
+          style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMuted,
+              letterSpacing: 0.6),
         ),
       ],
     );
@@ -682,22 +718,26 @@ class _HomePageState extends State<HomePage> {
     switch (_selectedCategory) {
       case ItemCategory.lifePocket:
         title = 'No LifePocket items yet';
-        description = 'Tap "Bills & Receipts" or "Warranties" above to track your first bill, appliance warranty, or subscription.';
+        description =
+            'Tap "Bills & Receipts" or "Warranties" above to track your first bill, appliance warranty, or subscription.';
         icon = Icons.receipt_long_rounded;
         break;
       case ItemCategory.freshCheck:
         title = 'No food items yet';
-        description = 'Tap "Dairy & Fridge" or "Pantry & Staples" above to track milk, fresh veggies, or medicine expiries.';
+        description =
+            'Tap "Dairy & Fridge" or "Pantry & Staples" above to track milk, fresh veggies, or medicine expiries.';
         icon = Icons.kitchen_rounded;
         break;
       case ItemCategory.docAlert:
         title = 'No documents saved yet';
-        description = 'Tap "Driving Licence" or "Vehicle RC" above to store your document and never miss a renewal deadline.';
+        description =
+            'Tap "Driving Licence" or "Vehicle RC" above to store your document and never miss a renewal deadline.';
         icon = Icons.shield_rounded;
         break;
       case ItemCategory.medicineCare:
         title = 'No medicines scheduled';
-        description = 'Tap "Add Medicine" above or the button below to set up your prescription schedule and daily reminders.';
+        description =
+            'Tap "Add Medicine" above or the button below to set up your prescription schedule and daily reminders.';
         icon = Icons.medication_rounded;
         break;
     }
@@ -712,7 +752,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMedicineCareHomeSection(BuildContext context, MedicineState medState) {
+  Widget _buildMedicineCareHomeSection(
+      BuildContext context, MedicineState medState) {
     final nextDose = medState.nextDose;
     final todayDoses = medState.todayDoses;
     final cubit = context.read<MedicineCubit>();
@@ -748,7 +789,8 @@ class _HomePageState extends State<HomePage> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(16),
@@ -756,11 +798,15 @@ class _HomePageState extends State<HomePage> {
                       child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.alarm_rounded, color: Colors.white, size: 13),
+                          Icon(Icons.alarm_rounded,
+                              color: Colors.white, size: 13),
                           SizedBox(width: 4),
                           Text(
                             'UPCOMING DOSE',
-                            style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -768,19 +814,26 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     Text(
                       _formatDoseTime(nextDose.scheduledTime),
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
                 Text(
                   nextDose.medicine.name,
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${nextDose.medicine.dosage} • ${nextDose.medicine.instructions.label}',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
                 ),
                 const SizedBox(height: 14),
                 Row(
@@ -790,11 +843,14 @@ class _HomePageState extends State<HomePage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.medicineCareColor,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                           padding: const EdgeInsets.symmetric(vertical: 10),
                         ),
                         icon: const Icon(Icons.check_circle_rounded, size: 16),
-                        label: const Text('Mark Taken', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                        label: const Text('Mark Taken',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 13)),
                         onPressed: () => cubit.markDoseTaken(nextDose),
                       ),
                     ),
@@ -803,11 +859,14 @@ class _HomePageState extends State<HomePage> {
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
                         side: const BorderSide(color: Colors.white, width: 1.1),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 12),
                       ),
                       onPressed: () => cubit.snoozeDose(nextDose, minutes: 15),
-                      child: const Text('Snooze 15m', style: TextStyle(fontSize: 12)),
+                      child: const Text('Snooze 15m',
+                          style: TextStyle(fontSize: 12)),
                     ),
                   ],
                 ),
@@ -834,7 +893,8 @@ class _HomePageState extends State<HomePage> {
         if (todayDoses.isEmpty)
           _buildEmptyState()
         else
-          ...todayDoses.map((dose) => _buildMedicineScheduleCard(context, dose)),
+          ...todayDoses
+              .map((dose) => _buildMedicineScheduleCard(context, dose)),
       ],
     );
   }
@@ -842,7 +902,8 @@ class _HomePageState extends State<HomePage> {
   String _formatDoseTime(String hhmm) {
     try {
       final parts = hhmm.split(':');
-      final time = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      final time =
+          TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
       final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.period == DayPeriod.am ? 'AM' : 'PM';
@@ -886,7 +947,8 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   dose.medicine.name,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   '${dose.medicine.dosage} • ${dose.medicine.instructions.label}',
@@ -900,28 +962,46 @@ class _HomePageState extends State<HomePage> {
             children: [
               Text(
                 _formatDoseTime(dose.scheduledTime),
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               if (dose.isTaken)
-                const Text('✓ Taken', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.safeGreen))
+                const Text('✓ Taken',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.safeGreen))
               else if (dose.status == DoseStatus.snoozed)
-                const Text('⏰ Snoozed', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.accent))
+                const Text('⏰ Snoozed',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.accent))
               else if (dose.isSkipped)
-                Text('✕ Skipped', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textMuted))
+                Text('✕ Skipped',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textMuted))
               else
                 InkWell(
                   onTap: () => cubit.markDoseTaken(dose),
                   borderRadius: BorderRadius.circular(6),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
-                      color: AppColors.medicineCareColor.withValues(alpha: 0.15),
+                      color:
+                          AppColors.medicineCareColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: const Text(
                       'Take Dose',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.medicineCareColor),
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.medicineCareColor),
                     ),
                   ),
                 ),
@@ -932,7 +1012,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _statusCounterCard({required String label, required int count, required Color color}) {
+  Widget _statusCounterCard(
+      {required String label, required int count, required Color color}) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
@@ -945,7 +1026,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text(
               '$count',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
+              style: TextStyle(
+                  fontSize: 22, fontWeight: FontWeight.bold, color: color),
             ),
             const SizedBox(height: 4),
             Text(

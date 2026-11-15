@@ -16,10 +16,12 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    debugPrint('[FirebaseNotificationService] Background Firebase.initializeApp error: $e');
+    debugPrint(
+        '[FirebaseNotificationService] Background Firebase.initializeApp error: $e');
   }
 
-  debugPrint('[FirebaseNotificationService] Handling background/killed message ID: ${message.messageId}');
+  debugPrint(
+      '[FirebaseNotificationService] Handling background/killed message ID: ${message.messageId}');
 
   // If the message is a data-only payload (no notification object),
   // Android system tray won't automatically display it. We trigger a local notification here
@@ -67,9 +69,11 @@ class FirebaseNotificationService {
     FirebaseMessaging? fcm,
     FlutterLocalNotificationsPlugin? localNotifications,
   })  : _fcm = fcm ?? FirebaseMessaging.instance,
-        _localNotifications = localNotifications ?? FlutterLocalNotificationsPlugin();
+        _localNotifications =
+            localNotifications ?? FlutterLocalNotificationsPlugin();
 
-  static const AndroidNotificationChannel _androidChannel = AndroidNotificationChannel(
+  static const AndroidNotificationChannel _androidChannel =
+      AndroidNotificationChannel(
     channelId,
     channelName,
     description: channelDescription,
@@ -79,7 +83,8 @@ class FirebaseNotificationService {
   );
 
   /// Initializes Firebase Messaging, creates channels, sets up listeners for all app states
-  Future<void> initialize({void Function(RemoteMessage message)? onNotificationTap}) async {
+  Future<void> initialize(
+      {void Function(RemoteMessage message)? onNotificationTap}) async {
     try {
       // 1. Request Notification Permissions
       final settings = await _fcm.requestPermission(
@@ -91,7 +96,8 @@ class FirebaseNotificationService {
         provisional: false,
         sound: true,
       );
-      debugPrint('[FirebaseNotificationService] Notification permission status: ${settings.authorizationStatus}');
+      debugPrint(
+          '[FirebaseNotificationService] Notification permission status: ${settings.authorizationStatus}');
 
       // 2. Set iOS foreground notification presentation options
       await _fcm.setForegroundNotificationPresentationOptions(
@@ -101,8 +107,9 @@ class FirebaseNotificationService {
       );
 
       // 3. Register Android High Priority Notification Channel
-      final androidPlatform = _localNotifications.resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlatform =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
       await androidPlatform?.createNotificationChannel(_androidChannel);
 
       // 4. Register Background & Killed State Handler
@@ -112,20 +119,23 @@ class FirebaseNotificationService {
       // Firebase by default does NOT show heads-up banners on Android when app is in foreground.
       // We explicitly trigger a local notification to guarantee visibility!
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        debugPrint('[FirebaseNotificationService] Foreground message received: ${message.messageId}');
+        debugPrint(
+            '[FirebaseNotificationService] Foreground message received: ${message.messageId}');
         _showForegroundNotification(message);
       });
 
       // 6. BACKGROUND STATE: Handle when notification is tapped and brings app from background to foreground
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        debugPrint('[FirebaseNotificationService] Notification opened from background: ${message.messageId}');
+        debugPrint(
+            '[FirebaseNotificationService] Notification opened from background: ${message.messageId}');
         onNotificationTap?.call(message);
       });
 
       // 7. KILLED STATE: Check if the app was launched by tapping a notification when terminated
       final initialMessage = await _fcm.getInitialMessage();
       if (initialMessage != null) {
-        debugPrint('[FirebaseNotificationService] App launched from killed state: ${initialMessage.messageId}');
+        debugPrint(
+            '[FirebaseNotificationService] App launched from killed state: ${initialMessage.messageId}');
         onNotificationTap?.call(initialMessage);
       }
 
@@ -133,7 +143,8 @@ class FirebaseNotificationService {
       await _fetchToken();
       _fcm.onTokenRefresh.listen((newToken) {
         _fcmToken = newToken;
-        debugPrint('[FirebaseNotificationService] FCM Token refreshed: $newToken');
+        debugPrint(
+            '[FirebaseNotificationService] FCM Token refreshed: $newToken');
       });
     } catch (e) {
       debugPrint('[FirebaseNotificationService] Initialization error: $e');
@@ -152,7 +163,8 @@ class FirebaseNotificationService {
   /// Displays an immediate high-priority heads-up notification while the app is actively running
   Future<void> _showForegroundNotification(RemoteMessage message) async {
     final notification = message.notification;
-    final title = notification?.title ?? message.data['title'] as String? ?? 'KeepRemind';
+    final title =
+        notification?.title ?? message.data['title'] as String? ?? 'KeepRemind';
     final body = notification?.body ?? message.data['body'] as String? ?? '';
 
     if (title.isEmpty && body.isEmpty) return;

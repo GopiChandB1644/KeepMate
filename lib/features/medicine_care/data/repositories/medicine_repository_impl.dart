@@ -17,19 +17,26 @@ class MedicineRepositoryImpl implements MedicineRepository {
   Stream<List<MedicineEntity>> watchAllMedicines() {
     return (db.select(db.medicines)
           ..where((t) => t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
+          ]))
         .watch()
         .asyncMap((medicinesList) async {
       final List<MedicineEntity> result = [];
       for (final med in medicinesList) {
         final schedules = await (db.select(db.medicineSchedules)
               ..where((s) => s.medicineId.equals(med.id))
-              ..orderBy([(s) => OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)]))
+              ..orderBy([
+                (s) =>
+                    OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)
+              ]))
             .get();
         result.add(
           MedicineEntity(
             medicine: med,
-            schedules: schedules.map((s) => MedicineScheduleEntity(schedule: s)).toList(),
+            schedules: schedules
+                .map((s) => MedicineScheduleEntity(schedule: s))
+                .toList(),
           ),
         );
       }
@@ -41,19 +48,26 @@ class MedicineRepositoryImpl implements MedicineRepository {
   Future<List<MedicineEntity>> getAllMedicines() async {
     final list = await (db.select(db.medicines)
           ..where((t) => t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
+          ]))
         .get();
 
     final List<MedicineEntity> result = [];
     for (final med in list) {
       final schedules = await (db.select(db.medicineSchedules)
             ..where((s) => s.medicineId.equals(med.id))
-            ..orderBy([(s) => OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)]))
+            ..orderBy([
+              (s) =>
+                  OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)
+            ]))
           .get();
       result.add(
         MedicineEntity(
           medicine: med,
-          schedules: schedules.map((s) => MedicineScheduleEntity(schedule: s)).toList(),
+          schedules: schedules
+              .map((s) => MedicineScheduleEntity(schedule: s))
+              .toList(),
         ),
       );
     }
@@ -62,17 +76,21 @@ class MedicineRepositoryImpl implements MedicineRepository {
 
   @override
   Future<MedicineEntity?> getMedicineById(String id) async {
-    final med = await (db.select(db.medicines)..where((t) => t.id.equals(id))).getSingleOrNull();
+    final med = await (db.select(db.medicines)..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
     if (med == null) return null;
 
     final schedules = await (db.select(db.medicineSchedules)
           ..where((s) => s.medicineId.equals(med.id))
-          ..orderBy([(s) => OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)]))
+          ..orderBy([
+            (s) => OrderingTerm(expression: s.doseTime, mode: OrderingMode.asc)
+          ]))
         .get();
 
     return MedicineEntity(
       medicine: med,
-      schedules: schedules.map((s) => MedicineScheduleEntity(schedule: s)).toList(),
+      schedules:
+          schedules.map((s) => MedicineScheduleEntity(schedule: s)).toList(),
     );
   }
 
@@ -84,7 +102,9 @@ class MedicineRepositoryImpl implements MedicineRepository {
     await db.transaction(() async {
       await db.into(db.medicines).insertOnConflictUpdate(medicine);
       final medId = medicine.id.value;
-      await (db.delete(db.medicineSchedules)..where((s) => s.medicineId.equals(medId))).go();
+      await (db.delete(db.medicineSchedules)
+            ..where((s) => s.medicineId.equals(medId)))
+          .go();
       for (final sched in schedules) {
         await db.into(db.medicineSchedules).insert(sched);
       }
@@ -132,7 +152,8 @@ class MedicineRepositoryImpl implements MedicineRepository {
       // Check date bounds
       final startDate = DateTime.tryParse(med.startDate);
       if (startDate != null) {
-        final startOnly = DateTime(startDate.year, startDate.month, startDate.day);
+        final startOnly =
+            DateTime(startDate.year, startDate.month, startDate.day);
         final checkOnly = DateTime(date.year, date.month, date.day);
         if (checkOnly.isBefore(startOnly)) continue;
       }
@@ -159,13 +180,16 @@ class MedicineRepositoryImpl implements MedicineRepository {
         } else {
           // If in the past for today, check whether it is past grace period
           final now = DateTime.now();
-          final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+          final isToday = date.year == now.year &&
+              date.month == now.month &&
+              date.day == now.day;
           if (isToday) {
             final timeParts = sched.doseTime.split(':');
             if (timeParts.length == 2) {
               final doseHour = int.tryParse(timeParts[0]) ?? 0;
               final doseMinute = int.tryParse(timeParts[1]) ?? 0;
-              final doseDateTime = DateTime(now.year, now.month, now.day, doseHour, doseMinute);
+              final doseDateTime =
+                  DateTime(now.year, now.month, now.day, doseHour, doseMinute);
               // If more than 30 mins past dose time and not logged, it is unconfirmed/missed
               if (now.difference(doseDateTime).inMinutes > 30) {
                 status = DoseStatus.unconfirmed;
@@ -217,7 +241,9 @@ class MedicineRepositoryImpl implements MedicineRepository {
     final nowIso = DateTime.now().toIso8601String();
 
     if (existing != null) {
-      await (db.update(db.medicineDoseLogs)..where((t) => t.id.equals(existing.id))).write(
+      await (db.update(db.medicineDoseLogs)
+            ..where((t) => t.id.equals(existing.id)))
+          .write(
         MedicineDoseLogsCompanion(
           status: Value(status.code),
           actionTime: Value(nowIso),
@@ -246,15 +272,20 @@ class MedicineRepositoryImpl implements MedicineRepository {
   @override
   Stream<List<CaregiverEntity>> watchCaregivers() {
     return (db.select(db.caregiverContacts)
-          ..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
+          ]))
         .watch()
-        .map((contacts) => contacts.map((c) => CaregiverEntity(contact: c)).toList());
+        .map((contacts) =>
+            contacts.map((c) => CaregiverEntity(contact: c)).toList());
   }
 
   @override
   Future<List<CaregiverEntity>> getCaregivers() async {
     final contacts = await (db.select(db.caregiverContacts)
-          ..orderBy([(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]))
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
+          ]))
         .get();
     return contacts.map((c) => CaregiverEntity(contact: c)).toList();
   }
@@ -279,7 +310,10 @@ class MedicineRepositoryImpl implements MedicineRepository {
   @override
   Future<List<DoseLogEntity>> getAllDoseHistory() async {
     final allLogs = await (db.select(db.medicineDoseLogs)
-          ..orderBy([(t) => OrderingTerm(expression: t.scheduledDate, mode: OrderingMode.desc)]))
+          ..orderBy([
+            (t) => OrderingTerm(
+                expression: t.scheduledDate, mode: OrderingMode.desc)
+          ]))
         .get();
 
     final medicines = await getAllMedicines();
@@ -289,7 +323,9 @@ class MedicineRepositoryImpl implements MedicineRepository {
     for (final log in allLogs) {
       final med = medMap[log.medicineId];
       if (med == null) continue;
-      final sched = med.schedules.where((s) => s.doseTime == log.scheduledTime).firstOrNull;
+      final sched = med.schedules
+          .where((s) => s.doseTime == log.scheduledTime)
+          .firstOrNull;
       result.add(
         DoseLogEntity(
           log: log,

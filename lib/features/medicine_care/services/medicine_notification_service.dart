@@ -3,22 +3,28 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import '../../../../core/notifications/notification_service.dart';
 import '../domain/entities/medicine_entity.dart';
+import 'native_alarm_bridge.dart';
 
 class MedicineNotificationService {
   final NotificationService _notificationService;
+  final NativeAlarmBridge _nativeAlarmBridge;
 
   static const String channelId = 'medicine_reminders';
   static const String channelName = 'Medicine Reminders';
-  static const String channelDescription = 'Timely notifications for scheduled medication doses';
+  static const String channelDescription =
+      'Timely notifications for scheduled medication doses';
 
   static const String caregiverChannelId = 'caregiver_alerts';
   static const String caregiverChannelName = 'Caregiver Dose Alerts';
-  static const String caregiverChannelDescription = 'Unconfirmed medicine alerts sent after grace period';
+  static const String caregiverChannelDescription =
+      'Unconfirmed medicine alerts sent after grace period';
 
   MedicineNotificationService({
     NotificationService? notificationService,
+    NativeAlarmBridge? nativeAlarmBridge,
     FlutterLocalNotificationsPlugin? plugin,
-  }) : _notificationService = notificationService ?? NotificationService();
+  })  : _notificationService = notificationService ?? NotificationService(),
+        _nativeAlarmBridge = nativeAlarmBridge ?? NativeAlarmBridge();
 
   NotificationDetails _medicineNotificationDetails({
     required String medicineName,
@@ -64,7 +70,8 @@ class MedicineNotificationService {
       categoryIdentifier: 'MEDICINE_ACTIONS',
     );
 
-    return const NotificationDetails(android: androidDetails, iOS: darwinDetails);
+    return const NotificationDetails(
+        android: androidDetails, iOS: darwinDetails);
   }
 
   int generateNotificationId(String medicineId, String doseTime) {
@@ -103,33 +110,61 @@ class MedicineNotificationService {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
 
-      final payload = jsonEncode({
-        'type': 'medicine_dose',
-        'medicineId': medicine.id,
-        'medicineName': medicine.name,
-        'dosage': medicine.dosage,
-        'scheduledTime': schedule.doseTime,
-        'scheduleId': schedule.id,
-      });
+      if (medicine.reminderMode == MedicineReminderMode.alarm) {
+        // ALARM MODE: Use native Android AlarmManager for continuous ringing & full-screen UI
+        // Ensure no duplicate standard notification is scheduled
+        await _notificationService.cancel(notifId);
 
-      final details = _medicineNotificationDetails(
-        medicineName: medicine.name,
-        dosage: medicine.dosage,
-        mealInstruction: medicine.instructions.label,
-      );
+        final success = await _nativeAlarmBridge.scheduleAlarm(
+          id: notifId,
+          medicineId: medicine.id,
+          medicineName: medicine.name,
+          dosage: medicine.dosage,
+          mealInstruction: medicine.instructions.label,
+          doseTime: schedule.doseTime,
+          triggerDateTime: scheduledDate,
+          snoozeMinutes: medicine.snoozeDurationMinutes,
+          maxDurationMinutes: medicine.maximumRingingDurationMinutes,
+          vibrationEnabled: medicine.vibrationEnabled,
+          soundUri: medicine.alarmSound,
+        );
+        if (success) {
+          scheduledIds.add(notifId);
+        }
+      } else {
+        // NOTIFICATION MODE: Standard high-priority notification with existing action buttons
+        // Ensure no native AlarmManager alarm is left active
+        await _nativeAlarmBridge.cancelAlarm(notifId);
 
-      final success = await _notificationService.scheduleZonedNotification(
-        id: notifId,
-        title: 'Time for medicine: ${medicine.name}',
-        body: '${medicine.dosage} • ${medicine.instructions.label}. Please take according to your prescription.',
-        scheduledDate: scheduledDate,
-        notificationDetails: details,
-        matchDateTimeComponents: DateTimeComponents.time, // Daily recurring
-        payload: payload,
-      );
+        final payload = jsonEncode({
+          'type': 'medicine_dose',
+          'medicineId': medicine.id,
+          'medicineName': medicine.name,
+          'dosage': medicine.dosage,
+          'scheduledTime': schedule.doseTime,
+          'scheduleId': schedule.id,
+        });
 
-      if (success) {
-        scheduledIds.add(notifId);
+        final details = _medicineNotificationDetails(
+          medicineName: medicine.name,
+          dosage: medicine.dosage,
+          mealInstruction: medicine.instructions.label,
+        );
+
+        final success = await _notificationService.scheduleZonedNotification(
+          id: notifId,
+          title: 'Time for medicine: ${medicine.name}',
+          body:
+              '${medicine.dosage} • ${medicine.instructions.label}. Please take according to your prescription.',
+          scheduledDate: scheduledDate,
+          notificationDetails: details,
+          matchDateTimeComponents: DateTimeComponents.time, // Daily recurring
+          payload: payload,
+        );
+
+        if (success) {
+          scheduledIds.add(notifId);
+        }
       }
     }
 
@@ -138,11 +173,13 @@ class MedicineNotificationService {
     return scheduledIds;
   }
 
-  Future<void> cancelMedicineSchedules(String medicineId, List<MedicineScheduleEntity> schedules) async {
+  Future<void> cancelMedicineSchedules(
+      String medicineId, List<MedicineScheduleEntity> schedules) async {
     for (final schedule in schedules) {
       final notifId = generateNotificationId(medicineId, schedule.doseTime);
       await _notificationService.cancel(notifId);
     }
+    await _nativeAlarmBridge.cancelMedicineAlarms(medicineId);
   }
 
   Future<bool> scheduleSnoozeNotification({
@@ -153,7 +190,8 @@ class MedicineNotificationService {
     int minutes = 15,
   }) async {
     final notifId = (medicineId.hashCode + 9999).abs() & 0x7FFFFFFF;
-    final scheduledDate = tz.TZDateTime.now(tz.local).add(Duration(minutes: minutes));
+    final scheduledDate =
+        tz.TZDateTime.now(tz.local).add(Duration(minutes: minutes));
 
     final payload = jsonEncode({
       'type': 'medicine_snooze',

@@ -48,6 +48,8 @@ class DoseLogEntity {
   String get id => log?.id ?? '${medicine.id}_${scheduledDate}_$scheduledTime';
   bool get isTaken => status == DoseStatus.taken;
   bool get isSkipped => status == DoseStatus.skipped;
-  bool get isPending => status == DoseStatus.pending || status == DoseStatus.snoozed;
-  bool get isMissed => status == DoseStatus.missed || status == DoseStatus.unconfirmed;
+  bool get isPending =>
+      status == DoseStatus.pending || status == DoseStatus.snoozed;
+  bool get isMissed =>
+      status == DoseStatus.missed || status == DoseStatus.unconfirmed;
 }

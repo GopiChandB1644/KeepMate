@@ -27,54 +27,67 @@ class _LifePocketPageState extends State<LifePocketPage> {
         showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.addItem, extra: _selectedSubFilter ?? ItemSubcategory.bill),
+        onPressed: () => context.push(AppRoutes.addItem,
+            extra: _selectedSubFilter ?? ItemSubcategory.bill),
         backgroundColor: AppColors.lifePocketColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add Bill / Warranty', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Add Bill / Warranty',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
-          final lifePocketItems = state.items.where((e) => e.category == ItemCategory.lifePocket).toList();
+          final lifePocketItems = state.items
+              .where((e) => e.category == ItemCategory.lifePocket)
+              .toList();
           final displayed = _selectedSubFilter == null
               ? lifePocketItems
-              : lifePocketItems.where((e) => e.subcategory == _selectedSubFilter).toList();
+              : lifePocketItems
+                  .where((e) => e.subcategory == _selectedSubFilter)
+                  .toList();
 
           return Column(
             children: [
               // Subcategory Filter Chips
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     FilterChip(
                       label: const Text('All'),
                       selected: _selectedSubFilter == null,
-                      onSelected: (_) => setState(() => _selectedSubFilter = null),
+                      onSelected: (_) =>
+                          setState(() => _selectedSubFilter = null),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: const Text('⚡ Bills'),
                       selected: _selectedSubFilter == ItemSubcategory.bill,
-                      onSelected: (_) => setState(() => _selectedSubFilter = ItemSubcategory.bill),
+                      onSelected: (_) => setState(
+                          () => _selectedSubFilter = ItemSubcategory.bill),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: const Text('🛡️ Warranties'),
                       selected: _selectedSubFilter == ItemSubcategory.warranty,
-                      onSelected: (_) => setState(() => _selectedSubFilter = ItemSubcategory.warranty),
+                      onSelected: (_) => setState(
+                          () => _selectedSubFilter = ItemSubcategory.warranty),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: const Text('🩺 Insurance'),
                       selected: _selectedSubFilter == ItemSubcategory.insurance,
-                      onSelected: (_) => setState(() => _selectedSubFilter = ItemSubcategory.insurance),
+                      onSelected: (_) => setState(
+                          () => _selectedSubFilter = ItemSubcategory.insurance),
                     ),
                     const SizedBox(width: 8),
                     FilterChip(
                       label: const Text('🔁 Subscriptions'),
-                      selected: _selectedSubFilter == ItemSubcategory.subscription,
-                      onSelected: (_) => setState(() => _selectedSubFilter = ItemSubcategory.subscription),
+                      selected:
+                          _selectedSubFilter == ItemSubcategory.subscription,
+                      onSelected: (_) => setState(() =>
+                          _selectedSubFilter = ItemSubcategory.subscription),
                     ),
                   ],
                 ),
@@ -85,9 +98,11 @@ class _LifePocketPageState extends State<LifePocketPage> {
                     ? EmptyStateView(
                         icon: Icons.account_balance_wallet_rounded,
                         title: 'No items in LifePocket',
-                        description: 'Never miss an electricity bill, wifi payment, or warranty expiry again.',
+                        description:
+                            'Never miss an electricity bill, wifi payment, or warranty expiry again.',
                         actionLabel: 'Add First Item',
-                        onAction: () => context.push(AppRoutes.addItem, extra: _selectedSubFilter ?? ItemSubcategory.bill),
+                        onAction: () => context.push(AppRoutes.addItem,
+                            extra: _selectedSubFilter ?? ItemSubcategory.bill),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
@@ -96,12 +111,18 @@ class _LifePocketPageState extends State<LifePocketPage> {
                           final item = displayed[index];
                           return ItemSummaryCard(
                             item: item,
-                            onTap: () => context.push(AppRoutes.itemDetail, extra: item),
-                            quickActionLabel: item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed
-                                ? 'Mark Paid'
-                                : null,
-                            onQuickAction: item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed
-                                ? () => context.read<ItemsCubit>().markPaid(item.id)
+                            onTap: () =>
+                                context.push(AppRoutes.itemDetail, extra: item),
+                            quickActionLabel:
+                                item.subcategory == ItemSubcategory.bill &&
+                                        item.status != ItemStatus.completed
+                                    ? 'Mark Paid'
+                                    : null,
+                            onQuickAction: item.subcategory ==
+                                        ItemSubcategory.bill &&
+                                    item.status != ItemStatus.completed
+                                ? () =>
+                                    context.read<ItemsCubit>().markPaid(item.id)
                                 : null,
                           );
                         },

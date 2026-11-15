@@ -22,7 +22,8 @@ void showToast(
   ToastType type = ToastType.success,
   Duration duration = const Duration(milliseconds: 3200),
 }) {
-  final overlay = Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.maybeOf(context);
+  final overlay =
+      Overlay.maybeOf(context, rootOverlay: true) ?? Overlay.maybeOf(context);
   if (overlay == null) return;
 
   // Remove any currently showing toast cleanly
@@ -98,7 +99,8 @@ class _TopToastWidget extends StatefulWidget {
   State<_TopToastWidget> createState() => _TopToastWidgetState();
 }
 
-class _TopToastWidgetState extends State<_TopToastWidget> with SingleTickerProviderStateMixin {
+class _TopToastWidgetState extends State<_TopToastWidget>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fade;
   late final Animation<Offset> _slide;
@@ -175,11 +177,13 @@ class _TopToastWidgetState extends State<_TopToastWidget> with SingleTickerProvi
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                 decoration: BoxDecoration(
                   color: AppColors.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: widget.color.withValues(alpha: 0.3), width: 1.2),
+                  border: Border.all(
+                      color: widget.color.withValues(alpha: 0.3), width: 1.2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.12),
@@ -228,4 +232,3 @@ class _TopToastWidgetState extends State<_TopToastWidget> with SingleTickerProvi
     );
   }
 }
-

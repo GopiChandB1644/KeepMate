@@ -36,7 +36,8 @@ class CircleIconButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: color ?? AppColors.surfaceRaised,
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.cardBorder.withValues(alpha: 0.8)),
+            border:
+                Border.all(color: AppColors.cardBorder.withValues(alpha: 0.8)),
           ),
           child: Icon(
             icon,

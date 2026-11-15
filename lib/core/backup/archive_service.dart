@@ -10,7 +10,8 @@ class ArchiveService {
     final archive = Archive();
     for (final entry in files.entries) {
       final normalizedPath = entry.key.replaceAll('\\', '/');
-      archive.addFile(ArchiveFile(normalizedPath, entry.value.length, entry.value));
+      archive.addFile(
+          ArchiveFile(normalizedPath, entry.value.length, entry.value));
     }
     final zipData = ZipEncoder().encode(archive);
     return Uint8List.fromList(zipData);
@@ -26,8 +27,11 @@ class ArchiveService {
         final path = file.name.replaceAll('\\', '/');
 
         // Security check: reject path traversal attempts
-        if (path.contains('..') || path.startsWith('/') || path.startsWith('\\')) {
-          throw BackupException('Dangerous path traversal detected in archive: $path');
+        if (path.contains('..') ||
+            path.startsWith('/') ||
+            path.startsWith('\\')) {
+          throw BackupException(
+              'Dangerous path traversal detected in archive: $path');
         }
 
         extracted[path] = Uint8List.fromList(file.content as List<int>);

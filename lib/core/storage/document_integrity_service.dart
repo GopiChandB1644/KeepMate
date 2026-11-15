@@ -7,7 +7,8 @@ class DocumentIntegrityService {
   /// Calculate SHA-256 checksum for a file on disk
   Future<String> calculateFileChecksum(File file) async {
     if (!await file.exists()) {
-      throw FileSystemException('File does not exist for checksum calculation', file.path);
+      throw FileSystemException(
+          'File does not exist for checksum calculation', file.path);
     }
     final bytes = await file.readAsBytes();
     return sha256.convert(bytes).toString();
@@ -25,4 +26,3 @@ class DocumentIntegrityService {
     return actual.toLowerCase() == expectedChecksum.toLowerCase();
   }
 }
-

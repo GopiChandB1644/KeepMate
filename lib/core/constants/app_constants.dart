@@ -2,7 +2,8 @@ class AppConstants {
   AppConstants._();
 
   static const String appName = 'KeepRemind';
-  static const String appTagline = 'Everything important. One place. Never forgotten.';
+  static const String appTagline =
+      'Everything important. One place. Never forgotten.';
   static const String appVersion = '1.0.0';
 
   // Backup constants
@@ -19,6 +20,6 @@ class AppConstants {
   // Notification Channels
   static const String reminderChannelId = 'keepremind_reminders';
   static const String reminderChannelName = 'Important Reminders';
-  static const String reminderChannelDescription = 'Alerts for upcoming expiries, due dates, and document renewals.';
+  static const String reminderChannelDescription =
+      'Alerts for upcoming expiries, due dates, and document renewals.';
 }
-

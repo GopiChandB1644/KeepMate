@@ -46,8 +46,10 @@ class BackupManifest {
       appName: json['appName'] as String? ?? AppConstants.appName,
       backupId: json['backupId'] as String,
       createdAt: json['createdAt'] as String,
-      formatVersion: json['formatVersion'] as int? ?? BackupConstants.currentFormatVersion,
-      schemaVersion: json['schemaVersion'] as int? ?? BackupConstants.currentSchemaVersion,
+      formatVersion:
+          json['formatVersion'] as int? ?? BackupConstants.currentFormatVersion,
+      schemaVersion:
+          json['schemaVersion'] as int? ?? BackupConstants.currentSchemaVersion,
       documentCount: json['documentCount'] as int? ?? docsList.length,
       itemCount: json['itemCount'] as int? ?? 0,
       appVersion: json['appVersion'] as String? ?? AppConstants.appVersion,
@@ -84,7 +86,8 @@ class BackupDocumentEntry {
         'fileSize': fileSize,
       };
 
-  factory BackupDocumentEntry.fromJson(Map<String, dynamic> json) => BackupDocumentEntry(
+  factory BackupDocumentEntry.fromJson(Map<String, dynamic> json) =>
+      BackupDocumentEntry(
         id: json['id'] as String,
         fileName: json['fileName'] as String,
         relativePath: json['relativePath'] as String,
@@ -92,4 +95,3 @@ class BackupDocumentEntry {
         fileSize: json['fileSize'] as int,
       );
 }
-

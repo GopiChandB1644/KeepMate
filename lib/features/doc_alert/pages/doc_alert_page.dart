@@ -20,10 +20,12 @@ class DocAlertPage extends StatelessWidget {
         showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.document),
+        onPressed: () =>
+            context.push(AppRoutes.addItem, extra: ItemSubcategory.document),
         backgroundColor: AppColors.docAlertColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Add Document',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
@@ -37,9 +39,11 @@ class DocAlertPage extends StatelessWidget {
             return EmptyStateView(
               icon: Icons.badge_rounded,
               title: 'No vehicle or identity documents yet',
-              description: 'Save your driving licence, car insurance, PUC, RC book, and passport to avoid sudden penalties.',
+              description:
+                  'Save your driving licence, car insurance, PUC, RC book, and passport to avoid sudden penalties.',
               actionLabel: 'Add Document Now',
-              onAction: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.document),
+              onAction: () => context.push(AppRoutes.addItem,
+                  extra: ItemSubcategory.document),
             );
           }
 
@@ -52,7 +56,8 @@ class DocAlertPage extends StatelessWidget {
                 item: item,
                 onTap: () => context.push(AppRoutes.itemDetail, extra: item),
                 quickActionLabel: 'Renew',
-                onQuickAction: () => context.push(AppRoutes.renewal, extra: item),
+                onQuickAction: () =>
+                    context.push(AppRoutes.renewal, extra: item),
               );
             },
           );

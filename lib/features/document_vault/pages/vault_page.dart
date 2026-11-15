@@ -19,7 +19,8 @@ class VaultPage extends StatelessWidget {
     final cubit = context.read<VaultCubit>();
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -29,7 +30,8 @@ class VaultPage extends StatelessWidget {
               Text('Add File to Vault', style: AppText.h3),
               const SizedBox(height: 16),
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded, color: AppColors.primary),
+                leading: const Icon(Icons.camera_alt_rounded,
+                    color: AppColors.primary),
                 title: const Text('Take a Photo'),
                 subtitle: const Text('Capture document with camera'),
                 onTap: () async {
@@ -41,13 +43,17 @@ class VaultPage extends StatelessWidget {
                     imageQuality: 85,
                   );
                   if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    await cubit.uploadDocument(file: File(compressed), source: 'camera');
+                    final compressed = await ImageCompressor.compress(
+                        picked.path,
+                        purpose: ImagePurpose.document);
+                    await cubit.uploadDocument(
+                        file: File(compressed), source: 'camera');
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded, color: AppColors.secondary),
+                leading: const Icon(Icons.photo_library_rounded,
+                    color: AppColors.secondary),
                 title: const Text('Choose Photo from Gallery'),
                 subtitle: const Text('Pick existing image from device'),
                 onTap: () async {
@@ -59,13 +65,17 @@ class VaultPage extends StatelessWidget {
                     imageQuality: 85,
                   );
                   if (picked != null) {
-                    final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-                    await cubit.uploadDocument(file: File(compressed), source: 'gallery');
+                    final compressed = await ImageCompressor.compress(
+                        picked.path,
+                        purpose: ImagePurpose.document);
+                    await cubit.uploadDocument(
+                        file: File(compressed), source: 'gallery');
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.dangerRed),
+                leading: const Icon(Icons.picture_as_pdf_rounded,
+                    color: AppColors.dangerRed),
                 title: const Text('Select PDF Document'),
                 subtitle: const Text('Upload PDF document'),
                 onTap: () async {
@@ -75,7 +85,9 @@ class VaultPage extends StatelessWidget {
                     allowedExtensions: ['pdf'],
                   );
                   if (result != null && result.files.single.path != null) {
-                    await cubit.uploadDocument(file: File(result.files.single.path!), source: 'pdf_picker');
+                    await cubit.uploadDocument(
+                        file: File(result.files.single.path!),
+                        source: 'pdf_picker');
                   }
                 },
               ),
@@ -138,7 +150,8 @@ class VaultPage extends StatelessWidget {
         onPressed: () => _pickAndUpload(context),
         backgroundColor: AppColors.vaultColor,
         icon: const Icon(Icons.upload_file_rounded, color: Colors.white),
-        label: const Text('Add Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Add Document',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: BlocBuilder<VaultCubit, VaultState>(
         builder: (context, state) {
@@ -153,7 +166,8 @@ class VaultPage extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: 'Search files in vault...',
                     prefixIcon: const Icon(Icons.search_rounded),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     fillColor: AppColors.surface,
                   ),
                 ),
@@ -163,7 +177,8 @@ class VaultPage extends StatelessWidget {
                     ? EmptyStateView(
                         icon: Icons.folder_zip_rounded,
                         title: 'Vault is empty',
-                        description: 'Store insurance policies, receipts, IDs and bills securely on your device.',
+                        description:
+                            'Store insurance policies, receipts, IDs and bills securely on your device.',
                         actionLabel: 'Upload First Document',
                         onAction: () => _pickAndUpload(context),
                       )
@@ -172,23 +187,33 @@ class VaultPage extends StatelessWidget {
                         itemCount: docs.length,
                         itemBuilder: (context, index) {
                           final doc = docs[index];
-                          final isPdf = doc.fileName.toLowerCase().endsWith('.pdf');
+                          final isPdf =
+                              doc.fileName.toLowerCase().endsWith('.pdf');
                           return Card(
                             margin: const EdgeInsets.only(bottom: 10),
                             child: ListTile(
                               leading: Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: (isPdf ? AppColors.dangerRed : AppColors.primary).withValues(alpha: 0.1),
+                                  color: (isPdf
+                                          ? AppColors.dangerRed
+                                          : AppColors.primary)
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
-                                  isPdf ? Icons.picture_as_pdf_rounded : Icons.image_rounded,
-                                  color: isPdf ? AppColors.dangerRed : AppColors.primary,
+                                  isPdf
+                                      ? Icons.picture_as_pdf_rounded
+                                      : Icons.image_rounded,
+                                  color: isPdf
+                                      ? AppColors.dangerRed
+                                      : AppColors.primary,
                                 ),
                               ),
-                              title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
-                              subtitle: Text('${(doc.fileSize / 1024).toStringAsFixed(1)} KB • Stored Locally'),
+                              title: Text(doc.fileName,
+                                  maxLines: 1, overflow: TextOverflow.ellipsis),
+                              subtitle: Text(
+                                  '${(doc.fileSize / 1024).toStringAsFixed(1)} KB • Stored Locally'),
                               trailing: const Icon(Icons.visibility_rounded),
                               onTap: () => _previewDocument(context, doc),
                             ),

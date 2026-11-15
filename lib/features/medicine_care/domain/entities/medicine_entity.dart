@@ -43,6 +43,21 @@ enum MealInstruction {
   }
 }
 
+enum MedicineReminderMode {
+  notification('notification', 'Notification', '🔔'),
+  alarm('alarm', 'Alarm Mode', '⏰');
+
+  final String code;
+  final String label;
+  final String icon;
+  const MedicineReminderMode(this.code, this.label, this.icon);
+
+  static MedicineReminderMode fromCode(String? code) {
+    if (code == 'alarm') return MedicineReminderMode.alarm;
+    return MedicineReminderMode.notification;
+  }
+}
+
 class MedicineScheduleEntity {
   final MedicineSchedule schedule;
 
@@ -73,13 +88,21 @@ class MedicineEntity {
   String get name => medicine.name;
   MedicineType get medicineType => MedicineType.fromCode(medicine.medicineType);
   String get dosage => medicine.dosage;
-  MealInstruction get instructions => MealInstruction.fromCode(medicine.instructions);
+  MealInstruction get instructions =>
+      MealInstruction.fromCode(medicine.instructions);
   String? get doctorName => medicine.doctorName;
   String? get prescriptionPath => medicine.prescriptionPath;
   String get startDate => medicine.startDate;
   String? get endDate => medicine.endDate;
   String? get notes => medicine.notes;
   bool get isActive => medicine.isActive;
+  MedicineReminderMode get reminderMode =>
+      MedicineReminderMode.fromCode(medicine.reminderMode);
+  String? get alarmSound => medicine.alarmSound;
+  bool get vibrationEnabled => medicine.vibrationEnabled;
+  int get snoozeDurationMinutes => medicine.snoozeDurationMinutes;
+  int get maximumRingingDurationMinutes =>
+      medicine.maximumRingingDurationMinutes;
   String get createdAt => medicine.createdAt;
   String get updatedAt => medicine.updatedAt;
 

@@ -21,7 +21,8 @@ class ItemsCubit extends Cubit<ItemsState> {
         emit(state.copyWith(status: ItemsStatus.success, items: items));
       },
       onError: (err) {
-        emit(state.copyWith(status: ItemsStatus.failure, errorMessage: err.toString()));
+        emit(state.copyWith(
+            status: ItemsStatus.failure, errorMessage: err.toString()));
       },
     );
   }
@@ -158,4 +159,3 @@ class ItemsCubit extends Cubit<ItemsState> {
     return super.close();
   }
 }
-

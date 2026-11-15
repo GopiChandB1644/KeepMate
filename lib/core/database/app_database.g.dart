@@ -5758,6 +5758,47 @@ class $MedicinesTable extends Medicines
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
       defaultValue: const Constant(true));
+  static const VerificationMeta _reminderModeMeta =
+      const VerificationMeta('reminderMode');
+  @override
+  late final GeneratedColumn<String> reminderMode = GeneratedColumn<String>(
+      'reminder_mode', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('notification'));
+  static const VerificationMeta _alarmSoundMeta =
+      const VerificationMeta('alarmSound');
+  @override
+  late final GeneratedColumn<String> alarmSound = GeneratedColumn<String>(
+      'alarm_sound', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _vibrationEnabledMeta =
+      const VerificationMeta('vibrationEnabled');
+  @override
+  late final GeneratedColumn<bool> vibrationEnabled = GeneratedColumn<bool>(
+      'vibration_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("vibration_enabled" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _snoozeDurationMinutesMeta =
+      const VerificationMeta('snoozeDurationMinutes');
+  @override
+  late final GeneratedColumn<int> snoozeDurationMinutes = GeneratedColumn<int>(
+      'snooze_duration_minutes', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(5));
+  static const VerificationMeta _maximumRingingDurationMinutesMeta =
+      const VerificationMeta('maximumRingingDurationMinutes');
+  @override
+  late final GeneratedColumn<int> maximumRingingDurationMinutes =
+      GeneratedColumn<int>(
+          'maximum_ringing_duration_minutes', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const Constant(10));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -5789,6 +5830,11 @@ class $MedicinesTable extends Medicines
         endDate,
         notes,
         isActive,
+        reminderMode,
+        alarmSound,
+        vibrationEnabled,
+        snoozeDurationMinutes,
+        maximumRingingDurationMinutes,
         createdAt,
         updatedAt,
         deletedAt
@@ -5866,6 +5912,37 @@ class $MedicinesTable extends Medicines
       context.handle(_isActiveMeta,
           isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
     }
+    if (data.containsKey('reminder_mode')) {
+      context.handle(
+          _reminderModeMeta,
+          reminderMode.isAcceptableOrUnknown(
+              data['reminder_mode']!, _reminderModeMeta));
+    }
+    if (data.containsKey('alarm_sound')) {
+      context.handle(
+          _alarmSoundMeta,
+          alarmSound.isAcceptableOrUnknown(
+              data['alarm_sound']!, _alarmSoundMeta));
+    }
+    if (data.containsKey('vibration_enabled')) {
+      context.handle(
+          _vibrationEnabledMeta,
+          vibrationEnabled.isAcceptableOrUnknown(
+              data['vibration_enabled']!, _vibrationEnabledMeta));
+    }
+    if (data.containsKey('snooze_duration_minutes')) {
+      context.handle(
+          _snoozeDurationMinutesMeta,
+          snoozeDurationMinutes.isAcceptableOrUnknown(
+              data['snooze_duration_minutes']!, _snoozeDurationMinutesMeta));
+    }
+    if (data.containsKey('maximum_ringing_duration_minutes')) {
+      context.handle(
+          _maximumRingingDurationMinutesMeta,
+          maximumRingingDurationMinutes.isAcceptableOrUnknown(
+              data['maximum_ringing_duration_minutes']!,
+              _maximumRingingDurationMinutesMeta));
+    }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
@@ -5913,6 +5990,17 @@ class $MedicinesTable extends Medicines
           .read(DriftSqlType.string, data['${effectivePrefix}notes']),
       isActive: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      reminderMode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}reminder_mode'])!,
+      alarmSound: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}alarm_sound']),
+      vibrationEnabled: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}vibration_enabled'])!,
+      snoozeDurationMinutes: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}snooze_duration_minutes'])!,
+      maximumRingingDurationMinutes: attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}maximum_ringing_duration_minutes'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}created_at'])!,
       updatedAt: attachedDatabase.typeMapping
@@ -5940,6 +6028,11 @@ class Medicine extends DataClass implements Insertable<Medicine> {
   final String? endDate;
   final String? notes;
   final bool isActive;
+  final String reminderMode;
+  final String? alarmSound;
+  final bool vibrationEnabled;
+  final int snoozeDurationMinutes;
+  final int maximumRingingDurationMinutes;
   final String createdAt;
   final String updatedAt;
   final String? deletedAt;
@@ -5955,6 +6048,11 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       this.endDate,
       this.notes,
       required this.isActive,
+      required this.reminderMode,
+      this.alarmSound,
+      required this.vibrationEnabled,
+      required this.snoozeDurationMinutes,
+      required this.maximumRingingDurationMinutes,
       required this.createdAt,
       required this.updatedAt,
       this.deletedAt});
@@ -5980,6 +6078,14 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       map['notes'] = Variable<String>(notes);
     }
     map['is_active'] = Variable<bool>(isActive);
+    map['reminder_mode'] = Variable<String>(reminderMode);
+    if (!nullToAbsent || alarmSound != null) {
+      map['alarm_sound'] = Variable<String>(alarmSound);
+    }
+    map['vibration_enabled'] = Variable<bool>(vibrationEnabled);
+    map['snooze_duration_minutes'] = Variable<int>(snoozeDurationMinutes);
+    map['maximum_ringing_duration_minutes'] =
+        Variable<int>(maximumRingingDurationMinutes);
     map['created_at'] = Variable<String>(createdAt);
     map['updated_at'] = Variable<String>(updatedAt);
     if (!nullToAbsent || deletedAt != null) {
@@ -6008,6 +6114,13 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       notes:
           notes == null && nullToAbsent ? const Value.absent() : Value(notes),
       isActive: Value(isActive),
+      reminderMode: Value(reminderMode),
+      alarmSound: alarmSound == null && nullToAbsent
+          ? const Value.absent()
+          : Value(alarmSound),
+      vibrationEnabled: Value(vibrationEnabled),
+      snoozeDurationMinutes: Value(snoozeDurationMinutes),
+      maximumRingingDurationMinutes: Value(maximumRingingDurationMinutes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       deletedAt: deletedAt == null && nullToAbsent
@@ -6031,6 +6144,13 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       endDate: serializer.fromJson<String?>(json['endDate']),
       notes: serializer.fromJson<String?>(json['notes']),
       isActive: serializer.fromJson<bool>(json['isActive']),
+      reminderMode: serializer.fromJson<String>(json['reminderMode']),
+      alarmSound: serializer.fromJson<String?>(json['alarmSound']),
+      vibrationEnabled: serializer.fromJson<bool>(json['vibrationEnabled']),
+      snoozeDurationMinutes:
+          serializer.fromJson<int>(json['snoozeDurationMinutes']),
+      maximumRingingDurationMinutes:
+          serializer.fromJson<int>(json['maximumRingingDurationMinutes']),
       createdAt: serializer.fromJson<String>(json['createdAt']),
       updatedAt: serializer.fromJson<String>(json['updatedAt']),
       deletedAt: serializer.fromJson<String?>(json['deletedAt']),
@@ -6051,6 +6171,12 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       'endDate': serializer.toJson<String?>(endDate),
       'notes': serializer.toJson<String?>(notes),
       'isActive': serializer.toJson<bool>(isActive),
+      'reminderMode': serializer.toJson<String>(reminderMode),
+      'alarmSound': serializer.toJson<String?>(alarmSound),
+      'vibrationEnabled': serializer.toJson<bool>(vibrationEnabled),
+      'snoozeDurationMinutes': serializer.toJson<int>(snoozeDurationMinutes),
+      'maximumRingingDurationMinutes':
+          serializer.toJson<int>(maximumRingingDurationMinutes),
       'createdAt': serializer.toJson<String>(createdAt),
       'updatedAt': serializer.toJson<String>(updatedAt),
       'deletedAt': serializer.toJson<String?>(deletedAt),
@@ -6069,6 +6195,11 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           Value<String?> endDate = const Value.absent(),
           Value<String?> notes = const Value.absent(),
           bool? isActive,
+          String? reminderMode,
+          Value<String?> alarmSound = const Value.absent(),
+          bool? vibrationEnabled,
+          int? snoozeDurationMinutes,
+          int? maximumRingingDurationMinutes,
           String? createdAt,
           String? updatedAt,
           Value<String?> deletedAt = const Value.absent()}) =>
@@ -6086,6 +6217,13 @@ class Medicine extends DataClass implements Insertable<Medicine> {
         endDate: endDate.present ? endDate.value : this.endDate,
         notes: notes.present ? notes.value : this.notes,
         isActive: isActive ?? this.isActive,
+        reminderMode: reminderMode ?? this.reminderMode,
+        alarmSound: alarmSound.present ? alarmSound.value : this.alarmSound,
+        vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+        snoozeDurationMinutes:
+            snoozeDurationMinutes ?? this.snoozeDurationMinutes,
+        maximumRingingDurationMinutes:
+            maximumRingingDurationMinutes ?? this.maximumRingingDurationMinutes,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
@@ -6110,6 +6248,20 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       endDate: data.endDate.present ? data.endDate.value : this.endDate,
       notes: data.notes.present ? data.notes.value : this.notes,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      reminderMode: data.reminderMode.present
+          ? data.reminderMode.value
+          : this.reminderMode,
+      alarmSound:
+          data.alarmSound.present ? data.alarmSound.value : this.alarmSound,
+      vibrationEnabled: data.vibrationEnabled.present
+          ? data.vibrationEnabled.value
+          : this.vibrationEnabled,
+      snoozeDurationMinutes: data.snoozeDurationMinutes.present
+          ? data.snoozeDurationMinutes.value
+          : this.snoozeDurationMinutes,
+      maximumRingingDurationMinutes: data.maximumRingingDurationMinutes.present
+          ? data.maximumRingingDurationMinutes.value
+          : this.maximumRingingDurationMinutes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
@@ -6130,6 +6282,12 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           ..write('endDate: $endDate, ')
           ..write('notes: $notes, ')
           ..write('isActive: $isActive, ')
+          ..write('reminderMode: $reminderMode, ')
+          ..write('alarmSound: $alarmSound, ')
+          ..write('vibrationEnabled: $vibrationEnabled, ')
+          ..write('snoozeDurationMinutes: $snoozeDurationMinutes, ')
+          ..write(
+              'maximumRingingDurationMinutes: $maximumRingingDurationMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt')
@@ -6150,6 +6308,11 @@ class Medicine extends DataClass implements Insertable<Medicine> {
       endDate,
       notes,
       isActive,
+      reminderMode,
+      alarmSound,
+      vibrationEnabled,
+      snoozeDurationMinutes,
+      maximumRingingDurationMinutes,
       createdAt,
       updatedAt,
       deletedAt);
@@ -6168,6 +6331,12 @@ class Medicine extends DataClass implements Insertable<Medicine> {
           other.endDate == this.endDate &&
           other.notes == this.notes &&
           other.isActive == this.isActive &&
+          other.reminderMode == this.reminderMode &&
+          other.alarmSound == this.alarmSound &&
+          other.vibrationEnabled == this.vibrationEnabled &&
+          other.snoozeDurationMinutes == this.snoozeDurationMinutes &&
+          other.maximumRingingDurationMinutes ==
+              this.maximumRingingDurationMinutes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt);
@@ -6185,6 +6354,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
   final Value<String?> endDate;
   final Value<String?> notes;
   final Value<bool> isActive;
+  final Value<String> reminderMode;
+  final Value<String?> alarmSound;
+  final Value<bool> vibrationEnabled;
+  final Value<int> snoozeDurationMinutes;
+  final Value<int> maximumRingingDurationMinutes;
   final Value<String> createdAt;
   final Value<String> updatedAt;
   final Value<String?> deletedAt;
@@ -6201,6 +6375,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.endDate = const Value.absent(),
     this.notes = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.reminderMode = const Value.absent(),
+    this.alarmSound = const Value.absent(),
+    this.vibrationEnabled = const Value.absent(),
+    this.snoozeDurationMinutes = const Value.absent(),
+    this.maximumRingingDurationMinutes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
@@ -6218,6 +6397,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     this.endDate = const Value.absent(),
     this.notes = const Value.absent(),
     this.isActive = const Value.absent(),
+    this.reminderMode = const Value.absent(),
+    this.alarmSound = const Value.absent(),
+    this.vibrationEnabled = const Value.absent(),
+    this.snoozeDurationMinutes = const Value.absent(),
+    this.maximumRingingDurationMinutes = const Value.absent(),
     required String createdAt,
     required String updatedAt,
     this.deletedAt = const Value.absent(),
@@ -6242,6 +6426,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     Expression<String>? endDate,
     Expression<String>? notes,
     Expression<bool>? isActive,
+    Expression<String>? reminderMode,
+    Expression<String>? alarmSound,
+    Expression<bool>? vibrationEnabled,
+    Expression<int>? snoozeDurationMinutes,
+    Expression<int>? maximumRingingDurationMinutes,
     Expression<String>? createdAt,
     Expression<String>? updatedAt,
     Expression<String>? deletedAt,
@@ -6259,6 +6448,13 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       if (endDate != null) 'end_date': endDate,
       if (notes != null) 'notes': notes,
       if (isActive != null) 'is_active': isActive,
+      if (reminderMode != null) 'reminder_mode': reminderMode,
+      if (alarmSound != null) 'alarm_sound': alarmSound,
+      if (vibrationEnabled != null) 'vibration_enabled': vibrationEnabled,
+      if (snoozeDurationMinutes != null)
+        'snooze_duration_minutes': snoozeDurationMinutes,
+      if (maximumRingingDurationMinutes != null)
+        'maximum_ringing_duration_minutes': maximumRingingDurationMinutes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
@@ -6278,6 +6474,11 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       Value<String?>? endDate,
       Value<String?>? notes,
       Value<bool>? isActive,
+      Value<String>? reminderMode,
+      Value<String?>? alarmSound,
+      Value<bool>? vibrationEnabled,
+      Value<int>? snoozeDurationMinutes,
+      Value<int>? maximumRingingDurationMinutes,
       Value<String>? createdAt,
       Value<String>? updatedAt,
       Value<String?>? deletedAt,
@@ -6294,6 +6495,13 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
       endDate: endDate ?? this.endDate,
       notes: notes ?? this.notes,
       isActive: isActive ?? this.isActive,
+      reminderMode: reminderMode ?? this.reminderMode,
+      alarmSound: alarmSound ?? this.alarmSound,
+      vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
+      snoozeDurationMinutes:
+          snoozeDurationMinutes ?? this.snoozeDurationMinutes,
+      maximumRingingDurationMinutes:
+          maximumRingingDurationMinutes ?? this.maximumRingingDurationMinutes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -6337,6 +6545,23 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
     if (isActive.present) {
       map['is_active'] = Variable<bool>(isActive.value);
     }
+    if (reminderMode.present) {
+      map['reminder_mode'] = Variable<String>(reminderMode.value);
+    }
+    if (alarmSound.present) {
+      map['alarm_sound'] = Variable<String>(alarmSound.value);
+    }
+    if (vibrationEnabled.present) {
+      map['vibration_enabled'] = Variable<bool>(vibrationEnabled.value);
+    }
+    if (snoozeDurationMinutes.present) {
+      map['snooze_duration_minutes'] =
+          Variable<int>(snoozeDurationMinutes.value);
+    }
+    if (maximumRingingDurationMinutes.present) {
+      map['maximum_ringing_duration_minutes'] =
+          Variable<int>(maximumRingingDurationMinutes.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<String>(createdAt.value);
     }
@@ -6366,6 +6591,12 @@ class MedicinesCompanion extends UpdateCompanion<Medicine> {
           ..write('endDate: $endDate, ')
           ..write('notes: $notes, ')
           ..write('isActive: $isActive, ')
+          ..write('reminderMode: $reminderMode, ')
+          ..write('alarmSound: $alarmSound, ')
+          ..write('vibrationEnabled: $vibrationEnabled, ')
+          ..write('snoozeDurationMinutes: $snoozeDurationMinutes, ')
+          ..write(
+              'maximumRingingDurationMinutes: $maximumRingingDurationMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
@@ -10675,6 +10906,11 @@ typedef $$MedicinesTableCreateCompanionBuilder = MedicinesCompanion Function({
   Value<String?> endDate,
   Value<String?> notes,
   Value<bool> isActive,
+  Value<String> reminderMode,
+  Value<String?> alarmSound,
+  Value<bool> vibrationEnabled,
+  Value<int> snoozeDurationMinutes,
+  Value<int> maximumRingingDurationMinutes,
   required String createdAt,
   required String updatedAt,
   Value<String?> deletedAt,
@@ -10692,6 +10928,11 @@ typedef $$MedicinesTableUpdateCompanionBuilder = MedicinesCompanion Function({
   Value<String?> endDate,
   Value<String?> notes,
   Value<bool> isActive,
+  Value<String> reminderMode,
+  Value<String?> alarmSound,
+  Value<bool> vibrationEnabled,
+  Value<int> snoozeDurationMinutes,
+  Value<int> maximumRingingDurationMinutes,
   Value<String> createdAt,
   Value<String> updatedAt,
   Value<String?> deletedAt,
@@ -10740,6 +10981,24 @@ class $$MedicinesTableFilterComposer
 
   ColumnFilters<bool> get isActive => $composableBuilder(
       column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get reminderMode => $composableBuilder(
+      column: $table.reminderMode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get alarmSound => $composableBuilder(
+      column: $table.alarmSound, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get vibrationEnabled => $composableBuilder(
+      column: $table.vibrationEnabled,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get snoozeDurationMinutes => $composableBuilder(
+      column: $table.snoozeDurationMinutes,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get maximumRingingDurationMinutes => $composableBuilder(
+      column: $table.maximumRingingDurationMinutes,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -10796,6 +11055,25 @@ class $$MedicinesTableOrderingComposer
   ColumnOrderings<bool> get isActive => $composableBuilder(
       column: $table.isActive, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get reminderMode => $composableBuilder(
+      column: $table.reminderMode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get alarmSound => $composableBuilder(
+      column: $table.alarmSound, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get vibrationEnabled => $composableBuilder(
+      column: $table.vibrationEnabled,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get snoozeDurationMinutes => $composableBuilder(
+      column: $table.snoozeDurationMinutes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get maximumRingingDurationMinutes => $composableBuilder(
+      column: $table.maximumRingingDurationMinutes,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
@@ -10848,6 +11126,22 @@ class $$MedicinesTableAnnotationComposer
   GeneratedColumn<bool> get isActive =>
       $composableBuilder(column: $table.isActive, builder: (column) => column);
 
+  GeneratedColumn<String> get reminderMode => $composableBuilder(
+      column: $table.reminderMode, builder: (column) => column);
+
+  GeneratedColumn<String> get alarmSound => $composableBuilder(
+      column: $table.alarmSound, builder: (column) => column);
+
+  GeneratedColumn<bool> get vibrationEnabled => $composableBuilder(
+      column: $table.vibrationEnabled, builder: (column) => column);
+
+  GeneratedColumn<int> get snoozeDurationMinutes => $composableBuilder(
+      column: $table.snoozeDurationMinutes, builder: (column) => column);
+
+  GeneratedColumn<int> get maximumRingingDurationMinutes => $composableBuilder(
+      column: $table.maximumRingingDurationMinutes,
+      builder: (column) => column);
+
   GeneratedColumn<String> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -10892,6 +11186,11 @@ class $$MedicinesTableTableManager extends RootTableManager<
             Value<String?> endDate = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
+            Value<String> reminderMode = const Value.absent(),
+            Value<String?> alarmSound = const Value.absent(),
+            Value<bool> vibrationEnabled = const Value.absent(),
+            Value<int> snoozeDurationMinutes = const Value.absent(),
+            Value<int> maximumRingingDurationMinutes = const Value.absent(),
             Value<String> createdAt = const Value.absent(),
             Value<String> updatedAt = const Value.absent(),
             Value<String?> deletedAt = const Value.absent(),
@@ -10909,6 +11208,11 @@ class $$MedicinesTableTableManager extends RootTableManager<
             endDate: endDate,
             notes: notes,
             isActive: isActive,
+            reminderMode: reminderMode,
+            alarmSound: alarmSound,
+            vibrationEnabled: vibrationEnabled,
+            snoozeDurationMinutes: snoozeDurationMinutes,
+            maximumRingingDurationMinutes: maximumRingingDurationMinutes,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,
@@ -10926,6 +11230,11 @@ class $$MedicinesTableTableManager extends RootTableManager<
             Value<String?> endDate = const Value.absent(),
             Value<String?> notes = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
+            Value<String> reminderMode = const Value.absent(),
+            Value<String?> alarmSound = const Value.absent(),
+            Value<bool> vibrationEnabled = const Value.absent(),
+            Value<int> snoozeDurationMinutes = const Value.absent(),
+            Value<int> maximumRingingDurationMinutes = const Value.absent(),
             required String createdAt,
             required String updatedAt,
             Value<String?> deletedAt = const Value.absent(),
@@ -10943,6 +11252,11 @@ class $$MedicinesTableTableManager extends RootTableManager<
             endDate: endDate,
             notes: notes,
             isActive: isActive,
+            reminderMode: reminderMode,
+            alarmSound: alarmSound,
+            vibrationEnabled: vibrationEnabled,
+            snoozeDurationMinutes: snoozeDurationMinutes,
+            maximumRingingDurationMinutes: maximumRingingDurationMinutes,
             createdAt: createdAt,
             updatedAt: updatedAt,
             deletedAt: deletedAt,

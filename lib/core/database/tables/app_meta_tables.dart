@@ -3,7 +3,8 @@ import 'package:drift/drift.dart';
 class ItemHistory extends Table {
   TextColumn get id => text()();
   TextColumn get itemId => text()();
-  TextColumn get eventType => text()(); // created, edited, renewed, paid, consumed, discarded, archived
+  TextColumn get eventType =>
+      text()(); // created, edited, renewed, paid, consumed, discarded, archived
   TextColumn get eventDataJson => text().withDefault(const Constant('{}'))();
   TextColumn get eventAt => text()();
 
@@ -37,4 +38,3 @@ class BackupHistory extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
-

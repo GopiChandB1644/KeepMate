@@ -11,7 +11,9 @@ import 'core/notifications/notification_service.dart';
 import 'core/notifications/reminder_recovery_service.dart';
 import 'core/notifications/reminder_scheduler.dart';
 import 'features/medicine_care/data/repositories/medicine_repository_impl.dart';
+import 'features/medicine_care/domain/entities/dose_log_entity.dart';
 import 'features/medicine_care/services/medicine_notification_service.dart';
+import 'features/medicine_care/services/native_alarm_bridge.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -23,7 +25,8 @@ Future<void> main() async {
     await notificationService.init();
     await notificationService.requestPermissions();
   } catch (e, st) {
-    debugPrint('[KeepRemind] Local notifications initialization error: $e\n$st');
+    debugPrint(
+        '[KeepRemind] Local notifications initialization error: $e\n$st');
   }
 
   // 2. Seamlessly migrate legacy database to KeepRemind if present
@@ -48,14 +51,43 @@ Future<void> main() async {
   final database = AppDatabase();
 
   // 4. Reconcile and replenish local notifications on app startup from SQLite
-  final reminderScheduler = ReminderScheduler(notificationService: notificationService);
-  final recoveryService = ReminderRecoveryService(database: database, scheduler: reminderScheduler);
+  final reminderScheduler =
+      ReminderScheduler(notificationService: notificationService);
+  final recoveryService =
+      ReminderRecoveryService(database: database, scheduler: reminderScheduler);
   await recoveryService.reconcileAll();
 
   // 5. Re-synchronize and schedule all active medicine alarms with accurate local timezone
   try {
     final medicineRepo = MedicineRepositoryImpl(db: database);
-    final medicineNotificationService = MedicineNotificationService(notificationService: notificationService);
+    final medicineNotificationService =
+        MedicineNotificationService(notificationService: notificationService);
+
+    // Sync any offline/background native alarm actions first
+    final pendingActions = await NativeAlarmBridge().getPendingAlarmActions();
+    for (final item in pendingActions) {
+      final actionId = item['actionId'] as String?;
+      final action = item['action'] as String?;
+      final medicineId = item['medicineId'] as String?;
+      final doseTime = item['doseTime'] as String?;
+      final scheduledDate = item['scheduledDate'] as String?;
+
+      if (action == 'taken' &&
+          medicineId != null &&
+          doseTime != null &&
+          scheduledDate != null) {
+        await medicineRepo.recordDoseAction(
+          medicineId: medicineId,
+          scheduledDate: scheduledDate,
+          scheduledTime: doseTime,
+          status: DoseStatus.taken,
+        );
+      }
+      if (actionId != null) {
+        await NativeAlarmBridge().removePendingAlarmAction(actionId);
+      }
+    }
+
     final activeMeds = await medicineRepo.getAllMedicines();
     for (final med in activeMeds) {
       if (med.isActive) {
@@ -70,11 +102,14 @@ Future<void> main() async {
   await notificationService.getPendingNotifications();
 
   // 7. Decoupled Firebase Cloud Messaging (runs in background, never blocks UI or local reminders)
-  if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
     unawaited(
       Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
           .then((_) => FirebaseNotificationService().initialize())
-          .catchError((e) => debugPrint('[KeepRemind] Firebase initialization note: $e')),
+          .catchError((e) =>
+              debugPrint('[KeepRemind] Firebase initialization note: $e')),
     );
   }
 

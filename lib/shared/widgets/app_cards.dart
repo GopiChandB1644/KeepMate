@@ -122,7 +122,8 @@ class ItemSummaryCard extends StatelessWidget {
                         Icon(
                           Icons.event_rounded,
                           size: 16,
-                          color: item.status == ItemStatus.expired || item.status == ItemStatus.dueToday
+                          color: item.status == ItemStatus.expired ||
+                                  item.status == ItemStatus.dueToday
                               ? AppColors.dangerRed
                               : AppColors.textMuted,
                         ),
@@ -132,7 +133,8 @@ class ItemSummaryCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: item.status == ItemStatus.expired || item.status == ItemStatus.dueToday
+                            color: item.status == ItemStatus.expired ||
+                                    item.status == ItemStatus.dueToday
                                 ? AppColors.dangerRed
                                 : AppColors.textSecondary,
                           ),
@@ -142,16 +144,19 @@ class ItemSummaryCard extends StatelessWidget {
                     if (onQuickAction != null && quickActionLabel != null)
                       TextButton.icon(
                         onPressed: onQuickAction,
-                        icon: const Icon(Icons.check_circle_outline_rounded, size: 16),
+                        icon: const Icon(Icons.check_circle_outline_rounded,
+                            size: 16),
                         label: Text(quickActionLabel!),
                         style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
                           visualDensity: VisualDensity.compact,
                           foregroundColor: AppColors.primary,
                         ),
                       )
                     else
-                      const Icon(Icons.chevron_right_rounded, color: Colors.grey, size: 20),
+                      const Icon(Icons.chevron_right_rounded,
+                          color: Colors.grey, size: 20),
                   ],
                 ),
               ],
@@ -162,4 +167,3 @@ class ItemSummaryCard extends StatelessWidget {
     );
   }
 }
-

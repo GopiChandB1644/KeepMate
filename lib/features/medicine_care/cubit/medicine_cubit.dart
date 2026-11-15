@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/database/app_database.dart';
 import '../domain/entities/caregiver_entity.dart';
@@ -6,6 +7,7 @@ import '../domain/entities/dose_log_entity.dart';
 import '../domain/entities/medicine_entity.dart';
 import '../domain/repositories/medicine_repository.dart';
 import '../services/medicine_notification_service.dart';
+import '../services/native_alarm_bridge.dart';
 import 'medicine_state.dart';
 
 class MedicineCubit extends Cubit<MedicineState> {
@@ -50,6 +52,42 @@ class MedicineCubit extends Cubit<MedicineState> {
         emit(state.copyWith(errorMessage: err.toString()));
       }
     });
+
+    // Synchronize any pending alarm actions recorded while app was closed
+    syncPendingNativeActions();
+  }
+
+  Future<void> syncPendingNativeActions() async {
+    try {
+      final actions = await NativeAlarmBridge().getPendingAlarmActions();
+      for (final item in actions) {
+        final actionId = item['actionId'] as String?;
+        final action = item['action'] as String?;
+        final medicineId = item['medicineId'] as String?;
+        final doseTime = item['doseTime'] as String?;
+        final scheduledDate = item['scheduledDate'] as String?;
+
+        if (action == 'taken' &&
+            medicineId != null &&
+            doseTime != null &&
+            scheduledDate != null) {
+          await repository.recordDoseAction(
+            medicineId: medicineId,
+            scheduledDate: scheduledDate,
+            scheduledTime: doseTime,
+            status: DoseStatus.taken,
+          );
+        }
+        if (actionId != null) {
+          await NativeAlarmBridge().removePendingAlarmAction(actionId);
+        }
+      }
+      if (actions.isNotEmpty) {
+        await _refreshDoses();
+      }
+    } catch (e) {
+      debugPrint('[MedicineCubit] syncPendingNativeActions error: $e');
+    }
   }
 
   void _subscribeDosesForDate(DateTime date) {
@@ -97,7 +135,8 @@ class MedicineCubit extends Cubit<MedicineState> {
   }
 
   Future<void> snoozeDose(DoseLogEntity dose, {int minutes = 15}) async {
-    final snoozeUntil = DateTime.now().add(Duration(minutes: minutes)).toIso8601String();
+    final snoozeUntil =
+        DateTime.now().add(Duration(minutes: minutes)).toIso8601String();
     await repository.recordDoseAction(
       medicineId: dose.medicine.id,
       scheduleId: dose.schedule?.id,
@@ -126,7 +165,8 @@ class MedicineCubit extends Cubit<MedicineState> {
     if (notificationService != null) {
       final existingMed = await repository.getMedicineById(medicine.id.value);
       if (existingMed != null) {
-        await notificationService!.cancelMedicineSchedules(existingMed.id, existingMed.schedules);
+        await notificationService!
+            .cancelMedicineSchedules(existingMed.id, existingMed.schedules);
       }
     }
 
@@ -144,7 +184,8 @@ class MedicineCubit extends Cubit<MedicineState> {
     if (notificationService != null) {
       final med = await repository.getMedicineById(id);
       if (med != null) {
-        await notificationService!.cancelMedicineSchedules(med.id, med.schedules);
+        await notificationService!
+            .cancelMedicineSchedules(med.id, med.schedules);
       }
     }
     await repository.deleteMedicine(id);

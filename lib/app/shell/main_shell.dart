@@ -20,50 +20,51 @@ class MainShell extends StatelessWidget {
       },
       child: Scaffold(
         body: navigationShell,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.cardBorder, width: 0.8)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _navItem(
-                  index: 0,
-                  label: 'Home',
-                  icon: Icons.home_rounded,
-                  activeIcon: Icons.home_rounded,
-                ),
-                _navItem(
-                  index: 1,
-                  label: 'Vault',
-                  icon: Icons.folder_shared_rounded,
-                  activeIcon: Icons.folder_shared_rounded,
-                ),
-                _navItem(
-                  index: 2,
-                  label: 'Settings',
-                  icon: Icons.settings_rounded,
-                  activeIcon: Icons.settings_rounded,
-                ),
-              ],
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            border: Border(
+                top: BorderSide(color: AppColors.cardBorder, width: 0.8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _navItem(
+                    index: 0,
+                    label: 'Home',
+                    icon: Icons.home_rounded,
+                    activeIcon: Icons.home_rounded,
+                  ),
+                  _navItem(
+                    index: 1,
+                    label: 'Vault',
+                    icon: Icons.folder_shared_rounded,
+                    activeIcon: Icons.folder_shared_rounded,
+                  ),
+                  _navItem(
+                    index: 2,
+                    label: 'Settings',
+                    icon: Icons.settings_rounded,
+                    activeIcon: Icons.settings_rounded,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _navItem({
     required int index,
@@ -76,7 +77,8 @@ class MainShell extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(16),
-      onTap: () => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
+      onTap: () => navigationShell.goBranch(index,
+          initialLocation: index == navigationShell.currentIndex),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Column(
@@ -98,4 +100,3 @@ class MainShell extends StatelessWidget {
     );
   }
 }
-

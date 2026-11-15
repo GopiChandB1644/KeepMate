@@ -23,14 +23,18 @@ class BackupCubit extends Cubit<BackupState> {
   Future<void> loadHistory() async {
     try {
       final records = await (database.select(database.backupHistory)
-            ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]))
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)
+            ]))
           .get();
       emit(state.copyWith(history: records));
     } catch (_) {}
   }
 
   Future<void> createBackup({required String password}) async {
-    emit(state.copyWith(status: BackupOperationStatus.exporting, errorMessage: null));
+    emit(state.copyWith(
+        status: BackupOperationStatus.exporting, errorMessage: null));
     try {
       final file = await exportService.createBackup(password: password);
       await loadHistory();
@@ -51,7 +55,8 @@ class BackupCubit extends Cubit<BackupState> {
     required File file,
     required String password,
   }) async {
-    emit(state.copyWith(status: BackupOperationStatus.inspecting, errorMessage: null));
+    emit(state.copyWith(
+        status: BackupOperationStatus.inspecting, errorMessage: null));
     try {
       final preview = await importService.inspectBackup(
         backupFile: file,
@@ -64,7 +69,8 @@ class BackupCubit extends Cubit<BackupState> {
     } catch (e) {
       emit(state.copyWith(
         status: BackupOperationStatus.failure,
-        errorMessage: 'Cannot open backup: ${e.toString().replaceAll('Exception: ', '')}',
+        errorMessage:
+            'Cannot open backup: ${e.toString().replaceAll('Exception: ', '')}',
       ));
     }
   }
@@ -73,7 +79,8 @@ class BackupCubit extends Cubit<BackupState> {
     final preview = state.preview;
     if (preview == null) return;
 
-    emit(state.copyWith(status: BackupOperationStatus.restoring, errorMessage: null));
+    emit(state.copyWith(
+        status: BackupOperationStatus.restoring, errorMessage: null));
     try {
       await importService.executeRestore(preview);
       await loadHistory();
@@ -105,6 +112,9 @@ class BackupCubit extends Cubit<BackupState> {
   }
 
   void resetStatus() {
-    emit(state.copyWith(status: BackupOperationStatus.idle, errorMessage: null, successMessage: null));
+    emit(state.copyWith(
+        status: BackupOperationStatus.idle,
+        errorMessage: null,
+        successMessage: null));
   }
 }

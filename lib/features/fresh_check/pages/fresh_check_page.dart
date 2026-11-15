@@ -27,14 +27,18 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
         showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.grocery),
+        onPressed: () =>
+            context.push(AppRoutes.addItem, extra: ItemSubcategory.grocery),
         backgroundColor: AppColors.freshCheckColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add Grocery / Food', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Add Grocery / Food',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
-          final freshItems = state.items.where((e) => e.category == ItemCategory.freshCheck).toList();
+          final freshItems = state.items
+              .where((e) => e.category == ItemCategory.freshCheck)
+              .toList();
           final displayed = _selectedStorage == null
               ? freshItems
               : freshItems.where((e) {
@@ -47,13 +51,15 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
               // Storage Location Filters
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
                     FilterChip(
                       label: const Text('All Places'),
                       selected: _selectedStorage == null,
-                      onSelected: (_) => setState(() => _selectedStorage = null),
+                      onSelected: (_) =>
+                          setState(() => _selectedStorage = null),
                     ),
                     const SizedBox(width: 8),
                     ...StorageLocation.values.map((loc) {
@@ -62,7 +68,8 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
                         child: FilterChip(
                           label: Text(loc.label),
                           selected: _selectedStorage == loc,
-                          onSelected: (_) => setState(() => _selectedStorage = loc),
+                          onSelected: (_) =>
+                              setState(() => _selectedStorage = loc),
                         ),
                       );
                     }),
@@ -75,9 +82,11 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
                     ? EmptyStateView(
                         icon: Icons.kitchen_rounded,
                         title: 'No groceries or products added',
-                        description: 'Track milk, vegetables, medicines & food batches before they expire.',
+                        description:
+                            'Track milk, vegetables, medicines & food batches before they expire.',
                         actionLabel: 'Add Grocery Item',
-                        onAction: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.grocery),
+                        onAction: () => context.push(AppRoutes.addItem,
+                            extra: ItemSubcategory.grocery),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
@@ -86,10 +95,15 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
                           final item = displayed[index];
                           return ItemSummaryCard(
                             item: item,
-                            onTap: () => context.push(AppRoutes.itemDetail, extra: item),
-                            quickActionLabel: item.status != ItemStatus.consumed ? 'Used Up' : null,
+                            onTap: () =>
+                                context.push(AppRoutes.itemDetail, extra: item),
+                            quickActionLabel: item.status != ItemStatus.consumed
+                                ? 'Used Up'
+                                : null,
                             onQuickAction: item.status != ItemStatus.consumed
-                                ? () => context.read<ItemsCubit>().markConsumed(item.id)
+                                ? () => context
+                                    .read<ItemsCubit>()
+                                    .markConsumed(item.id)
                                 : null,
                           );
                         },

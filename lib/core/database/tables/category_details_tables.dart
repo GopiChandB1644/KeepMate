@@ -7,7 +7,8 @@ class BillDetails extends Table {
   RealColumn get amount => real().nullable()();
   TextColumn get currencyCode => text().withDefault(const Constant('INR'))();
   TextColumn get billingPeriod => text().nullable()();
-  TextColumn get paymentStatus => text().withDefault(const Constant('pending'))();
+  TextColumn get paymentStatus =>
+      text().withDefault(const Constant('pending'))();
 
   @override
   Set<Column> get primaryKey => {itemId};
@@ -63,7 +64,8 @@ class GroceryDetails extends Table {
   TextColumn get itemId => text()();
   TextColumn get productName => text()();
   TextColumn get batchNumber => text().nullable()();
-  TextColumn get storageLocation => text().withDefault(const Constant('pantry'))();
+  TextColumn get storageLocation =>
+      text().withDefault(const Constant('pantry'))();
   RealColumn get quantityRemaining => real().withDefault(const Constant(1.0))();
   TextColumn get quantityUnit => text().withDefault(const Constant('units'))();
 

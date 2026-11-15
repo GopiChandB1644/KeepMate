@@ -28,4 +28,3 @@ class OcrException extends AppException {
 class ValidationException extends AppException {
   const ValidationException(super.message, {super.code, super.details});
 }
-

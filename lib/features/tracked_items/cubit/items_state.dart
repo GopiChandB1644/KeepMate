@@ -27,7 +27,8 @@ class ItemsState {
       result = result.where((e) => e.category == selectedCategory).toList();
     }
     if (selectedSubcategory != null) {
-      result = result.where((e) => e.subcategory == selectedSubcategory).toList();
+      result =
+          result.where((e) => e.subcategory == selectedSubcategory).toList();
     }
     if (searchQuery.trim().isNotEmpty) {
       final q = searchQuery.toLowerCase().trim();
@@ -41,13 +42,20 @@ class ItemsState {
   }
 
   // Urgent counts
-  int get dueTodayCount => items.where((e) => e.status == ItemStatus.dueToday).length;
-  int get upcomingCount => items.where((e) => e.status == ItemStatus.upcoming).length;
-  int get expiredCount => items.where((e) => e.status == ItemStatus.expired).length;
-  int get activeCount => items.where((e) => e.status == ItemStatus.active).length;
+  int get dueTodayCount =>
+      items.where((e) => e.status == ItemStatus.dueToday).length;
+  int get upcomingCount =>
+      items.where((e) => e.status == ItemStatus.upcoming).length;
+  int get expiredCount =>
+      items.where((e) => e.status == ItemStatus.expired).length;
+  int get activeCount =>
+      items.where((e) => e.status == ItemStatus.active).length;
 
   List<TrackedItemEntity> get urgentItems => items
-      .where((e) => e.status == ItemStatus.dueToday || e.status == ItemStatus.upcoming || e.status == ItemStatus.expired)
+      .where((e) =>
+          e.status == ItemStatus.dueToday ||
+          e.status == ItemStatus.upcoming ||
+          e.status == ItemStatus.expired)
       .toList();
 
   List<TrackedItemEntity> get recentItems => items.take(5).toList();
@@ -66,10 +74,12 @@ class ItemsState {
       status: status ?? this.status,
       items: items ?? this.items,
       searchQuery: searchQuery ?? this.searchQuery,
-      selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
-      selectedSubcategory: clearSubcategory ? null : (selectedSubcategory ?? this.selectedSubcategory),
+      selectedCategory:
+          clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      selectedSubcategory: clearSubcategory
+          ? null
+          : (selectedSubcategory ?? this.selectedSubcategory),
       errorMessage: errorMessage,
     );
   }
 }
-

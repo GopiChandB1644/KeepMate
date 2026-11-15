@@ -37,8 +37,10 @@ class LocalFileStorage {
     await sourceFile.copy(destinationFile.path);
 
     final fileSize = await destinationFile.length();
-    final checksum = await integrityService.calculateFileChecksum(destinationFile);
-    final relativePath = await FilePathResolver.toRelativePath(destinationFile.path);
+    final checksum =
+        await integrityService.calculateFileChecksum(destinationFile);
+    final relativePath =
+        await FilePathResolver.toRelativePath(destinationFile.path);
 
     return StoredFileMetadata(
       fileName: p.basename(sourceFile.path),
@@ -68,7 +70,8 @@ class LocalFileStorage {
     try {
       final docsDir = await FilePathResolver.documentsDirectory;
       int total = 0;
-      await for (final file in docsDir.list(recursive: true, followLinks: false)) {
+      await for (final file
+          in docsDir.list(recursive: true, followLinks: false)) {
         if (file is File) {
           total += await file.length();
         }
@@ -84,7 +87,8 @@ class LocalFileStorage {
     try {
       final docsDir = await FilePathResolver.documentsDirectory;
       int purgedBytes = 0;
-      await for (final entity in docsDir.list(recursive: true, followLinks: false)) {
+      await for (final entity
+          in docsDir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
           final relPath = await FilePathResolver.toRelativePath(entity.path);
           if (!activeRelativePaths.contains(relPath)) {
@@ -116,4 +120,3 @@ class StoredFileMetadata {
     required this.absolutePath,
   });
 }
-

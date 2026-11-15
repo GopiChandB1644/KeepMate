@@ -66,7 +66,9 @@ class ReminderScheduler {
       // If the reminder is for today (offset == 0) and the morning preferred time has already passed,
       // schedule an immediate alert (e.g. 15 seconds from now) so the user gets notified today!
       if (offset == 0 && triggerAt.isBefore(now)) {
-        final isToday = targetDate.year == now.year && targetDate.month == now.month && targetDate.day == now.day;
+        final isToday = targetDate.year == now.year &&
+            targetDate.month == now.month &&
+            targetDate.day == now.day;
         if (isToday) {
           triggerAt = now.add(const Duration(seconds: 15));
         }
@@ -99,4 +101,3 @@ class ReminderScheduler {
     }
   }
 }
-

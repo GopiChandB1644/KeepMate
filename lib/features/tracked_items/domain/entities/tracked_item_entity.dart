@@ -32,11 +32,13 @@ class TrackedItemEntity {
   String? get description => baseItem.description;
 
   ItemCategory get category => ItemCategory.fromCode(baseItem.category);
-  ItemSubcategory get subcategory => ItemSubcategory.fromCode(baseItem.subcategory);
+  ItemSubcategory get subcategory =>
+      ItemSubcategory.fromCode(baseItem.subcategory);
 
   DateTime? get expiryDate => AppDateUtils.parseDateOnly(baseItem.expiryDate);
   DateTime? get dueDate => AppDateUtils.parseDateOnly(baseItem.dueDate);
-  DateTime? get purchaseDate => AppDateUtils.parseDateOnly(baseItem.purchaseDate);
+  DateTime? get purchaseDate =>
+      AppDateUtils.parseDateOnly(baseItem.purchaseDate);
   DateTime? get issueDate => AppDateUtils.parseDateOnly(baseItem.issueDate);
   DateTime? get startDate => AppDateUtils.parseDateOnly(baseItem.startDate);
 
@@ -64,7 +66,8 @@ class TrackedItemEntity {
   String get relativeTimeLabel => AppDateUtils.getRelativeTimeLabel(targetDate);
 
   /// Optional document number (from documents, license, or insurance policy)
-  String? get documentNumber => documentDetails?.documentNumber ?? insuranceDetails?.policyNumber;
+  String? get documentNumber =>
+      documentDetails?.documentNumber ?? insuranceDetails?.policyNumber;
 
   /// Optional vehicle registration number (e.g. from vehicle RC or insurance)
   String? get vehicleNumber => insuranceDetails?.vehicleNumber;

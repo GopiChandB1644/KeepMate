@@ -22,38 +22,44 @@ class CategoriesHubPage extends StatelessWidget {
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
-          final lifePocketCount = state.items.where((e) => e.category == ItemCategory.lifePocket).length;
-          final freshCheckCount = state.items.where((e) => e.category == ItemCategory.freshCheck).length;
-          final docAlertCount = state.items.where((e) => e.category == ItemCategory.docAlert).length;
+          final lifePocketCount = state.items
+              .where((e) => e.category == ItemCategory.lifePocket)
+              .length;
+          final freshCheckCount = state.items
+              .where((e) => e.category == ItemCategory.freshCheck)
+              .length;
+          final docAlertCount = state.items
+              .where((e) => e.category == ItemCategory.docAlert)
+              .length;
 
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
               Text('Choose a Category', style: AppText.h2),
               const SizedBox(height: 6),
-              Text('Organized neatly so you can find anything instantly.', style: AppText.bodyMedium),
+              Text('Organized neatly so you can find anything instantly.',
+                  style: AppText.bodyMedium),
               const SizedBox(height: 24),
-
               _CategoryCard(
                 title: 'LifePocket',
-                subtitle: 'Bills, warranties, gadgets & recurring subscriptions',
+                subtitle:
+                    'Bills, warranties, gadgets & recurring subscriptions',
                 count: lifePocketCount,
                 color: AppColors.lifePocketColor,
                 icon: Icons.account_balance_wallet_rounded,
                 onTap: () => context.push(AppRoutes.lifePocket),
               ),
               const SizedBox(height: 16),
-
               _CategoryCard(
                 title: 'FreshCheck',
-                subtitle: 'Milk, vegetables, food expiry batches & pantry storage',
+                subtitle:
+                    'Milk, vegetables, food expiry batches & pantry storage',
                 count: freshCheckCount,
                 color: AppColors.freshCheckColor,
                 icon: Icons.kitchen_rounded,
                 onTap: () => context.push(AppRoutes.freshCheck),
               ),
               const SizedBox(height: 16),
-
               _CategoryCard(
                 title: 'DocAlert',
                 subtitle: 'Driving licence, vehicle insurance, PUC & passport',
@@ -123,14 +129,18 @@ class _CategoryCard extends StatelessWidget {
                         children: [
                           Text(title, style: AppText.h2),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: color.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
                               '$count items',
-                              style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+                              style: TextStyle(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12),
                             ),
                           ),
                         ],
@@ -150,4 +160,3 @@ class _CategoryCard extends StatelessWidget {
     );
   }
 }
-

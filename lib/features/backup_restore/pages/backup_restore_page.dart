@@ -50,7 +50,8 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               final pwd = _passwordController.text.trim();
@@ -105,12 +106,15 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
               final pwd = _passwordController.text.trim();
               Navigator.pop(ctx);
-              context.read<BackupCubit>().inspectBackupFile(file: file, password: pwd);
+              context
+                  .read<BackupCubit>()
+                  .inspectBackupFile(file: file, password: pwd);
             },
             child: const Text('Inspect & Verify'),
           ),
@@ -146,7 +150,10 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                 children: [
                   _infoRow('Items to restore', '${manifest.itemCount}'),
                   _infoRow('Documents', '${manifest.documentCount}'),
-                  _infoRow('Created on', AppDateUtils.formatDisplay(DateTime.tryParse(manifest.createdAt))),
+                  _infoRow(
+                      'Created on',
+                      AppDateUtils.formatDisplay(
+                          DateTime.tryParse(manifest.createdAt))),
                 ],
               ),
             ),
@@ -180,7 +187,9 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: AppText.bodySmall),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(value,
+              style:
+                  const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
@@ -196,14 +205,16 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
       ),
       body: BlocConsumer<BackupCubit, BackupState>(
         listener: (context, state) {
-          if (state.status == BackupOperationStatus.exportSuccess && state.exportedFile != null) {
+          if (state.status == BackupOperationStatus.exportSuccess &&
+              state.exportedFile != null) {
             showToast(
               context,
               '✅ Backup created! You can now share or save it.',
               icon: Icons.shield_rounded,
               type: ToastType.success,
             );
-          } else if (state.status == BackupOperationStatus.inspectSuccess && state.preview != null) {
+          } else if (state.status == BackupOperationStatus.inspectSuccess &&
+              state.preview != null) {
             _showRestorePreviewDialog(state);
           } else if (state.status == BackupOperationStatus.restoreSuccess) {
             showToast(
@@ -212,7 +223,8 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               icon: Icons.check_circle_rounded,
               type: ToastType.success,
             );
-          } else if (state.status == BackupOperationStatus.failure && state.errorMessage != null) {
+          } else if (state.status == BackupOperationStatus.failure &&
+              state.errorMessage != null) {
             showToast(
               context,
               state.errorMessage!,
@@ -233,15 +245,21 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.isDark ? const Color(0xFF78350F).withValues(alpha: 0.3) : const Color(0xFFFEF3C7),
+                  color: AppColors.isDark
+                      ? const Color(0xFF78350F).withValues(alpha: 0.3)
+                      : const Color(0xFFFEF3C7),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.accent.withValues(alpha: AppColors.isDark ? 0.35 : 0.4)),
+                  border: Border.all(
+                      color: AppColors.accent
+                          .withValues(alpha: AppColors.isDark ? 0.35 : 0.4)),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.shield_rounded,
-                      color: AppColors.isDark ? const Color(0xFFFBBF24) : const Color(0xFFB45309),
+                      color: AppColors.isDark
+                          ? const Color(0xFFFBBF24)
+                          : const Color(0xFFB45309),
                       size: 30,
                     ),
                     const SizedBox(width: 14),
@@ -253,14 +271,19 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                             'Local-First Privacy',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.isDark ? const Color(0xFFFDE68A) : const Color(0xFF92400E),
+                              color: AppColors.isDark
+                                  ? const Color(0xFFFDE68A)
+                                  : const Color(0xFF92400E),
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'KeepRemind keeps 100% of your documents and data on your phone. To avoid losing data if you change phones, create an encrypted backup regularly.',
                             style: AppText.bodySmall.copyWith(
-                              color: AppColors.isDark ? const Color(0xFFFDE68A).withValues(alpha: 0.85) : const Color(0xFF78350F),
+                              color: AppColors.isDark
+                                  ? const Color(0xFFFDE68A)
+                                      .withValues(alpha: 0.85)
+                                  : const Color(0xFF78350F),
                             ),
                           ),
                         ],
@@ -310,12 +333,15 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                       onPressed: isBusy ? null : _showCreateBackupDialog,
                       icon: const Icon(Icons.archive_rounded),
                       label: const Text('Create Encrypted Backup'),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary),
                     ),
                     if (state.exportedFile != null) ...[
                       const SizedBox(height: 12),
                       OutlinedButton.icon(
-                        onPressed: () => context.read<BackupCubit>().shareBackup(state.exportedFile!),
+                        onPressed: () => context
+                            .read<BackupCubit>()
+                            .shareBackup(state.exportedFile!),
                         icon: const Icon(Icons.share_rounded),
                         label: const Text('Share / Save Last Backup File'),
                       ),
@@ -348,7 +374,8 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                       onPressed: isBusy ? null : _pickAndRestore,
                       icon: const Icon(Icons.unarchive_rounded),
                       label: const Text('Select .kmb File to Restore'),
-                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.secondary),
                     ),
                   ],
                 ),
@@ -373,20 +400,26 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                   return Card(
                     margin: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
-                      leading: const Icon(Icons.check_circle_rounded, color: AppColors.safeGreen),
-                      title: Text('Backup ${record.backupId.substring(0, 8)}...'),
+                      leading: const Icon(Icons.check_circle_rounded,
+                          color: AppColors.safeGreen),
+                      title:
+                          Text('Backup ${record.backupId.substring(0, 8)}...'),
                       subtitle: Text(
                         '${(record.fileSize / 1024).toStringAsFixed(1)} KB • ${AppDateUtils.formatDisplay(DateTime.tryParse(record.createdAt))}',
                       ),
                       trailing: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: AppColors.safeGreen.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Text(
                           'Encrypted',
-                          style: TextStyle(fontSize: 11, color: AppColors.safeGreen, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.safeGreen,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -400,4 +433,3 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
     );
   }
 }
-

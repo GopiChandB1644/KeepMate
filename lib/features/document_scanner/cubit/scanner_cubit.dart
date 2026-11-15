@@ -27,10 +27,13 @@ class ScannerCubit extends Cubit<ScannerState> {
         emit(state.copyWith(status: ScannerStatus.idle));
         return;
       }
-      final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-      await processImage(File(compressed), expectedSubcategory: expectedSubcategory);
+      final compressed = await ImageCompressor.compress(picked.path,
+          purpose: ImagePurpose.document);
+      await processImage(File(compressed),
+          expectedSubcategory: expectedSubcategory);
     } catch (e) {
-      emit(state.copyWith(status: ScannerStatus.failure, errorMessage: 'Camera error: $e'));
+      emit(state.copyWith(
+          status: ScannerStatus.failure, errorMessage: 'Camera error: $e'));
     }
   }
 
@@ -47,15 +50,20 @@ class ScannerCubit extends Cubit<ScannerState> {
         emit(state.copyWith(status: ScannerStatus.idle));
         return;
       }
-      final compressed = await ImageCompressor.compress(picked.path, purpose: ImagePurpose.document);
-      await processImage(File(compressed), expectedSubcategory: expectedSubcategory);
+      final compressed = await ImageCompressor.compress(picked.path,
+          purpose: ImagePurpose.document);
+      await processImage(File(compressed),
+          expectedSubcategory: expectedSubcategory);
     } catch (e) {
-      emit(state.copyWith(status: ScannerStatus.failure, errorMessage: 'Gallery error: $e'));
+      emit(state.copyWith(
+          status: ScannerStatus.failure, errorMessage: 'Gallery error: $e'));
     }
   }
 
-  Future<void> processImage(File imageFile, {ItemSubcategory? expectedSubcategory}) async {
-    emit(state.copyWith(status: ScannerStatus.processing, imageFile: imageFile));
+  Future<void> processImage(File imageFile,
+      {ItemSubcategory? expectedSubcategory}) async {
+    emit(
+        state.copyWith(status: ScannerStatus.processing, imageFile: imageFile));
     try {
       final text = await OcrParserService.extractText(imageFile);
       final trimmed = text.trim();
@@ -84,7 +92,9 @@ class ScannerCubit extends Cubit<ScannerState> {
         result: result,
       ));
     } catch (e) {
-      emit(state.copyWith(status: ScannerStatus.failure, errorMessage: 'Text recognition failed: $e'));
+      emit(state.copyWith(
+          status: ScannerStatus.failure,
+          errorMessage: 'Text recognition failed: $e'));
     }
   }
 
@@ -92,4 +102,3 @@ class ScannerCubit extends Cubit<ScannerState> {
     emit(const ScannerState());
   }
 }
-

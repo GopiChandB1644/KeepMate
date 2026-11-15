@@ -39,8 +39,10 @@ class ParsedOcrResult {
 class OcrParserService {
   const OcrParserService();
 
-  static const MethodChannel _pdfChannel = MethodChannel('com.keepremind.app/pdf_renderer');
-  static const MethodChannel _legacyPdfChannel = MethodChannel('com.keepmate.app/pdf_renderer');
+  static const MethodChannel _pdfChannel =
+      MethodChannel('com.keepremind.app/pdf_renderer');
+  static const MethodChannel _legacyPdfChannel =
+      MethodChannel('com.keepmate.app/pdf_renderer');
 
   /// Extracts full text from any supported file (PDF or Image).
   static Future<String> extractText(File file) async {
@@ -86,7 +88,8 @@ class OcrParserService {
 
       // Check if digital text has meaningful content (>= 40 alphanumeric characters
       // AND contains words/digits typical of bills/documents)
-      final letterCount = RegExp(r'[a-zA-Z0-9]').allMatches(extractedText).length;
+      final letterCount =
+          RegExp(r'[a-zA-Z0-9]').allMatches(extractedText).length;
       final hasMeaningfulContent = letterCount >= 40 &&
           (RegExp(r'\d{2}').hasMatch(extractedText) ||
               extractedText.toLowerCase().contains('bill') ||
@@ -96,14 +99,17 @@ class OcrParserService {
               extractedText.toLowerCase().contains('certificate'));
 
       if (hasMeaningfulContent) {
-        debugPrint('OcrParserService: Digital PDF text extracted successfully (${extractedText.length} chars)');
+        debugPrint(
+            'OcrParserService: Digital PDF text extracted successfully (${extractedText.length} chars)');
         return extractedText;
       }
 
       // Otherwise, the PDF is a scanned document (e.g. photos/scans of RC front & back)!
       // Render pages via native PdfRenderer and run Google ML Kit OCR on each page.
-      debugPrint('OcrParserService: Scanned image PDF detected, rendering pages for ML Kit OCR...');
-      final renderedImagePaths = await _renderPdfPagesViaNative(file.path, maxPages: 4);
+      debugPrint(
+          'OcrParserService: Scanned image PDF detected, rendering pages for ML Kit OCR...');
+      final renderedImagePaths =
+          await _renderPdfPagesViaNative(file.path, maxPages: 4);
 
       if (renderedImagePaths.isNotEmpty) {
         final pageTexts = <String>[];
@@ -122,7 +128,8 @@ class OcrParserService {
         }
         if (pageTexts.isNotEmpty) {
           final combined = pageTexts.join('\n\n');
-          debugPrint('OcrParserService: Extracted OCR text from ${pageTexts.length} rendered pages (${combined.length} chars)');
+          debugPrint(
+              'OcrParserService: Extracted OCR text from ${pageTexts.length} rendered pages (${combined.length} chars)');
           return combined;
         }
       }
@@ -134,10 +141,12 @@ class OcrParserService {
     }
   }
 
-  static Future<List<String>> _renderPdfPagesViaNative(String pdfPath, {int maxPages = 4}) async {
+  static Future<List<String>> _renderPdfPagesViaNative(String pdfPath,
+      {int maxPages = 4}) async {
     for (final channel in [_pdfChannel, _legacyPdfChannel]) {
       try {
-        final result = await channel.invokeMethod<List<dynamic>>('renderPages', {
+        final result =
+            await channel.invokeMethod<List<dynamic>>('renderPages', {
           'path': pdfPath,
           'maxPages': maxPages,
         });
@@ -146,7 +155,8 @@ class OcrParserService {
         }
       } catch (_) {}
       try {
-        final single = await channel.invokeMethod<String>('renderFirstPage', {'path': pdfPath});
+        final single = await channel
+            .invokeMethod<String>('renderFirstPage', {'path': pdfPath});
         if (single != null) return [single];
       } catch (_) {}
     }
@@ -159,7 +169,8 @@ class OcrParserService {
   static Future<String> extractTextFromImage(File file) async {
     try {
       final inputImage = InputImage.fromFile(file);
-      final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+      final textRecognizer =
+          TextRecognizer(script: TextRecognitionScript.latin);
       final recognizedText = await textRecognizer.processImage(inputImage);
       await textRecognizer.close();
 
@@ -202,7 +213,8 @@ class OcrParserService {
 
       bool placed = false;
       for (final row in rows) {
-        final rowCenter = (row.first.boundingBox.top + row.first.boundingBox.bottom) / 2;
+        final rowCenter =
+            (row.first.boundingBox.top + row.first.boundingBox.bottom) / 2;
         final rowHeight = max(10.0, row.first.boundingBox.height);
         final tolerance = max(lineHeight, rowHeight) * 0.65;
 
@@ -222,7 +234,8 @@ class OcrParserService {
     for (final row in rows) {
       // Sort elements in each row from left to right
       row.sort((a, b) => a.boundingBox.left.compareTo(b.boundingBox.left));
-      final lineText = row.map((l) => l.text.trim()).where((t) => t.isNotEmpty).join('   ');
+      final lineText =
+          row.map((l) => l.text.trim()).where((t) => t.isNotEmpty).join('   ');
       if (lineText.isNotEmpty) {
         buffer.writeln(lineText);
       }
@@ -266,8 +279,12 @@ class OcrParserService {
 
     final buffer = StringBuffer();
     for (final row in rows) {
-      row.sort((a, b) => (a.bounds.left as double).compareTo(b.bounds.left as double));
-      final lineText = row.map((l) => l.text.toString().trim()).where((t) => t.isNotEmpty).join('   ');
+      row.sort((a, b) =>
+          (a.bounds.left as double).compareTo(b.bounds.left as double));
+      final lineText = row
+          .map((l) => l.text.toString().trim())
+          .where((t) => t.isNotEmpty)
+          .join('   ');
       if (lineText.isNotEmpty) {
         buffer.writeln(lineText);
       }
@@ -311,10 +328,46 @@ class OcrParserService {
 
   // Valid Indian State & UT codes
   static const Set<String> _indianStateCodes = {
-    'AN', 'AP', 'AR', 'AS', 'BR', 'CH', 'CG', 'DD', 'DL', 'DN',
-    'GA', 'GJ', 'HR', 'HP', 'JH', 'JK', 'KA', 'KL', 'LA', 'LD',
-    'MP', 'MH', 'MN', 'ML', 'MZ', 'NL', 'OD', 'OR', 'PB', 'PY',
-    'RJ', 'SK', 'TN', 'TR', 'TS', 'UK', 'UA', 'UP', 'WB', 'BH',
+    'AN',
+    'AP',
+    'AR',
+    'AS',
+    'BR',
+    'CH',
+    'CG',
+    'DD',
+    'DL',
+    'DN',
+    'GA',
+    'GJ',
+    'HR',
+    'HP',
+    'JH',
+    'JK',
+    'KA',
+    'KL',
+    'LA',
+    'LD',
+    'MP',
+    'MH',
+    'MN',
+    'ML',
+    'MZ',
+    'NL',
+    'OD',
+    'OR',
+    'PB',
+    'PY',
+    'RJ',
+    'SK',
+    'TN',
+    'TR',
+    'TS',
+    'UK',
+    'UA',
+    'UP',
+    'WB',
+    'BH',
   };
 
   // Indian vehicle registration format: KA01AB1234, AP 04 TE 1234, DL-1C-A-1234, 22 BH 1234 AA
@@ -385,14 +438,17 @@ class OcrParserService {
     final labeledMatch = _labeledDlRegex.firstMatch(text);
     if (labeledMatch != null) {
       final raw = labeledMatch.group(1)?.trim();
-      if (raw != null && raw.length >= 8 && !_docNumberStopWords.contains(raw.toLowerCase())) {
+      if (raw != null &&
+          raw.length >= 8 &&
+          !_docNumberStopWords.contains(raw.toLowerCase())) {
         return raw.replaceAll(RegExp(r'\s+'), ' ');
       }
     }
 
     final standaloneMatch = _standaloneDlRegex.firstMatch(text);
     if (standaloneMatch != null) {
-      final raw = (standaloneMatch.group(1) ?? standaloneMatch.group(2))?.trim();
+      final raw =
+          (standaloneMatch.group(1) ?? standaloneMatch.group(2))?.trim();
       if (raw != null && !_docNumberStopWords.contains(raw.toLowerCase())) {
         final stateCode = raw.substring(0, 2).toUpperCase();
         if (_indianStateCodes.contains(stateCode)) {
@@ -528,7 +584,8 @@ class OcrParserService {
                     lowerFullText.contains('regn date'))));
 
     final isPassport = lowerFullText.contains('passport') ||
-        (lowerFullText.contains('republic of india') && lowerFullText.contains('pass'));
+        (lowerFullText.contains('republic of india') &&
+            lowerFullText.contains('pass'));
 
     final isPanCard = lowerFullText.contains('pan card') ||
         lowerFullText.contains('permanent account number') ||
@@ -549,24 +606,28 @@ class OcrParserService {
         detectedTitle = 'Driving Licence';
       }
       detectedProvider ??= _findProviderName(lines, [
-        'transport department',
-        'ministry of road transport',
-        'parivahan',
-        'sarathi',
-        'government of',
-        'govt of',
-        'rto',
-      ]) ?? 'Transport Department';
+            'transport department',
+            'ministry of road transport',
+            'parivahan',
+            'sarathi',
+            'government of',
+            'govt of',
+            'rto',
+          ]) ??
+          'Transport Department';
     } else if (isVehicleRc) {
       detectedSubcategory = ItemSubcategory.document;
-      detectedTitle = detectedVehicle != null ? 'Vehicle RC ($detectedVehicle)' : 'Vehicle Registration Certificate';
+      detectedTitle = detectedVehicle != null
+          ? 'Vehicle RC ($detectedVehicle)'
+          : 'Vehicle Registration Certificate';
       detectedProvider ??= _findProviderName(lines, [
-        'transport department',
-        'government of',
-        'govt of',
-        'motor vehicles',
-        'rto',
-      ]) ?? 'Transport Department';
+            'transport department',
+            'government of',
+            'govt of',
+            'motor vehicles',
+            'rto',
+          ]) ??
+          'Transport Department';
     } else if (isPassport) {
       detectedSubcategory = ItemSubcategory.document;
       detectedTitle = 'Passport';
@@ -630,7 +691,15 @@ class OcrParserService {
         lowerFullText.contains('hathway')) {
       detectedSubcategory = ItemSubcategory.bill;
       detectedTitle = 'Broadband Bill';
-      detectedProvider ??= _findProviderName(lines, ['airtel', 'jio', 'act fibernet', 'act fiber', 'bsnl', 'tata play', 'hathway']);
+      detectedProvider ??= _findProviderName(lines, [
+        'airtel',
+        'jio',
+        'act fibernet',
+        'act fiber',
+        'bsnl',
+        'tata play',
+        'hathway'
+      ]);
     } else if (lowerFullText.contains('gas') ||
         lowerFullText.contains('indane') ||
         lowerFullText.contains('hp gas') ||
@@ -640,14 +709,16 @@ class OcrParserService {
         lowerFullText.contains('adani gas')) {
       detectedSubcategory = ItemSubcategory.bill;
       detectedTitle = 'LPG / Gas Bill';
-      detectedProvider ??= _findProviderName(lines, ['indane', 'hp gas', 'bharat gas', 'igl', 'mgl', 'adani gas']);
+      detectedProvider ??= _findProviderName(
+          lines, ['indane', 'hp gas', 'bharat gas', 'igl', 'mgl', 'adani gas']);
     } else if (lowerFullText.contains('water bill') ||
         lowerFullText.contains('bwssb') ||
         lowerFullText.contains('jal board') ||
         lowerFullText.contains('hmwssb')) {
       detectedSubcategory = ItemSubcategory.bill;
       detectedTitle = 'Water Bill';
-      detectedProvider ??= _findProviderName(lines, ['bwssb', 'jal board', 'hmwssb', 'water']);
+      detectedProvider ??=
+          _findProviderName(lines, ['bwssb', 'jal board', 'hmwssb', 'water']);
     } else if (lowerFullText.contains('insurance') ||
         lowerFullText.contains('policy schedule') ||
         lowerFullText.contains('policy certificate') ||
@@ -669,7 +740,8 @@ class OcrParserService {
         lowerFullText.contains('sbi general') ||
         lowerFullText.contains('sbi life') ||
         lowerFullText.contains('max life') ||
-        RegExp(r'\b(?:lic\s+of\s+india|life\s+insurance\s+corporation|lic|l\.i\.c)\b', caseSensitive: false)
+        RegExp(r'\b(?:lic\s+of\s+india|life\s+insurance\s+corporation|lic|l\.i\.c)\b',
+                caseSensitive: false)
             .hasMatch(lowerFullText)) {
       detectedSubcategory = ItemSubcategory.insurance;
       detectedTitle = 'Insurance Policy';
@@ -686,7 +758,8 @@ class OcrParserService {
         'new india assurance',
         'united india',
       ]);
-    } else if (lowerFullText.contains('warranty') || lowerFullText.contains('guarantee')) {
+    } else if (lowerFullText.contains('warranty') ||
+        lowerFullText.contains('guarantee')) {
       detectedSubcategory = ItemSubcategory.warranty;
       detectedTitle = 'Warranty Card';
     } else if (lowerFullText.contains('tax invoice') ||
@@ -695,8 +768,11 @@ class OcrParserService {
         lowerFullText.contains('flipkart')) {
       detectedSubcategory = ItemSubcategory.purchase;
       detectedTitle = 'Purchase Invoice';
-      detectedProvider ??= _findProviderName(lines, ['amazon', 'flipkart', 'retail', 'technologies', 'private limited']);
-    } else if (lowerFullText.contains('best before') || (lowerFullText.contains('expiry date') && lowerFullText.contains('batch'))) {
+      detectedProvider ??= _findProviderName(lines,
+          ['amazon', 'flipkart', 'retail', 'technologies', 'private limited']);
+    } else if (lowerFullText.contains('best before') ||
+        (lowerFullText.contains('expiry date') &&
+            lowerFullText.contains('batch'))) {
       detectedSubcategory = ItemSubcategory.grocery;
       detectedTitle = lines.isNotEmpty ? lines.first : 'Grocery Item';
     }
@@ -707,7 +783,11 @@ class OcrParserService {
       final lineLower = line.toLowerCase();
 
       // Skip lines that are purely dates or account numbers
-      if (lineLower.contains('date') && !lineLower.contains('amount') && !lineLower.contains('demand') && !lineLower.contains('due') && !lineLower.contains('total')) {
+      if (lineLower.contains('date') &&
+          !lineLower.contains('amount') &&
+          !lineLower.contains('demand') &&
+          !lineLower.contains('due') &&
+          !lineLower.contains('total')) {
         continue;
       }
 
@@ -732,7 +812,10 @@ class OcrParserService {
             lineLower.contains('total due') ||
             lineLower.contains('grand total')) {
           final nextLine = lines[i + 1];
-          final nextMatch = RegExp(r'^[:\-]?\s*(?:₹|rs\.?|inr)?\s*([0-9]+(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?)', caseSensitive: false).firstMatch(nextLine);
+          final nextMatch = RegExp(
+                  r'^[:\-]?\s*(?:₹|rs\.?|inr)?\s*([0-9]+(?:,[0-9]{2,3})*(?:\.[0-9]{1,2})?)',
+                  caseSensitive: false)
+              .firstMatch(nextLine);
           if (nextMatch != null) {
             final clean = nextMatch.group(1)?.replaceAll(',', '');
             if (clean != null) {
@@ -765,7 +848,8 @@ class OcrParserService {
     }
 
     if (detectedAmount != null) {
-      detected.add('Amount: ₹${detectedAmount.toStringAsFixed(detectedAmount % 1 == 0 ? 0 : 2)}');
+      detected.add(
+          'Amount: ₹${detectedAmount.toStringAsFixed(detectedAmount % 1 == 0 ? 0 : 2)}');
     }
 
     // 3. Detect Document / Service / Policy Number
@@ -775,9 +859,12 @@ class OcrParserService {
         final docMatch = _docNumberRegex.firstMatch(line);
         if (docMatch != null) {
           final num = docMatch.group(1)?.trim();
-          if (num != null && num.length >= 4 && !_docNumberStopWords.contains(num.toLowerCase())) {
+          if (num != null &&
+              num.length >= 4 &&
+              !_docNumberStopWords.contains(num.toLowerCase())) {
             // Reject purely alpha tokens unless formatted like PAN / DL
-            if (RegExp(r'\d').hasMatch(num) || RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$').hasMatch(num)) {
+            if (RegExp(r'\d').hasMatch(num) ||
+                RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$').hasMatch(num)) {
               detectedNumber = num;
               detected.add('Doc/Service No: $detectedNumber');
               break;
@@ -794,7 +881,8 @@ class OcrParserService {
               lineLower.contains('policy number') ||
               lineLower.contains('invoice number')) {
             final nextCandidate = lines[i + 1].trim();
-            final cleanCandidate = nextCandidate.replaceAll(RegExp(r'^[:\-#\s]+'), '').trim();
+            final cleanCandidate =
+                nextCandidate.replaceAll(RegExp(r'^[:\-#\s]+'), '').trim();
             if (cleanCandidate.length >= 4 &&
                 cleanCandidate.length <= 25 &&
                 RegExp(r'\d').hasMatch(cleanCandidate) &&
@@ -816,7 +904,9 @@ class OcrParserService {
       final chMatch = _chassisRegex.firstMatch(text);
       if (chMatch != null) {
         final chNum = chMatch.group(1)?.trim().toUpperCase();
-        if (chNum != null && chNum.length >= 8 && !_docNumberStopWords.contains(chNum.toLowerCase())) {
+        if (chNum != null &&
+            chNum.length >= 8 &&
+            !_docNumberStopWords.contains(chNum.toLowerCase())) {
           detectedNumber = chNum;
           detected.add('Chassis No: $detectedNumber');
         }
@@ -824,7 +914,9 @@ class OcrParserService {
         final engMatch = _engineRegex.firstMatch(text);
         if (engMatch != null) {
           final engNum = engMatch.group(1)?.trim().toUpperCase();
-          if (engNum != null && engNum.length >= 6 && !_docNumberStopWords.contains(engNum.toLowerCase())) {
+          if (engNum != null &&
+              engNum.length >= 6 &&
+              !_docNumberStopWords.contains(engNum.toLowerCase())) {
             detectedNumber = engNum;
             detected.add('Engine No: $detectedNumber');
           }
@@ -919,18 +1011,22 @@ class OcrParserService {
 
         if (isExpiryKeyword && detectedExpiry == null) {
           detectedExpiry = parsedDate;
-          detected.add('Due / Expiry: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
+          detected.add(
+              'Due / Expiry: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
         } else if (isStartKeyword && detectedStart == null) {
           detectedStart = parsedDate;
-          detected.add('Bill / Start Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
+          detected.add(
+              'Bill / Start Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
         } else if (detectedExpiry == null) {
           // If future date, prioritize as due/expiry date
           if (parsedDate.isAfter(DateTime.now())) {
             detectedExpiry = parsedDate;
-            detected.add('Target Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
+            detected.add(
+                'Target Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
           } else if (detectedStart == null) {
             detectedStart = parsedDate;
-            detected.add('Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
+            detected
+                .add('Date: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
           }
         }
       }
@@ -969,13 +1065,13 @@ class OcrParserService {
     if (detectedTitle != null && !detected.any((d) => d.startsWith('Title:'))) {
       detected.insert(0, 'Title: $detectedTitle');
     }
-    if (detectedProvider != null && !detected.any((d) => d.startsWith('Provider:'))) {
+    if (detectedProvider != null &&
+        !detected.any((d) => d.startsWith('Provider:'))) {
       detected.insert(1, 'Provider: $detectedProvider');
     }
 
-    final confidence = detected.isNotEmpty
-        ? (detected.length >= 3 ? 0.95 : 0.75)
-        : 0.2;
+    final confidence =
+        detected.isNotEmpty ? (detected.length >= 3 ? 0.95 : 0.75) : 0.2;
 
     return ParsedOcrResult(
       rawText: text,
@@ -996,9 +1092,15 @@ class OcrParserService {
     for (final line in lines) {
       final lineLower = line.toLowerCase();
       // Skip action/navigation lines
-      if (lineLower.contains('online') && lineLower.contains('payment')) continue;
-      if (lineLower.contains('please click')) continue;
-      if (lineLower.contains('details')) continue;
+      if (lineLower.contains('online') && lineLower.contains('payment')) {
+        continue;
+      }
+      if (lineLower.contains('please click')) {
+        continue;
+      }
+      if (lineLower.contains('details')) {
+        continue;
+      }
 
       for (final kw in keywords) {
         if (kw.length <= 3) {
@@ -1015,7 +1117,8 @@ class OcrParserService {
   }
 
   static DateTime? _parseAnyDate(String str) {
-    final clean = str.trim().replaceAll(',', ' ').replaceAll(RegExp(r'\s+'), ' ');
+    final clean =
+        str.trim().replaceAll(',', ' ').replaceAll(RegExp(r'\s+'), ' ');
     final formats = [
       'dd/MM/yyyy',
       'dd-MM-yyyy',
@@ -1052,7 +1155,9 @@ class OcrParserService {
         if (d.year < 100) {
           final currentYear = DateTime.now().year;
           final currentCentury = (currentYear ~/ 100) * 100;
-          final adjustedYear = d.year <= 70 ? currentCentury + d.year : currentCentury - 100 + d.year;
+          final adjustedYear = d.year <= 70
+              ? currentCentury + d.year
+              : currentCentury - 100 + d.year;
           d = DateTime(adjustedYear, d.month, d.day, d.hour, d.minute);
         }
         return d;

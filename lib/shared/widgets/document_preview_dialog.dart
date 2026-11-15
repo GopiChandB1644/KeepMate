@@ -70,7 +70,8 @@ class DocumentPreviewDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: (_isPdf ? AppColors.dangerRed : AppColors.primary).withValues(alpha: 0.12),
+              color: (_isPdf ? AppColors.dangerRed : AppColors.primary)
+                  .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -141,8 +142,10 @@ class DocumentPreviewDialog extends StatelessWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
                         ),
                       ),
                     ],
@@ -181,7 +184,9 @@ class DocumentPreviewDialog extends StatelessWidget {
               Navigator.pop(context);
               onDelete!();
             },
-            child: const Text('Delete', style: TextStyle(color: AppColors.dangerRed, fontWeight: FontWeight.w600)),
+            child: const Text('Delete',
+                style: TextStyle(
+                    color: AppColors.dangerRed, fontWeight: FontWeight.w600)),
           ),
         if (!_isPdf)
           TextButton.icon(

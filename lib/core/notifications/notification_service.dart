@@ -7,15 +7,17 @@ import 'package:timezone/timezone.dart' as tz;
 import '../constants/app_constants.dart';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
 
   FlutterLocalNotificationsPlugin get plugin => _notificationsPlugin;
 
   Future<bool> canScheduleExactAlarms() async {
     if (kIsWeb || !Platform.isAndroid) return true;
-    final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin =
+        _notificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
     return await androidPlugin?.canScheduleExactNotifications() ?? false;
   }
 
@@ -26,12 +28,15 @@ class NotificationService {
       try {
         final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
         tz.setLocalLocation(tz.getLocation(timeZoneInfo.identifier));
-        debugPrint('[NotificationService] Local timezone configured: ${timeZoneInfo.identifier}');
+        debugPrint(
+            '[NotificationService] Local timezone configured: ${timeZoneInfo.identifier}');
       } catch (e) {
-        debugPrint('[NotificationService] Could not resolve device timezone, defaulting to UTC: $e');
+        debugPrint(
+            '[NotificationService] Could not resolve device timezone, defaulting to UTC: $e');
       }
 
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
       final darwinCategories = <DarwinNotificationCategory>[
         DarwinNotificationCategory(
           'MEDICINE_ACTIONS',
@@ -64,14 +69,16 @@ class NotificationService {
       await _notificationsPlugin.initialize(
         initSettings,
         onDidReceiveNotificationResponse: (response) {
-          debugPrint('[NotificationService] Response received: ${response.payload}');
+          debugPrint(
+              '[NotificationService] Response received: ${response.payload}');
         },
       );
 
       // Register Android Notification Channels
       if (!kIsWeb && Platform.isAndroid) {
-        final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+        final androidPlugin =
+            _notificationsPlugin.resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
 
         const reminderChannel = AndroidNotificationChannel(
           AppConstants.reminderChannelId,
@@ -119,18 +126,21 @@ class NotificationService {
     if (kIsWeb) return false;
     try {
       if (Platform.isAndroid) {
-        final androidPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+        final androidPlugin =
+            _notificationsPlugin.resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
         final granted = await androidPlugin?.requestNotificationsPermission();
         try {
           await androidPlugin?.requestExactAlarmsPermission();
         } catch (e) {
-          debugPrint('[NotificationService] Exact alarm permission request note: $e');
+          debugPrint(
+              '[NotificationService] Exact alarm permission request note: $e');
         }
         return granted ?? false;
       } else if (Platform.isIOS) {
-        final iosPlugin = _notificationsPlugin.resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>();
+        final iosPlugin =
+            _notificationsPlugin.resolvePlatformSpecificImplementation<
+                IOSFlutterLocalNotificationsPlugin>();
         final granted = await iosPlugin?.requestPermissions(
           alert: true,
           badge: true,
@@ -145,7 +155,8 @@ class NotificationService {
     }
   }
 
-  NotificationDetails _notificationDetails({required String title, required String body}) {
+  NotificationDetails _notificationDetails(
+      {required String title, required String body}) {
     const androidDetails = AndroidNotificationDetails(
       AppConstants.reminderChannelId,
       AppConstants.reminderChannelName,
@@ -162,7 +173,8 @@ class NotificationService {
       presentBadge: true,
       presentSound: true,
     );
-    return const NotificationDetails(android: androidDetails, iOS: darwinDetails);
+    return const NotificationDetails(
+        android: androidDetails, iOS: darwinDetails);
   }
 
   Future<bool> scheduleNotification({
@@ -176,7 +188,8 @@ class NotificationService {
       await init();
       final now = DateTime.now();
       if (scheduledDate.isBefore(now)) {
-        debugPrint('[NotificationService] Past date ($scheduledDate vs now $now), skipping ID: $id');
+        debugPrint(
+            '[NotificationService] Past date ($scheduledDate vs now $now), skipping ID: $id');
         return false;
       }
 
@@ -195,10 +208,12 @@ class NotificationService {
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
             payload: payload,
           );
-          debugPrint('[NotificationService] Exact reminder scheduled for "$title" at $tzDateTime (id: $id, tz: ${tz.local.name})');
+          debugPrint(
+              '[NotificationService] Exact reminder scheduled for "$title" at $tzDateTime (id: $id, tz: ${tz.local.name})');
           return true;
         } catch (e) {
-          debugPrint('[NotificationService] Exact alarm rejected ($e), falling back to inexact');
+          debugPrint(
+              '[NotificationService] Exact alarm rejected ($e), falling back to inexact');
         }
       }
 
@@ -211,10 +226,12 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         payload: payload,
       );
-      debugPrint('[NotificationService] Inexact reminder scheduled for "$title" at $tzDateTime (id: $id)');
+      debugPrint(
+          '[NotificationService] Inexact reminder scheduled for "$title" at $tzDateTime (id: $id)');
       return true;
     } catch (e, st) {
-      debugPrint('[NotificationService] scheduleNotification FAILED for ID $id ($title): $e\n$st');
+      debugPrint(
+          '[NotificationService] scheduleNotification FAILED for ID $id ($title): $e\n$st');
       rethrow;
     }
   }
@@ -246,10 +263,12 @@ class NotificationService {
         matchDateTimeComponents: matchDateTimeComponents,
         payload: payload,
       );
-      debugPrint('[NotificationService] Zoned notification scheduled ($mode) ID $id for "$title" at $scheduledDate (tz: ${tz.local.name})');
+      debugPrint(
+          '[NotificationService] Zoned notification scheduled ($mode) ID $id for "$title" at $scheduledDate (tz: ${tz.local.name})');
       return true;
     } catch (e, st) {
-      debugPrint('[NotificationService] scheduleZonedNotification FAILED for ID $id ($title): $e\n$st');
+      debugPrint(
+          '[NotificationService] scheduleZonedNotification FAILED for ID $id ($title): $e\n$st');
       rethrow;
     }
   }
@@ -264,7 +283,8 @@ class NotificationService {
     try {
       await init();
       final details = _notificationDetails(title: title, body: body);
-      await _notificationsPlugin.show(id, title, body, details, payload: payload);
+      await _notificationsPlugin.show(id, title, body, details,
+          payload: payload);
       debugPrint('[NotificationService] Immediate notification shown: $title');
     } catch (e, st) {
       debugPrint('[NotificationService] showNotification error: $e\n$st');
@@ -277,13 +297,16 @@ class NotificationService {
     try {
       await init();
       final pending = await _notificationsPlugin.pendingNotificationRequests();
-      debugPrint('[NotificationService] Currently ${pending.length} pending notification(s) in system queue:');
+      debugPrint(
+          '[NotificationService] Currently ${pending.length} pending notification(s) in system queue:');
       for (final n in pending) {
-        debugPrint('  -> Pending ID: ${n.id}, Title: "${n.title}", Body: "${n.body}"');
+        debugPrint(
+            '  -> Pending ID: ${n.id}, Title: "${n.title}", Body: "${n.body}"');
       }
       return pending;
     } catch (e) {
-      debugPrint('[NotificationService] Error querying pending notifications: $e');
+      debugPrint(
+          '[NotificationService] Error querying pending notifications: $e');
       return [];
     }
   }

@@ -41,7 +41,8 @@ class _SearchPageState extends State<SearchPage> {
 
           final filtered = state.items.where((item) {
             // 1. Filter by category if selected
-            if (_selectedCategory != null && item.category != _selectedCategory) {
+            if (_selectedCategory != null &&
+                item.category != _selectedCategory) {
               return false;
             }
 
@@ -56,12 +57,18 @@ class _SearchPageState extends State<SearchPage> {
             // 3. Search query matching across title, subcategory, description, provider, doc number, vehicle
             if (query.isNotEmpty) {
               final titleMatch = item.title.toLowerCase().contains(query);
-              final descMatch = item.description?.toLowerCase().contains(query) ?? false;
-              final subMatch = item.subcategory.displayName.toLowerCase().contains(query);
-              final catMatch = item.category.displayName.toLowerCase().contains(query);
-              final docNumMatch = item.documentNumber?.toLowerCase().contains(query) ?? false;
-              final providerMatch = item.providerOrSeller?.toLowerCase().contains(query) ?? false;
-              final vehicleMatch = item.vehicleNumber?.toLowerCase().contains(query) ?? false;
+              final descMatch =
+                  item.description?.toLowerCase().contains(query) ?? false;
+              final subMatch =
+                  item.subcategory.displayName.toLowerCase().contains(query);
+              final catMatch =
+                  item.category.displayName.toLowerCase().contains(query);
+              final docNumMatch =
+                  item.documentNumber?.toLowerCase().contains(query) ?? false;
+              final providerMatch =
+                  item.providerOrSeller?.toLowerCase().contains(query) ?? false;
+              final vehicleMatch =
+                  item.vehicleNumber?.toLowerCase().contains(query) ?? false;
 
               return titleMatch ||
                   descMatch ||
@@ -86,7 +93,8 @@ class _SearchPageState extends State<SearchPage> {
                   autofocus: true,
                   onChanged: (val) => setState(() {}),
                   decoration: InputDecoration(
-                    hintText: 'Search by item name, provider, or DL/doc number...',
+                    hintText:
+                        'Search by item name, provider, or DL/doc number...',
                     prefixIcon: const Icon(Icons.search_rounded),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -105,7 +113,8 @@ class _SearchPageState extends State<SearchPage> {
               // Filter Chips
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: Row(
                   children: [
                     _filterChip(
@@ -126,7 +135,10 @@ class _SearchPageState extends State<SearchPage> {
                       isSelected: _selectedCategory == ItemCategory.lifePocket,
                       onTap: () {
                         setState(() {
-                          _selectedCategory = _selectedCategory == ItemCategory.lifePocket ? null : ItemCategory.lifePocket;
+                          _selectedCategory =
+                              _selectedCategory == ItemCategory.lifePocket
+                                  ? null
+                                  : ItemCategory.lifePocket;
                         });
                       },
                     ),
@@ -138,7 +150,10 @@ class _SearchPageState extends State<SearchPage> {
                       isSelected: _selectedCategory == ItemCategory.freshCheck,
                       onTap: () {
                         setState(() {
-                          _selectedCategory = _selectedCategory == ItemCategory.freshCheck ? null : ItemCategory.freshCheck;
+                          _selectedCategory =
+                              _selectedCategory == ItemCategory.freshCheck
+                                  ? null
+                                  : ItemCategory.freshCheck;
                         });
                       },
                     ),
@@ -150,7 +165,10 @@ class _SearchPageState extends State<SearchPage> {
                       isSelected: _selectedCategory == ItemCategory.docAlert,
                       onTap: () {
                         setState(() {
-                          _selectedCategory = _selectedCategory == ItemCategory.docAlert ? null : ItemCategory.docAlert;
+                          _selectedCategory =
+                              _selectedCategory == ItemCategory.docAlert
+                                  ? null
+                                  : ItemCategory.docAlert;
                         });
                       },
                     ),
@@ -195,7 +213,8 @@ class _SearchPageState extends State<SearchPage> {
                         ? EmptyStateView(
                             icon: Icons.search_off_rounded,
                             title: 'No matches found',
-                            description: 'We couldn\'t find anything matching "$query". Try adjusting your search query or filters.',
+                            description:
+                                'We couldn\'t find anything matching "$query". Try adjusting your search query or filters.',
                             actionLabel: 'Clear Search',
                             actionIcon: Icons.clear_rounded,
                             onAction: () {
@@ -209,7 +228,8 @@ class _SearchPageState extends State<SearchPage> {
                         : EmptyStateView(
                             icon: Icons.inventory_2_outlined,
                             title: 'No items in this filter',
-                            description: 'No tracked records match the current filter selection.',
+                            description:
+                                'No tracked records match the current filter selection.',
                             actionLabel: 'Reset Filters',
                             actionIcon: Icons.filter_alt_off_rounded,
                             onAction: () {
@@ -226,7 +246,8 @@ class _SearchPageState extends State<SearchPage> {
                           final item = filtered[index];
                           return ItemSummaryCard(
                             item: item,
-                            onTap: () => context.push(AppRoutes.itemDetail, extra: item),
+                            onTap: () =>
+                                context.push(AppRoutes.itemDetail, extra: item),
                           );
                         },
                       ),
@@ -253,7 +274,9 @@ class _SearchPageState extends State<SearchPage> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? activeColor.withValues(alpha: 0.12) : AppColors.surface,
+          color: isSelected
+              ? activeColor.withValues(alpha: 0.12)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? activeColor : AppColors.cardBorder,
@@ -264,7 +287,9 @@ class _SearchPageState extends State<SearchPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 16, color: isSelected ? activeColor : AppColors.textMuted),
+              Icon(icon,
+                  size: 16,
+                  color: isSelected ? activeColor : AppColors.textMuted),
               const SizedBox(width: 6),
             ],
             Text(
