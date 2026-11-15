@@ -7,6 +7,7 @@ class EmptyStateView extends StatelessWidget {
   final String title;
   final String description;
   final String? actionLabel;
+  final IconData? actionIcon;
   final VoidCallback? onAction;
 
   const EmptyStateView({
@@ -15,16 +16,18 @@ class EmptyStateView extends StatelessWidget {
     required this.title,
     required this.description,
     this.actionLabel,
+    this.actionIcon,
     this.onAction,
   });
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.all(22),
@@ -50,7 +53,7 @@ class EmptyStateView extends StatelessWidget {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: onAction,
-                icon: const Icon(Icons.add_rounded),
+                icon: Icon(actionIcon ?? Icons.refresh_rounded),
                 label: Text(actionLabel!),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

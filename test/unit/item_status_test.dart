@@ -39,6 +39,15 @@ void main() {
       final status = AppDateUtils.deriveStatus(targetDate: pastDate, isConsumed: true);
       expect(status, equals(ItemStatus.consumed));
     });
+
+    test('formatTime12Hour correctly formats AM, PM, noon and midnight', () {
+      expect(AppDateUtils.formatTime12Hour('09:00'), equals('9:00 AM'));
+      expect(AppDateUtils.formatTime12Hour('14:30'), equals('2:30 PM'));
+      expect(AppDateUtils.formatTime12Hour('00:15'), equals('12:15 AM'));
+      expect(AppDateUtils.formatTime12Hour('12:00'), equals('12:00 PM'));
+      expect(AppDateUtils.formatTime12Hour(null), equals('9:00 AM'));
+      expect(AppDateUtils.formatTime12Hour(''), equals('9:00 AM'));
+    });
   });
 }
 

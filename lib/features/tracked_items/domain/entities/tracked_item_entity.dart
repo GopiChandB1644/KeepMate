@@ -63,6 +63,22 @@ class TrackedItemEntity {
 
   String get relativeTimeLabel => AppDateUtils.getRelativeTimeLabel(targetDate);
 
+  /// Optional document number (from documents, license, or insurance policy)
+  String? get documentNumber => documentDetails?.documentNumber ?? insuranceDetails?.policyNumber;
+
+  /// Optional vehicle registration number (e.g. from vehicle RC or insurance)
+  String? get vehicleNumber => insuranceDetails?.vehicleNumber;
+
+  /// Optional provider, vendor, issuer, or seller name
+  String? get providerOrSeller =>
+      billDetails?.providerName ??
+      insuranceDetails?.provider ??
+      subscriptionDetails?.serviceName ??
+      warrantyDetails?.seller ??
+      warrantyDetails?.warrantyProvider ??
+      purchaseDetails?.seller ??
+      documentDetails?.issuingAuthority;
+
   TrackedItemEntity copyWith({
     TrackedItem? baseItem,
     BillDetail? billDetails,

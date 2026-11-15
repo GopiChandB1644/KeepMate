@@ -72,4 +72,5 @@ A screen is not marked complete just because its UI exists. A feature is conside
 | 11 Nov 2026 | Phase 8 | Reminder Engine | Completed | Shared reminder calculation & notification service |
 | 11 Nov 2026 | Phase 9 | Encrypted Backup & Restore | Completed | .kmb export, import, AES encryption, verification |
 | 11 Nov 2026 | Phase 10 | Settings & Polish | Completed | Light/Dark theme, storage info, accessibility |
+| 14 Nov 2026 | Phase 11 | Code Quality, UX & Parity Fixes | Completed | Eliminated OCR mock fallback, fixed 12h time formatting, removed Play Store alarm permission risk, implemented iOS PDF renderer channel, added disk purge & DocumentPreviewDialog, standardized GoRouter navigation, validated 33 unit/widget tests |
 

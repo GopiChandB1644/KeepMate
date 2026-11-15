@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../shared/widgets/widgets.dart';
-import '../../doc_alert/pages/doc_alert_page.dart';
-import '../../fresh_check/pages/fresh_check_page.dart';
-import '../../life_pocket/pages/life_pocket_page.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
 
@@ -19,6 +18,7 @@ class CategoriesHubPage extends StatelessWidget {
       appBar: const KeepRemindAppBar(
         title: 'Categories',
         subtitle: 'All items organized by type',
+        showBack: true,
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
@@ -40,9 +40,7 @@ class CategoriesHubPage extends StatelessWidget {
                 count: lifePocketCount,
                 color: AppColors.lifePocketColor,
                 icon: Icons.account_balance_wallet_rounded,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const LifePocketPage()));
-                },
+                onTap: () => context.push(AppRoutes.lifePocket),
               ),
               const SizedBox(height: 16),
 
@@ -52,9 +50,7 @@ class CategoriesHubPage extends StatelessWidget {
                 count: freshCheckCount,
                 color: AppColors.freshCheckColor,
                 icon: Icons.kitchen_rounded,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const FreshCheckPage()));
-                },
+                onTap: () => context.push(AppRoutes.freshCheck),
               ),
               const SizedBox(height: 16),
 
@@ -64,9 +60,7 @@ class CategoriesHubPage extends StatelessWidget {
                 count: docAlertCount,
                 color: AppColors.docAlertColor,
                 icon: Icons.shield_rounded,
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const DocAlertPage()));
-                },
+                onTap: () => context.push(AppRoutes.docAlert),
               ),
             ],
           );

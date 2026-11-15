@@ -9,8 +9,17 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: navigationShell,
+    return PopScope(
+      key: const ValueKey('main_shell_pop_scope'),
+      canPop: navigationShell.currentIndex == 0,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (navigationShell.currentIndex != 0) {
+          navigationShell.goBranch(0);
+        }
+      },
+      child: Scaffold(
+        body: navigationShell,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.surface,
@@ -58,8 +67,9 @@ class MainShell extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _navItem({
     required int index,

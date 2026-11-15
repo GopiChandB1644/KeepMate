@@ -1,33 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../shared/widgets/widgets.dart';
-import '../../categories/pages/categories_hub_page.dart';
-import '../../doc_alert/pages/doc_alert_page.dart';
-import '../../fresh_check/pages/fresh_check_page.dart';
-import '../../life_pocket/pages/life_pocket_page.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
-import '../../tracked_items/pages/add_edit_item_page.dart';
-import '../../tracked_items/pages/item_detail_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,31 +29,19 @@ class _HomePageState extends State<HomePage> {
         showBack: false,
         actions: [
           CircleIconButton(
-            icon: Icons.add_rounded,
+            icon: Icons.search_rounded,
             size: 40,
-            color: AppColors.primary,
-            iconColor: Colors.white,
-            tooltip: 'Add Anything',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AddEditItemPage()),
-              );
-            },
+            tooltip: 'Search',
+            onTap: () => context.push(AppRoutes.search),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddEditItemPage()),
-          );
-        },
+        onPressed: () => context.push(AppRoutes.addItem),
         backgroundColor: AppColors.primary,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text(
-          '+ Add Item',
+          'Add Item',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
         ),
       ),
@@ -78,237 +49,122 @@ class _HomePageState extends State<HomePage> {
         builder: (context, state) {
           final cubit = context.read<ItemsCubit>();
           final urgent = state.urgentItems;
-          final all = state.displayedItems;
+          final all = state.items;
 
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
             children: [
-              // Search Bar
-              TextField(
-                controller: _searchController,
-                onChanged: (val) => cubit.search(val),
-                decoration: InputDecoration(
-                  hintText: 'Search bills, warranties, groceries...',
-                  prefixIcon: const Icon(Icons.search_rounded),
-                  suffixIcon: state.searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear_rounded),
-                          onPressed: () {
-                            _searchController.clear();
-                            cubit.search('');
-                          },
-                        )
-                      : null,
-                  fillColor: AppColors.surface,
-                ),
+              // Quick Status Counters
+              Row(
+                children: [
+                  _statusCounterCard(
+                    label: 'Due Today',
+                    count: state.dueTodayCount,
+                    color: AppColors.dangerRed,
+                  ),
+                  const SizedBox(width: 10),
+                  _statusCounterCard(
+                    label: 'Due Soon',
+                    count: state.upcomingCount,
+                    color: AppColors.warningOrange,
+                  ),
+                  const SizedBox(width: 10),
+                  _statusCounterCard(
+                    label: 'Active',
+                    count: state.activeCount,
+                    color: AppColors.safeGreen,
+                  ),
+                ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-              if (state.searchQuery.isEmpty) ...[
-                // Urgency Headline Banner
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: urgent.isEmpty
-                          ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                          : [const Color(0xFFF59E0B), const Color(0xFFDC2626)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (urgent.isEmpty ? const Color(0xFF10B981) : const Color(0xFFDC2626))
-                            .withValues(alpha: 0.25),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+              // Fast Module Navigation Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Quick Categories', style: AppText.h3),
+                  TextButton(
+                    onPressed: () => context.push(AppRoutes.categories),
+                    child: const Text('See All'),
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          urgent.isEmpty ? Icons.check_circle_rounded : Icons.priority_high_rounded,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              urgent.isEmpty
-                                  ? 'Everything is Safe!'
-                                  : '${state.dueTodayCount + state.upcomingCount + state.expiredCount} Items Need Attention',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              urgent.isEmpty
-                                  ? 'No bills or products expiring soon.'
-                                  : 'Due today or upcoming in the next 7 days.',
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Quick Status Counters
-                Row(
-                  children: [
-                    _statusCounterCard(
-                      label: 'Due Today',
-                      count: state.dueTodayCount,
-                      color: AppColors.dangerRed,
-                    ),
-                    const SizedBox(width: 10),
-                    _statusCounterCard(
-                      label: 'Due Soon',
-                      count: state.upcomingCount,
-                      color: AppColors.warningOrange,
-                    ),
-                    const SizedBox(width: 10),
-                    _statusCounterCard(
-                      label: 'Active',
-                      count: state.activeCount,
-                      color: AppColors.safeGreen,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Fast Module Navigation Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Quick Categories', style: AppText.h3),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const CategoriesHubPage()),
-                        );
-                      },
-                      child: const Text('See All'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-
-                Row(
-                  children: [
-                    _categoryQuickBtn(
-                      label: 'LifePocket',
-                      icon: Icons.receipt_long_rounded,
-                      color: AppColors.lifePocketColor,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LifePocketPage())),
-                    ),
-                    const SizedBox(width: 10),
-                    _categoryQuickBtn(
-                      label: 'FreshCheck',
-                      icon: Icons.apple_rounded,
-                      color: AppColors.freshCheckColor,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FreshCheckPage())),
-                    ),
-                    const SizedBox(width: 10),
-                    _categoryQuickBtn(
-                      label: 'DocAlert',
-                      icon: Icons.shield_rounded,
-                      color: AppColors.docAlertColor,
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocAlertPage())),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Urgent Items Section
-                if (urgent.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      const Icon(Icons.notification_important_rounded, color: AppColors.dangerRed, size: 22),
-                      const SizedBox(width: 8),
-                      Text('Action Required', style: AppText.h3),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ...urgent.map((item) {
-                    return ItemSummaryCard(
-                      item: item,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
-                        );
-                      },
-                      quickActionLabel: item.subcategory == ItemSubcategory.bill
-                          ? 'Mark Paid'
-                          : item.subcategory == ItemSubcategory.grocery
-                              ? 'Used Up'
-                              : null,
-                      onQuickAction: item.subcategory == ItemSubcategory.bill
-                          ? () => cubit.markPaid(item.id)
-                          : item.subcategory == ItemSubcategory.grocery
-                              ? () => cubit.markConsumed(item.id)
-                              : null,
-                    );
-                  }),
-                  const SizedBox(height: 16),
                 ],
+              ),
+              const SizedBox(height: 8),
 
-                // All Tracked Items
-                Text('All Tracked Items (${all.length})', style: AppText.h3),
+              Row(
+                children: [
+                  _categoryQuickBtn(
+                    label: 'LifePocket',
+                    icon: Icons.receipt_long_rounded,
+                    color: AppColors.lifePocketColor,
+                    onTap: () => context.push(AppRoutes.lifePocket),
+                  ),
+                  const SizedBox(width: 10),
+                  _categoryQuickBtn(
+                    label: 'FreshCheck',
+                    icon: Icons.apple_rounded,
+                    color: AppColors.freshCheckColor,
+                    onTap: () => context.push(AppRoutes.freshCheck),
+                  ),
+                  const SizedBox(width: 10),
+                  _categoryQuickBtn(
+                    label: 'DocAlert',
+                    icon: Icons.shield_rounded,
+                    color: AppColors.docAlertColor,
+                    onTap: () => context.push(AppRoutes.docAlert),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // Urgent Items Section
+              if (urgent.isNotEmpty) ...[
+                Row(
+                  children: [
+                    const Icon(Icons.notification_important_rounded, color: AppColors.dangerRed, size: 22),
+                    const SizedBox(width: 8),
+                    Text('Action Required', style: AppText.h3),
+                  ],
+                ),
                 const SizedBox(height: 12),
+                ...urgent.map((item) {
+                  return ItemSummaryCard(
+                    item: item,
+                    onTap: () => context.push(AppRoutes.itemDetail, extra: item),
+                    quickActionLabel: item.subcategory == ItemSubcategory.bill
+                        ? 'Mark Paid'
+                        : item.subcategory == ItemSubcategory.grocery
+                            ? 'Used Up'
+                            : null,
+                    onQuickAction: item.subcategory == ItemSubcategory.bill
+                        ? () => cubit.markPaid(item.id)
+                        : item.subcategory == ItemSubcategory.grocery
+                            ? () => cubit.markConsumed(item.id)
+                            : null,
+                  );
+                }),
+                const SizedBox(height: 16),
               ],
+
+              // All Tracked Items
+              Text('All Tracked Items (${all.length})', style: AppText.h3),
+              const SizedBox(height: 12),
 
               if (all.isEmpty)
                 EmptyStateView(
-                  icon: Icons.check_circle_outline_rounded,
-                  title: state.searchQuery.isNotEmpty ? 'No matches found' : 'Nothing tracked yet',
-                  description: state.searchQuery.isNotEmpty
-                      ? 'Try searching with a different name or keyword.'
-                      : 'Tap "+ Add Item" below to start tracking your bills, food expiries, or vehicle documents!',
-                  actionLabel: state.searchQuery.isNotEmpty ? null : 'Add First Item',
-                  onAction: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AddEditItemPage()),
-                    );
-                  },
+                  icon: Icons.inventory_2_outlined,
+                  title: 'Nothing tracked yet',
+                  description: 'Tap "+ Add Item" below to start tracking your bills, food expiries, or vehicle documents!',
+                  actionLabel: 'Add First Item',
+                  onAction: () => context.push(AppRoutes.addItem),
                 )
               else
                 ...all.map((item) {
                   return ItemSummaryCard(
                     item: item,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
-                      );
-                    },
+                    onTap: () => context.push(AppRoutes.itemDetail, extra: item),
                   );
                 }),
             ],
@@ -377,4 +233,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-

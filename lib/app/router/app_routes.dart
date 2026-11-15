@@ -10,7 +10,9 @@ class AppRoutes {
   static const String freshCheck = '/fresh-check';
   static const String docAlert = '/doc-alert';
   static const String backupRestore = '/backup-restore';
+  static const String search = '/search';
   static const String addItem = '/add-item';
   static const String itemDetail = '/item-detail';
+  static const String renewal = '/renewal';
 }
 

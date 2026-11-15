@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
@@ -10,8 +11,6 @@ import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../cubit/items_cubit.dart';
 import '../domain/entities/tracked_item_entity.dart';
-import 'add_edit_item_page.dart';
-import 'renewal_flow_page.dart';
 
 class ItemDetailPage extends StatelessWidget {
   final TrackedItemEntity item;
@@ -23,17 +22,10 @@ class ItemDetailPage extends StatelessWidget {
       final file = await FilePathResolver.resolveRelativePath(doc.relativePath);
       if (await file.exists()) {
         if (!context.mounted) return;
-        showDialog(
+        await DocumentPreviewDialog.show(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
-            content: doc.fileName.toLowerCase().endsWith('.pdf')
-                ? const Text('PDF file ready. Previewing document from local storage.')
-                : Image.file(file),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
-            ],
-          ),
+          file: file,
+          document: doc,
         );
       } else {
         if (!context.mounted) return;
@@ -87,19 +79,13 @@ class ItemDetailPage extends StatelessWidget {
       appBar: KeepRemindAppBar(
         title: item.title,
         subtitle: '${sub.displayName} Details',
+        showBack: true,
         actions: [
           CircleIconButton(
             icon: Icons.edit_outlined,
             size: 38,
             tooltip: 'Edit Details',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => AddEditItemPage(existingItem: item),
-                ),
-              );
-            },
+            onTap: () => context.push(AppRoutes.addItem, extra: item),
           ),
           const SizedBox(width: 8),
           CircleIconButton(
@@ -286,12 +272,7 @@ class ItemDetailPage extends StatelessWidget {
               item.subcategory == ItemSubcategory.warranty ||
               item.subcategory == ItemSubcategory.document) ...[
             ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => RenewalFlowPage(item: item)),
-                );
-              },
+              onPressed: () => context.push(AppRoutes.renewal, extra: item),
               icon: const Icon(Icons.autorenew_rounded),
               label: const Text('Renew This Policy / Document'),
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),

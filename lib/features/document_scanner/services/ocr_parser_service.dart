@@ -369,6 +369,40 @@ class OcrParserService {
     return RegExp(r'^[A-Z]{2}[0-9]{1,2}[A-Z]{1,3}[0-9]{4}$').hasMatch(clean);
   }
 
+  // Dedicated regex for Indian Driving Licence numbers
+  // Matches formats like: AP07 20180001234, DL-1420110012345, MH02-20150005678, KA01/2019/0001234
+  static final RegExp _labeledDlRegex = RegExp(
+    r'(?:(?:driving\s+licen[cs]e|dl|d\.l\.|licen[cs]e)\s*(?:\.|\s)*(?:no|num|number|#))\s*[:\-#]?\s*([A-Za-z]{2}[\s\-]?[0-9]{2}[\s\-]?(?:19|20)?\d{2}[\s\-]?[0-9]{4,8}|[A-Za-z0-9\-\/]{6,25})',
+    caseSensitive: false,
+  );
+
+  static final RegExp _standaloneDlRegex = RegExp(
+    r'\b([A-Z]{2}[0-9]{2}[\s\-]?(?:19|20)\d{2}[\s\-]?[0-9]{5,7})\b|\b([A-Z]{2}[0-9]{2}/(?:19|20)\d{2}/[0-9]{5,7})\b',
+    caseSensitive: false,
+  );
+
+  static String? _extractDrivingLicenceNumber(String text) {
+    final labeledMatch = _labeledDlRegex.firstMatch(text);
+    if (labeledMatch != null) {
+      final raw = labeledMatch.group(1)?.trim();
+      if (raw != null && raw.length >= 8 && !_docNumberStopWords.contains(raw.toLowerCase())) {
+        return raw.replaceAll(RegExp(r'\s+'), ' ');
+      }
+    }
+
+    final standaloneMatch = _standaloneDlRegex.firstMatch(text);
+    if (standaloneMatch != null) {
+      final raw = (standaloneMatch.group(1) ?? standaloneMatch.group(2))?.trim();
+      if (raw != null && !_docNumberStopWords.contains(raw.toLowerCase())) {
+        final stateCode = raw.substring(0, 2).toUpperCase();
+        if (_indianStateCodes.contains(stateCode)) {
+          return raw.replaceAll(RegExp(r'\s+'), ' ');
+        }
+      }
+    }
+    return null;
+  }
+
   // Stop words that must NOT be mistaken for document numbers
   static final Set<String> _docNumberStopWords = {
     'payment',
@@ -395,6 +429,17 @@ class OcrParserService {
     'invoice',
     'policy',
     'receipt',
+    'licence',
+    'license',
+    'driving',
+    'sarathi',
+    'parivahan',
+    'transport',
+    'government',
+    'govt',
+    'union',
+    'republic',
+    'department',
   };
 
   ParsedOcrResult parse({
@@ -431,27 +476,88 @@ class OcrParserService {
     }
 
     // 2. Detect subcategory & smart title from text contents
-    final isVehicleRc = lowerFullText.contains('registration certificate') ||
-        lowerFullText.contains('certificate of registration') ||
-        lowerFullText.contains('form 23') ||
-        lowerFullText.contains('form-23') ||
-        lowerFullText.contains('form no 23') ||
-        lowerFullText.contains('form no. 23') ||
-        lowerFullText.contains('motor vehicles department') ||
-        lowerFullText.contains('chassis no') ||
-        lowerFullText.contains('chasis no') ||
-        lowerFullText.contains('engine no') ||
-        (detectedVehicle != null &&
-            (lowerFullText.contains('transport') ||
-                lowerFullText.contains('rto') ||
-                lowerFullText.contains('fitness') ||
-                lowerFullText.contains('regn upto') ||
-                lowerFullText.contains('reg. upto') ||
-                lowerFullText.contains('regn. no') ||
-                lowerFullText.contains('regn no') ||
-                lowerFullText.contains('regn date')));
+    // Official Government & Identity Documents FIRST (prevents false-positive insurance/bill matches)
+    final isDrivingLicence = lowerFullText.contains('driving licence') ||
+        lowerFullText.contains('driving license') ||
+        lowerFullText.contains('driver licence') ||
+        lowerFullText.contains('driver license') ||
+        lowerFullText.contains('licence to drive') ||
+        lowerFullText.contains('license to drive') ||
+        lowerFullText.contains('indian union driving') ||
+        lowerFullText.contains('form 7') ||
+        lowerFullText.contains('form-7') ||
+        lowerFullText.contains('form no 7') ||
+        lowerFullText.contains('form no. 7') ||
+        lowerFullText.contains('form 7a') ||
+        lowerFullText.contains('sarathi') ||
+        lowerFullText.contains('parivahan') ||
+        lowerFullText.contains('dl no') ||
+        lowerFullText.contains('dl. no') ||
+        lowerFullText.contains('d.l. no') ||
+        lowerFullText.contains('d.l.no') ||
+        (lowerFullText.contains('transport') &&
+            (lowerFullText.contains('licen') ||
+                lowerFullText.contains('lmv') ||
+                lowerFullText.contains('mcwg') ||
+                lowerFullText.contains('cov'))) ||
+        (lowerFullText.contains('validity') &&
+            (lowerFullText.contains('nt') ||
+                lowerFullText.contains('tr') ||
+                lowerFullText.contains('cov') ||
+                lowerFullText.contains('non-transport')));
 
-    if (isVehicleRc) {
+    final isVehicleRc = !isDrivingLicence &&
+        (lowerFullText.contains('registration certificate') ||
+            lowerFullText.contains('certificate of registration') ||
+            lowerFullText.contains('form 23') ||
+            lowerFullText.contains('form-23') ||
+            lowerFullText.contains('form no 23') ||
+            lowerFullText.contains('form no. 23') ||
+            lowerFullText.contains('motor vehicles department') ||
+            lowerFullText.contains('chassis no') ||
+            lowerFullText.contains('chasis no') ||
+            lowerFullText.contains('engine no') ||
+            (detectedVehicle != null &&
+                (lowerFullText.contains('transport') ||
+                    lowerFullText.contains('rto') ||
+                    lowerFullText.contains('fitness') ||
+                    lowerFullText.contains('regn upto') ||
+                    lowerFullText.contains('reg. upto') ||
+                    lowerFullText.contains('regn. no') ||
+                    lowerFullText.contains('regn no') ||
+                    lowerFullText.contains('regn date'))));
+
+    final isPassport = lowerFullText.contains('passport') ||
+        (lowerFullText.contains('republic of india') && lowerFullText.contains('pass'));
+
+    final isPanCard = lowerFullText.contains('pan card') ||
+        lowerFullText.contains('permanent account number') ||
+        lowerFullText.contains('income tax department');
+
+    final isAadhaar = lowerFullText.contains('aadhaar') ||
+        lowerFullText.contains('uidai') ||
+        lowerFullText.contains('unique identification authority');
+
+    if (isDrivingLicence) {
+      detectedSubcategory = ItemSubcategory.document;
+      final dlNum = _extractDrivingLicenceNumber(text);
+      if (dlNum != null) {
+        detectedNumber = dlNum;
+        detected.add('DL Number: $dlNum');
+        detectedTitle = 'Driving Licence ($dlNum)';
+      } else {
+        detectedTitle = 'Driving Licence';
+      }
+      detectedProvider ??= _findProviderName(lines, [
+        'transport department',
+        'ministry of road transport',
+        'parivahan',
+        'sarathi',
+        'government of',
+        'govt of',
+        'rto',
+      ]) ?? 'Transport Department';
+    } else if (isVehicleRc) {
       detectedSubcategory = ItemSubcategory.document;
       detectedTitle = detectedVehicle != null ? 'Vehicle RC ($detectedVehicle)' : 'Vehicle Registration Certificate';
       detectedProvider ??= _findProviderName(lines, [
@@ -461,6 +567,18 @@ class OcrParserService {
         'motor vehicles',
         'rto',
       ]) ?? 'Transport Department';
+    } else if (isPassport) {
+      detectedSubcategory = ItemSubcategory.document;
+      detectedTitle = 'Passport';
+      detectedProvider ??= 'Passport Seva';
+    } else if (isPanCard) {
+      detectedSubcategory = ItemSubcategory.document;
+      detectedTitle = 'PAN Card';
+      detectedProvider ??= 'Income Tax Department';
+    } else if (isAadhaar) {
+      detectedSubcategory = ItemSubcategory.document;
+      detectedTitle = 'Aadhaar Card';
+      detectedProvider ??= 'UIDAI';
     } else if (lowerFullText.contains('electricity') ||
         lowerFullText.contains('power distribution') ||
         lowerFullText.contains('central power') ||
@@ -531,41 +649,46 @@ class OcrParserService {
       detectedTitle = 'Water Bill';
       detectedProvider ??= _findProviderName(lines, ['bwssb', 'jal board', 'hmwssb', 'water']);
     } else if (lowerFullText.contains('insurance') ||
-        lowerFullText.contains('policy') ||
+        lowerFullText.contains('policy schedule') ||
+        lowerFullText.contains('policy certificate') ||
+        lowerFullText.contains('policy number') ||
         lowerFullText.contains('hdfc ergo') ||
         lowerFullText.contains('star health') ||
-        lowerFullText.contains('lic') ||
         lowerFullText.contains('icici lombard') ||
         lowerFullText.contains('bajaj allianz') ||
         lowerFullText.contains('care health') ||
         lowerFullText.contains('new india assurance') ||
-        lowerFullText.contains('united india') ||
-        lowerFullText.contains('acko')) {
+        lowerFullText.contains('united india insurance') ||
+        lowerFullText.contains('national insurance') ||
+        lowerFullText.contains('oriental insurance') ||
+        lowerFullText.contains('acko') ||
+        lowerFullText.contains('tata aig') ||
+        lowerFullText.contains('digit insurance') ||
+        lowerFullText.contains('max bupa') ||
+        lowerFullText.contains('niva bupa') ||
+        lowerFullText.contains('sbi general') ||
+        lowerFullText.contains('sbi life') ||
+        lowerFullText.contains('max life') ||
+        RegExp(r'\b(?:lic\s+of\s+india|life\s+insurance\s+corporation|lic|l\.i\.c)\b', caseSensitive: false)
+            .hasMatch(lowerFullText)) {
       detectedSubcategory = ItemSubcategory.insurance;
       detectedTitle = 'Insurance Policy';
-      detectedProvider ??= _findProviderName(lines, ['hdfc ergo', 'star health', 'lic', 'icici lombard', 'bajaj allianz', 'care health', 'acko', 'new india assurance', 'united india']);
+      detectedProvider ??= _findProviderName(lines, [
+        'hdfc ergo',
+        'star health',
+        'lic of india',
+        'life insurance corporation',
+        'lic',
+        'icici lombard',
+        'bajaj allianz',
+        'care health',
+        'acko',
+        'new india assurance',
+        'united india',
+      ]);
     } else if (lowerFullText.contains('warranty') || lowerFullText.contains('guarantee')) {
       detectedSubcategory = ItemSubcategory.warranty;
       detectedTitle = 'Warranty Card';
-    } else if (lowerFullText.contains('driving licence') ||
-        lowerFullText.contains('driving license') ||
-        lowerFullText.contains('sarathi') ||
-        lowerFullText.contains('dl no')) {
-      detectedSubcategory = ItemSubcategory.document;
-      detectedTitle = 'Driving Licence';
-      detectedProvider ??= 'Transport Department';
-    } else if (lowerFullText.contains('pan card') || lowerFullText.contains('income tax department')) {
-      detectedSubcategory = ItemSubcategory.document;
-      detectedTitle = 'PAN Card';
-      detectedProvider ??= 'Income Tax Department';
-    } else if (lowerFullText.contains('aadhaar') || lowerFullText.contains('uidai')) {
-      detectedSubcategory = ItemSubcategory.document;
-      detectedTitle = 'Aadhaar Card';
-      detectedProvider ??= 'UIDAI';
-    } else if (lowerFullText.contains('passport') || lowerFullText.contains('republic of india')) {
-      detectedSubcategory = ItemSubcategory.document;
-      detectedTitle = 'Passport';
-      detectedProvider ??= 'Passport Seva';
     } else if (lowerFullText.contains('tax invoice') ||
         lowerFullText.contains('invoice') ||
         lowerFullText.contains('amazon') ||
@@ -646,38 +769,40 @@ class OcrParserService {
     }
 
     // 3. Detect Document / Service / Policy Number
-    for (var i = 0; i < lines.length; i++) {
-      final line = lines[i];
-      final docMatch = _docNumberRegex.firstMatch(line);
-      if (docMatch != null) {
-        final num = docMatch.group(1)?.trim();
-        if (num != null && num.length >= 4 && !_docNumberStopWords.contains(num.toLowerCase())) {
-          // Reject purely alpha tokens unless formatted like PAN / DL
-          if (RegExp(r'\d').hasMatch(num) || RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$').hasMatch(num)) {
-            detectedNumber = num;
-            detected.add('Doc/Service No: $detectedNumber');
-            break;
+    if (detectedNumber == null) {
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        final docMatch = _docNumberRegex.firstMatch(line);
+        if (docMatch != null) {
+          final num = docMatch.group(1)?.trim();
+          if (num != null && num.length >= 4 && !_docNumberStopWords.contains(num.toLowerCase())) {
+            // Reject purely alpha tokens unless formatted like PAN / DL
+            if (RegExp(r'\d').hasMatch(num) || RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$').hasMatch(num)) {
+              detectedNumber = num;
+              detected.add('Doc/Service No: $detectedNumber');
+              break;
+            }
           }
         }
-      }
 
-      // Check next line if current line has label like "Unique Service Number:"
-      if (i + 1 < lines.length) {
-        final lineLower = line.toLowerCase();
-        if (lineLower.contains('service number') ||
-            lineLower.contains('consumer number') ||
-            lineLower.contains('account number') ||
-            lineLower.contains('policy number') ||
-            lineLower.contains('invoice number')) {
-          final nextCandidate = lines[i + 1].trim();
-          final cleanCandidate = nextCandidate.replaceAll(RegExp(r'^[:\-#\s]+'), '').trim();
-          if (cleanCandidate.length >= 4 &&
-              cleanCandidate.length <= 25 &&
-              RegExp(r'\d').hasMatch(cleanCandidate) &&
-              !_docNumberStopWords.contains(cleanCandidate.toLowerCase())) {
-            detectedNumber = cleanCandidate;
-            detected.add('Doc/Service No: $detectedNumber');
-            break;
+        // Check next line if current line has label like "Unique Service Number:"
+        if (i + 1 < lines.length) {
+          final lineLower = line.toLowerCase();
+          if (lineLower.contains('service number') ||
+              lineLower.contains('consumer number') ||
+              lineLower.contains('account number') ||
+              lineLower.contains('policy number') ||
+              lineLower.contains('invoice number')) {
+            final nextCandidate = lines[i + 1].trim();
+            final cleanCandidate = nextCandidate.replaceAll(RegExp(r'^[:\-#\s]+'), '').trim();
+            if (cleanCandidate.length >= 4 &&
+                cleanCandidate.length <= 25 &&
+                RegExp(r'\d').hasMatch(cleanCandidate) &&
+                !_docNumberStopWords.contains(cleanCandidate.toLowerCase())) {
+              detectedNumber = cleanCandidate;
+              detected.add('Doc/Service No: $detectedNumber');
+              break;
+            }
           }
         }
       }
@@ -712,6 +837,11 @@ class OcrParserService {
       final line = lines[i];
       final lineLower = line.toLowerCase();
 
+      final isDobKeyword = lineLower.contains('dob') ||
+          lineLower.contains('date of birth') ||
+          lineLower.contains('birth date') ||
+          lineLower.contains('d.o.b');
+
       final isExpiryKeyword = lineLower.contains('fitness') ||
           lineLower.contains('regn upto') ||
           lineLower.contains('reg. upto') ||
@@ -721,6 +851,8 @@ class OcrParserService {
           lineLower.contains('valid till') ||
           lineLower.contains('valid to') ||
           lineLower.contains('valid until') ||
+          lineLower.contains('validity') ||
+          lineLower.contains('expiry') ||
           lineLower.contains('due') ||
           lineLower.contains('exp') ||
           lineLower.contains('disconnection') ||
@@ -728,21 +860,24 @@ class OcrParserService {
           lineLower.contains('best before') ||
           lineLower.contains('use by');
 
-      final isStartKeyword = lineLower.contains('regn date') ||
-          lineLower.contains('date of regn') ||
-          lineLower.contains('reg. date') ||
-          lineLower.contains('reg date') ||
-          lineLower.contains('date of registration') ||
-          lineLower.contains('registration date') ||
-          lineLower.contains('issue date') ||
-          lineLower.contains('date of issue') ||
-          lineLower.contains('issue') ||
-          lineLower.contains('start') ||
-          lineLower.contains('from') ||
-          lineLower.contains('bill date') ||
-          lineLower.contains('mfg') ||
-          lineLower.contains('invoice date') ||
-          lineLower.contains('purchase date');
+      final isStartKeyword = !isDobKeyword &&
+          (lineLower.contains('regn date') ||
+              lineLower.contains('date of regn') ||
+              lineLower.contains('reg. date') ||
+              lineLower.contains('reg date') ||
+              lineLower.contains('date of registration') ||
+              lineLower.contains('registration date') ||
+              lineLower.contains('issue date') ||
+              lineLower.contains('date of issue') ||
+              lineLower.contains('doi') ||
+              lineLower.contains('issued on') ||
+              lineLower.contains('issue') ||
+              lineLower.contains('start') ||
+              lineLower.contains('from') ||
+              lineLower.contains('bill date') ||
+              lineLower.contains('mfg') ||
+              lineLower.contains('invoice date') ||
+              lineLower.contains('purchase date'));
 
       // Look for text-month, numeric, and month-year dates
       final match = _textMonthDateRegex.firstMatch(line) ??
@@ -756,9 +891,11 @@ class OcrParserService {
         // Check adjacent line if current line has date label
         if (isExpiryKeyword ||
             isStartKeyword ||
+            isDobKeyword ||
             lineLower.contains('due date') ||
             lineLower.contains('expiry') ||
             lineLower.contains('valid till') ||
+            lineLower.contains('validity') ||
             lineLower.contains('bill date') ||
             lineLower.contains('invoice date') ||
             lineLower.contains('fitness') ||
@@ -774,6 +911,11 @@ class OcrParserService {
       }
 
       if (parsedDate != null) {
+        if (isDobKeyword) {
+          // Record DOB without misinterpreting as start or expiry date
+          detected.add('DOB: ${DateFormat('dd/MM/yyyy').format(parsedDate)}');
+          continue;
+        }
 
         if (isExpiryKeyword && detectedExpiry == null) {
           detectedExpiry = parsedDate;
@@ -859,7 +1001,12 @@ class OcrParserService {
       if (lineLower.contains('details')) continue;
 
       for (final kw in keywords) {
-        if (lineLower.contains(kw) && line.length <= 55) {
+        if (kw.length <= 3) {
+          final regex = RegExp('\\b${RegExp.escape(kw)}\\b');
+          if (regex.hasMatch(lineLower) && line.length <= 55) {
+            return line.trim();
+          }
+        } else if (lineLower.contains(kw) && line.length <= 55) {
           return line.trim();
         }
       }

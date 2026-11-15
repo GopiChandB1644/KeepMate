@@ -95,6 +95,7 @@ class _RenewalFlowPageState extends State<RenewalFlowPage> {
       appBar: KeepRemindAppBar(
         title: 'Renew / Pay',
         subtitle: widget.item.title,
+        showBack: true,
       ),
       body: SafeArea(
         child: Form(

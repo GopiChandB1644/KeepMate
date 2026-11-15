@@ -78,6 +78,27 @@ class LocalFileStorage {
       return 0;
     }
   }
+
+  /// Purge orphaned files in the documents directory that are no longer referenced by active database records
+  Future<int> purgeOrphanedFiles(Set<String> activeRelativePaths) async {
+    try {
+      final docsDir = await FilePathResolver.documentsDirectory;
+      int purgedBytes = 0;
+      await for (final entity in docsDir.list(recursive: true, followLinks: false)) {
+        if (entity is File) {
+          final relPath = await FilePathResolver.toRelativePath(entity.path);
+          if (!activeRelativePaths.contains(relPath)) {
+            final size = await entity.length();
+            await entity.delete();
+            purgedBytes += size;
+          }
+        }
+      }
+      return purgedBytes;
+    } catch (_) {
+      return 0;
+    }
+  }
 }
 
 class StoredFileMetadata {

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
-import '../../tracked_items/pages/add_edit_item_page.dart';
-import '../../tracked_items/pages/item_detail_page.dart';
 
 class LifePocketPage extends StatefulWidget {
   const LifePocketPage({super.key});
@@ -24,17 +24,10 @@ class _LifePocketPageState extends State<LifePocketPage> {
       appBar: const KeepRemindAppBar(
         title: 'LifePocket',
         subtitle: 'Bills, warranties & subscriptions',
-        showBack: false,
+        showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => AddEditItemPage(initialSubcategory: _selectedSubFilter ?? ItemSubcategory.bill),
-            ),
-          );
-        },
+        onPressed: () => context.push(AppRoutes.addItem, extra: _selectedSubFilter ?? ItemSubcategory.bill),
         backgroundColor: AppColors.lifePocketColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text('Add Bill / Warranty', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -94,14 +87,7 @@ class _LifePocketPageState extends State<LifePocketPage> {
                         title: 'No items in LifePocket',
                         description: 'Never miss an electricity bill, wifi payment, or warranty expiry again.',
                         actionLabel: 'Add First Item',
-                        onAction: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => AddEditItemPage(initialSubcategory: _selectedSubFilter ?? ItemSubcategory.bill),
-                            ),
-                          );
-                        },
+                        onAction: () => context.push(AppRoutes.addItem, extra: _selectedSubFilter ?? ItemSubcategory.bill),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
@@ -110,12 +96,7 @@ class _LifePocketPageState extends State<LifePocketPage> {
                           final item = displayed[index];
                           return ItemSummaryCard(
                             item: item,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
-                              );
-                            },
+                            onTap: () => context.push(AppRoutes.itemDetail, extra: item),
                             quickActionLabel: item.subcategory == ItemSubcategory.bill && item.status != ItemStatus.completed
                                 ? 'Mark Paid'
                                 : null,

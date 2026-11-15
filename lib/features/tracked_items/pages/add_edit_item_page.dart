@@ -570,6 +570,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
       appBar: KeepRemindAppBar(
         title: isEditing ? 'Edit Details' : 'Add New Item',
         subtitle: isEditing ? 'Update item details' : 'Enter details or attach document / photo',
+        showBack: true,
       ),
       body: SafeArea(
         child: Form(

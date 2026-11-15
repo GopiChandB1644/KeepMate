@@ -92,24 +92,19 @@ class VaultPage extends StatelessWidget {
       if (!context.mounted) return;
       if (await file.exists()) {
         if (!context.mounted) return;
-        showDialog(
+        await DocumentPreviewDialog.show(
           context: context,
-          builder: (ctx) => AlertDialog(
-            title: Text(doc.fileName, maxLines: 1, overflow: TextOverflow.ellipsis),
-            content: doc.fileName.toLowerCase().endsWith('.pdf')
-                ? const Text('PDF file ready. Previewing document from local storage.')
-                : Image.file(file),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  context.read<VaultCubit>().deleteDocument(doc);
-                },
-                child: const Text('Delete', style: TextStyle(color: AppColors.dangerRed)),
-              ),
-              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Close')),
-            ],
-          ),
+          file: file,
+          document: doc,
+          onDelete: () {
+            context.read<VaultCubit>().deleteDocument(doc);
+            showToast(
+              context,
+              'Document removed from vault',
+              icon: Icons.delete_outline_rounded,
+              type: ToastType.info,
+            );
+          },
         );
       } else {
         if (!context.mounted) return;
@@ -137,6 +132,7 @@ class VaultPage extends StatelessWidget {
       appBar: const KeepRemindAppBar(
         title: 'Document Vault',
         subtitle: 'Secure local storage',
+        showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _pickAndUpload(context),

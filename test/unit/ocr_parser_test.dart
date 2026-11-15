@@ -211,5 +211,92 @@ Valid Upto: 28/02/2037
       expect(result.startDate?.year, equals(2022));
       expect(result.expiryDate?.year, equals(2037));
     });
+
+    test('Parses Indian Driving Licence scan text as document (NOT insurance)', () {
+      const dlText = '''
+INDIAN UNION DRIVING LICENCE
+GOVERNMENT OF ANDHRA PRADESH / TRANSPORT DEPARTMENT
+DL No: AP07 20180001234
+DOB: 15/07/1995
+Issue Date: 10/05/2018
+Validity (NT): 14/07/2035
+Name: BOKKISAM GOPICHAND
+S/W/D of: RAMA RAO
+COV: LMV, MCWG
+RTO: ONGOLE
+''';
+
+      final result = parser.parse(text: dlText);
+
+      // Must NOT be classified as insurance!
+      expect(result.detectedSubcategory, equals(ItemSubcategory.document));
+      expect(result.title, contains('Driving Licence'));
+      expect(result.title, contains('AP07 20180001234'));
+      expect(result.documentOrPolicyNumber, equals('AP07 20180001234'));
+      expect(result.providerOrSeller, anyOf(contains('Transport Department'), contains('GOVERNMENT')));
+
+      // Start date must be Issue Date (2018), NOT DOB (1995)!
+      expect(result.startDate?.year, equals(2018));
+      expect(result.startDate?.month, equals(5));
+      expect(result.startDate?.day, equals(10));
+
+      // Expiry date must be Validity (NT) Date (2035), NOT DOB!
+      expect(result.expiryDate?.year, equals(2035));
+      expect(result.expiryDate?.month, equals(7));
+      expect(result.expiryDate?.day, equals(14));
+
+      // DOB is recorded in detectedFields
+      expect(result.detectedFields.any((f) => f.contains('DOB: 15/07/1995')), isTrue);
+    });
+
+    test('Parses Delhi Smart Card Driving Licence (Form 7)', () {
+      const delhiDl = '''
+UNION OF INDIA
+DRIVING LICENCE
+FORM 7
+Licence No: DL-1420110012345
+Date of Issue: 20-04-2015
+Valid Till: 19-04-2035
+Date of Birth: 05/11/1992
+Blood Group: O+
+Authorisation to Drive: MCWG, LMV
+Issuing Authority: RTO JANAKPURI
+''';
+
+      final result = parser.parse(text: delhiDl);
+
+      expect(result.detectedSubcategory, equals(ItemSubcategory.document));
+      expect(result.title, contains('Driving Licence'));
+      expect(result.documentOrPolicyNumber, contains('DL-1420110012345'));
+      expect(result.startDate?.year, equals(2015));
+      expect(result.startDate?.month, equals(4));
+      expect(result.startDate?.day, equals(20));
+      expect(result.expiryDate?.year, equals(2035));
+      expect(result.expiryDate?.month, equals(4));
+      expect(result.expiryDate?.day, equals(19));
+    });
+
+    test('Correctly identifies genuine LIC Insurance Policy while ignoring "lic" in other words', () {
+      const licText = '''
+Life Insurance Corporation of India
+Branch: Hyderabad Central
+Policy Number: 678901234
+Plan & Term: 814-20
+Date of Commencement: 15/06/2021
+Next Premium Due Date: 15/06/2026
+Sum Assured: 500000
+Premium Amount: ₹ 14,250.00
+''';
+
+      final result = parser.parse(text: licText);
+
+      expect(result.detectedSubcategory, equals(ItemSubcategory.insurance));
+      expect(result.title, equals('Insurance Policy'));
+      expect(result.providerOrSeller, contains('Life Insurance Corporation'));
+      expect(result.documentOrPolicyNumber, contains('678901234'));
+      expect(result.amount, equals(14250.00));
+      expect(result.startDate?.year, equals(2021));
+      expect(result.expiryDate?.year, equals(2026));
+    });
   });
 }

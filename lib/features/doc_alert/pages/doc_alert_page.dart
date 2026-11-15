@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
-import '../../tracked_items/pages/add_edit_item_page.dart';
-import '../../tracked_items/pages/item_detail_page.dart';
-import '../../tracked_items/pages/renewal_flow_page.dart';
 
 class DocAlertPage extends StatelessWidget {
   const DocAlertPage({super.key});
@@ -18,17 +17,10 @@ class DocAlertPage extends StatelessWidget {
       appBar: const KeepRemindAppBar(
         title: 'DocAlert',
         subtitle: 'Licences, passports & vehicle documents',
-        showBack: false,
+        showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const AddEditItemPage(initialSubcategory: ItemSubcategory.document),
-            ),
-          );
-        },
+        onPressed: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.document),
         backgroundColor: AppColors.docAlertColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
         label: const Text('Add Document', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -47,14 +39,7 @@ class DocAlertPage extends StatelessWidget {
               title: 'No vehicle or identity documents yet',
               description: 'Save your driving licence, car insurance, PUC, RC book, and passport to avoid sudden penalties.',
               actionLabel: 'Add Document Now',
-              onAction: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AddEditItemPage(initialSubcategory: ItemSubcategory.document),
-                  ),
-                );
-              },
+              onAction: () => context.push(AppRoutes.addItem, extra: ItemSubcategory.document),
             );
           }
 
@@ -65,19 +50,9 @@ class DocAlertPage extends StatelessWidget {
               final item = docItems[index];
               return ItemSummaryCard(
                 item: item,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => ItemDetailPage(item: item)),
-                  );
-                },
+                onTap: () => context.push(AppRoutes.itemDetail, extra: item),
                 quickActionLabel: 'Renew',
-                onQuickAction: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => RenewalFlowPage(item: item)),
-                  );
-                },
+                onQuickAction: () => context.push(AppRoutes.renewal, extra: item),
               );
             },
           );

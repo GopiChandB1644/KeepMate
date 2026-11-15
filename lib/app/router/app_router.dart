@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/enums/item_enums.dart';
 import '../../features/backup_restore/pages/backup_restore_page.dart';
 import '../../features/categories/pages/categories_hub_page.dart';
 import '../../features/doc_alert/pages/doc_alert_page.dart';
@@ -7,10 +8,12 @@ import '../../features/document_vault/pages/vault_page.dart';
 import '../../features/fresh_check/pages/fresh_check_page.dart';
 import '../../features/home/pages/home_page.dart';
 import '../../features/life_pocket/pages/life_pocket_page.dart';
+import '../../features/search/pages/search_page.dart';
 import '../../features/settings/pages/settings_page.dart';
 import '../../features/tracked_items/domain/entities/tracked_item_entity.dart';
 import '../../features/tracked_items/pages/add_edit_item_page.dart';
 import '../../features/tracked_items/pages/item_detail_page.dart';
+import '../../features/tracked_items/pages/renewal_flow_page.dart';
 import '../shell/main_shell.dart';
 import 'app_routes.dart';
 
@@ -87,9 +90,22 @@ GoRouter createRouter() {
         builder: (context, state) => const BackupRestorePage(),
       ),
       GoRoute(
+        path: AppRoutes.search,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SearchPage(),
+      ),
+      GoRoute(
         path: AppRoutes.addItem,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const AddEditItemPage(),
+        builder: (context, state) {
+          final extra = state.extra;
+          if (extra is TrackedItemEntity) {
+            return AddEditItemPage(existingItem: extra);
+          } else if (extra is ItemSubcategory) {
+            return AddEditItemPage(initialSubcategory: extra);
+          }
+          return const AddEditItemPage();
+        },
       ),
       GoRoute(
         path: AppRoutes.itemDetail,
@@ -97,6 +113,14 @@ GoRouter createRouter() {
         builder: (context, state) {
           final item = state.extra as TrackedItemEntity;
           return ItemDetailPage(item: item);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.renewal,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final item = state.extra as TrackedItemEntity;
+          return RenewalFlowPage(item: item);
         },
       ),
     ],

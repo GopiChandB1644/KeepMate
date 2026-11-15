@@ -25,14 +25,18 @@ class VaultCubit extends Cubit<VaultState> {
     _subscription?.cancel();
     _subscription = (database.select(database.itemDocuments)
           ..where((tbl) => tbl.deletedAt.isNull())
-          ..orderBy([(tbl) => OrderingTerm(expression: tbl.createdAt, mode: OrderingMode.desc)]))
+          ..orderBy([
+            (tbl) =>
+                OrderingTerm(expression: tbl.createdAt, mode: OrderingMode.desc)
+          ]))
         .watch()
         .listen(
       (docs) {
         emit(state.copyWith(status: VaultStatus.success, documents: docs));
       },
       onError: (err) {
-        emit(state.copyWith(status: VaultStatus.failure, errorMessage: err.toString()));
+        emit(state.copyWith(
+            status: VaultStatus.failure, errorMessage: err.toString()));
       },
     );
   }
@@ -57,7 +61,9 @@ class VaultCubit extends Cubit<VaultState> {
               itemId: Value(associatedItemId),
               fileName: stored.fileName,
               relativePath: stored.relativePath,
-              mimeType: stored.fileName.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg',
+              mimeType: stored.fileName.toLowerCase().endsWith('.pdf')
+                  ? 'application/pdf'
+                  : 'image/jpeg',
               fileSize: stored.fileSize,
               checksumSha256: stored.checksum,
               source: source,
@@ -65,19 +71,29 @@ class VaultCubit extends Cubit<VaultState> {
             ),
           );
 
-      return (database.select(database.itemDocuments)..where((t) => t.id.equals(id))).getSingleOrNull();
+      return await (database.select(database.itemDocuments)
+            ..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to upload document: $e'));
       return null;
     }
   }
 
-  Future<void> deleteDocument(ItemDocument doc) async {
+  Future<void> deleteDocument(ItemDocument doc, {bool deleteFromDisk = true}) async {
     try {
       // Soft-delete in database
-      await (database.update(database.itemDocuments)..where((tbl) => tbl.id.equals(doc.id))).write(
-        ItemDocumentsCompanion(deletedAt: Value(DateTime.now().toUtc().toIso8601String())),
+      await (database.update(database.itemDocuments)
+            ..where((tbl) => tbl.id.equals(doc.id)))
+          .write(
+        ItemDocumentsCompanion(
+            deletedAt: Value(DateTime.now().toUtc().toIso8601String())),
       );
+
+      // Clean up physical file on disk to prevent orphaned storage accumulation
+      if (deleteFromDisk) {
+        await fileStorage.deleteFile(doc.relativePath);
+      }
     } catch (e) {
       emit(state.copyWith(errorMessage: 'Failed to delete: $e'));
     }
@@ -89,4 +105,3 @@ class VaultCubit extends Cubit<VaultState> {
     return super.close();
   }
 }
-

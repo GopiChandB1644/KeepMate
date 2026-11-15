@@ -30,6 +30,20 @@ class AppDateUtils {
     return displayFormat.format(date);
   }
 
+  /// Convert 24-hour time string ("14:30") to 12-hour formatted time ("2:30 PM")
+  static String formatTime12Hour(String? time24) {
+    if (time24 == null || time24.trim().isEmpty) return '9:00 AM';
+    final parts = time24.split(':');
+    final hour = int.tryParse(parts[0]) ?? 9;
+    final minute = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
+    final minuteStr = minute.toString().padLeft(2, '0');
+
+    if (hour == 0) return '12:$minuteStr AM';
+    if (hour < 12) return '$hour:$minuteStr AM';
+    if (hour == 12) return '12:$minuteStr PM';
+    return '${hour - 12}:$minuteStr PM';
+  }
+
   /// Calculate days remaining relative to today (0 = today, negative = past)
   static int daysDifferenceFromToday(DateTime targetDate) {
     final now = DateTime.now();

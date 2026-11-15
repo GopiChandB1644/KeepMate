@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/router/app_routes.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../core/utils/date_utils.dart';
 import '../../../../shared/widgets/widgets.dart';
-import '../../backup_restore/pages/backup_restore_page.dart';
+import '../../tracked_items/cubit/items_cubit.dart';
+import '../../tracked_items/cubit/items_state.dart';
 import '../cubit/settings_cubit.dart';
 import '../cubit/settings_state.dart';
 
@@ -18,6 +21,7 @@ class SettingsPage extends StatelessWidget {
       appBar: const KeepRemindAppBar(
         title: 'Settings',
         subtitle: 'Preferences & Storage',
+        showBack: true,
       ),
       body: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
@@ -68,6 +72,90 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
 
+              const SizedBox(height: 16),
+
+              // Status Banner ("Everything is Safe!" / "X Items Need Attention")
+              Builder(
+                builder: (context) {
+                  ItemsState? itemsState;
+                  try {
+                    itemsState = context.watch<ItemsCubit>().state;
+                  } catch (_) {
+                    itemsState = null;
+                  }
+
+                  final urgent = itemsState?.urgentItems ?? const [];
+                  final isSafe = urgent.isEmpty;
+                  final attentionCount = (itemsState?.dueTodayCount ?? 0) +
+                      (itemsState?.upcomingCount ?? 0) +
+                      (itemsState?.expiredCount ?? 0);
+
+                  return Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isSafe
+                            ? [const Color(0xFF10B981), const Color(0xFF059669)]
+                            : [const Color(0xFFF59E0B), const Color(0xFFDC2626)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isSafe ? const Color(0xFF10B981) : const Color(0xFFDC2626))
+                              .withValues(alpha: 0.25),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            isSafe ? Icons.check_circle_rounded : Icons.priority_high_rounded,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isSafe ? 'Everything is Safe!' : '$attentionCount Items Need Attention',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                isSafe
+                                    ? 'No bills or products expiring soon.'
+                                    : 'Due today or upcoming in the next 7 days.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
               const SizedBox(height: 24),
 
               // Storage Info Section
@@ -87,6 +175,26 @@ class SettingsPage extends StatelessWidget {
                     _statRow(Icons.folder_open_rounded, 'Documents Stored', '${state.totalDocumentsCount} files'),
                     const Divider(),
                     _statRow(Icons.storage_rounded, 'Storage Used', state.formattedStorageUsed),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.cleaning_services_rounded, size: 18),
+                        label: const Text('Clean Deleted Storage Cache'),
+                        onPressed: () async {
+                          final freed = await cubit.cleanOrphanedFiles();
+                          if (context.mounted) {
+                            final kb = (freed / 1024).toStringAsFixed(1);
+                            showToast(
+                              context,
+                              freed > 0 ? 'Cleaned up $kb KB of orphaned storage!' : 'Storage is already optimized!',
+                              icon: Icons.check_circle_rounded,
+                              type: ToastType.success,
+                            );
+                          }
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -118,12 +226,15 @@ class SettingsPage extends StatelessWidget {
                       ListTile(
                         leading: const Icon(Icons.access_time_filled_rounded, color: AppColors.warningOrange),
                         title: const Text('Daily Alert Time'),
-                        subtitle: Text('Notifications arrive at ${state.preferredReminderTime} AM'),
+                        subtitle: Text('Notifications arrive at ${AppDateUtils.formatTime12Hour(state.preferredReminderTime)}'),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () async {
+                          final parts = state.preferredReminderTime.split(':');
+                          final initH = parts.isNotEmpty ? (int.tryParse(parts[0]) ?? 9) : 9;
+                          final initM = parts.length > 1 ? (int.tryParse(parts[1]) ?? 0) : 0;
                           final picked = await showTimePicker(
                             context: context,
-                            initialTime: const TimeOfDay(hour: 9, minute: 0),
+                            initialTime: TimeOfDay(hour: initH, minute: initM),
                           );
                           if (picked != null) {
                             final h = picked.hour.toString().padLeft(2, '0');
@@ -176,12 +287,7 @@ class SettingsPage extends StatelessWidget {
                         ? 'Last backup: ${AppDateUtils.formatDisplay(DateTime.tryParse(state.lastBackupDate!))}'
                         : 'No backup created yet'),
                     trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const BackupRestorePage()),
-                      );
-                    },
+                    onTap: () => context.push(AppRoutes.backupRestore),
                   ),
                 ),
               ),

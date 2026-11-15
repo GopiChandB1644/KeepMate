@@ -23,7 +23,12 @@ class SettingsCubit extends Cubit<SettingsState> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     if (state.themeMode == ThemeMode.system) {
-      AppColors.updateTheme(ThemeMode.system);
+      try {
+        final platformBrightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+        AppColors.updateTheme(ThemeMode.system, platformBrightness);
+      } catch (_) {
+        AppColors.updateTheme(ThemeMode.system);
+      }
       emit(state.copyWith());
     }
   }
@@ -86,6 +91,21 @@ class SettingsCubit extends Cubit<SettingsState> with WidgetsBindingObserver {
   Future<void> setReminderTime(String time) async {
     emit(state.copyWith(preferredReminderTime: time));
     await _saveSetting('reminder_time', time);
+  }
+
+  /// Clean up unreferenced/deleted documents from disk storage
+  Future<int> cleanOrphanedFiles() async {
+    try {
+      final activeDocs = await (database.select(database.itemDocuments)
+            ..where((tbl) => tbl.deletedAt.isNull()))
+          .get();
+      final activePaths = activeDocs.map((d) => d.relativePath).toSet();
+      final freedBytes = await fileStorage.purgeOrphanedFiles(activePaths);
+      await loadSettings();
+      return freedBytes;
+    } catch (_) {
+      return 0;
+    }
   }
 
   Future<void> _saveSetting(String key, String value) async {

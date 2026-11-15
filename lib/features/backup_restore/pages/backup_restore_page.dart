@@ -192,6 +192,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
       appBar: const KeepRemindAppBar(
         title: 'Backup & Restore',
         subtitle: 'Encrypted export & recovery',
+        showBack: true,
       ),
       body: BlocConsumer<BackupCubit, BackupState>(
         listener: (context, state) {

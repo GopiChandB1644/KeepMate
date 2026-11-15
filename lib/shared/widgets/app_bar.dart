@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../app/router/app_routes.dart';
 import '../../core/design_system/app_colors.dart';
 import '../../core/design_system/app_text.dart';
 
@@ -90,13 +91,37 @@ class KeepRemindAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(62);
 
+  void _handleBack(BuildContext context) {
+    if (onBack != null) {
+      onBack!();
+      return;
+    }
+
+    try {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+        return;
+      }
+    } catch (_) {}
+
+    try {
+      if (context.canPop()) {
+        context.pop();
+        return;
+      }
+    } catch (_) {}
+
+    // Top-level tab branch fallback: Navigate cleanly to Home
+    try {
+      context.go(AppRoutes.home);
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool canPop = false;
-    try {
-      canPop = Navigator.canPop(context);
-    } catch (_) {}
-    final shouldShowBack = showBack ?? canPop;
+    // If showBack is explicitly specified, respect it.
+    // Otherwise, show back button on every screen unless custom leading is provided.
+    final shouldShowBack = showBack ?? (leading == null);
 
     return Container(
       decoration: BoxDecoration(
@@ -127,19 +152,7 @@ class KeepRemindAppBar extends StatelessWidget implements PreferredSizeWidget {
                   CircleIconButton(
                     icon: Icons.arrow_back_rounded,
                     tooltip: 'Back',
-                    onTap: onBack ?? () {
-                      try {
-                        if (Navigator.canPop(context)) {
-                          Navigator.pop(context);
-                        } else {
-                          context.pop();
-                        }
-                      } catch (_) {
-                        try {
-                          context.pop();
-                        } catch (_) {}
-                      }
-                    },
+                    onTap: () => _handleBack(context),
                   ),
                   const SizedBox(width: 12),
                 ],
