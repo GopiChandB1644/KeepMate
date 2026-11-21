@@ -45,5 +45,71 @@ void main() {
       expect(AppColors.isDark, isFalse);
       expect(AppColors.background, equals(const Color(0xFFF8FAFC)));
     });
+
+    testWidgets(
+        'ThemeContextX extension and AppColors context helpers resolve light theme colors cleanly',
+        (tester) async {
+      late BuildContext capturedContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return const Scaffold(body: SizedBox());
+            },
+          ),
+        ),
+      );
+
+      expect(capturedContext.isDark, isFalse);
+      expect(capturedContext.surfaceColor, equals(const Color(0xFFFFFFFF)));
+      expect(
+          capturedContext.surfaceRaisedColor, equals(const Color(0xFFF1F5F9)));
+      expect(capturedContext.cardBorderColor, equals(const Color(0xFFE2E8F0)));
+      expect(capturedContext.textPrimaryColor, equals(const Color(0xFF0F172A)));
+      expect(
+          capturedContext.textSecondaryColor, equals(const Color(0xFF475569)));
+      expect(AppColors.surfaceOf(capturedContext),
+          equals(const Color(0xFFFFFFFF)));
+      expect(AppColors.surfaceRaisedOf(capturedContext),
+          equals(const Color(0xFFF1F5F9)));
+      expect(AppColors.cardBorderOf(capturedContext),
+          equals(const Color(0xFFE2E8F0)));
+    });
+
+    testWidgets(
+        'ThemeContextX extension and AppColors context helpers resolve dark theme colors accurately',
+        (tester) async {
+      late BuildContext capturedContext;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.darkTheme,
+          home: Builder(
+            builder: (context) {
+              capturedContext = context;
+              return const Scaffold(body: SizedBox());
+            },
+          ),
+        ),
+      );
+
+      expect(capturedContext.isDark, isTrue);
+      expect(capturedContext.surfaceColor, equals(const Color(0xFF1E293B)));
+      expect(
+          capturedContext.surfaceRaisedColor, equals(const Color(0xFF334155)));
+      expect(capturedContext.cardBorderColor, equals(const Color(0xFF334155)));
+      expect(capturedContext.textPrimaryColor, equals(const Color(0xFFF8FAFC)));
+      expect(
+          capturedContext.textSecondaryColor, equals(const Color(0xFF94A3B8)));
+      expect(AppColors.surfaceOf(capturedContext),
+          equals(const Color(0xFF1E293B)));
+      expect(AppColors.surfaceRaisedOf(capturedContext),
+          equals(const Color(0xFF334155)));
+      expect(AppColors.cardBorderOf(capturedContext),
+          equals(const Color(0xFF334155)));
+    });
   });
 }

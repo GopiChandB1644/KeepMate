@@ -367,7 +367,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                       selected: isSel,
                       selectedColor:
                           AppColors.medicineCareColor.withValues(alpha: 0.15),
-                      backgroundColor: AppColors.surface,
+                      backgroundColor: context.surfaceColor,
                       labelStyle: TextStyle(
                         fontSize: 13,
                         fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
@@ -418,7 +418,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                       label: Text('${inst.icon} ${inst.label}'),
                       selected: isSel,
                       selectedColor: AppColors.primary.withValues(alpha: 0.15),
-                      backgroundColor: AppColors.surface,
+                      backgroundColor: context.surfaceColor,
                       labelStyle: TextStyle(
                         fontSize: 13,
                         fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
@@ -463,9 +463,9 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceRaised,
+                      color: context.surfaceRaisedColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder),
+                      border: Border.all(color: context.cardBorderColor),
                     ),
                     child: Row(
                       children: [
@@ -523,9 +523,10 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.cardBorder),
+                                border:
+                                    Border.all(color: context.cardBorderColor),
                                 borderRadius: BorderRadius.circular(12),
-                                color: AppColors.surface,
+                                color: context.surfaceColor,
                               ),
                               child: Row(
                                 children: [
@@ -568,9 +569,10 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 12),
                               decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.cardBorder),
+                                border:
+                                    Border.all(color: context.cardBorderColor),
                                 borderRadius: BorderRadius.circular(12),
-                                color: AppColors.surface,
+                                color: context.surfaceColor,
                               ),
                               child: Row(
                                 children: [
@@ -632,12 +634,12 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceRaised,
+                      color: context.surfaceRaisedColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: _prescriptionPath != null
                             ? AppColors.safeGreen
-                            : AppColors.cardBorder,
+                            : context.cardBorderColor,
                       ),
                     ),
                     child: Row(
@@ -700,14 +702,14 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                           decoration: BoxDecoration(
                             color: _reminderMode ==
                                     MedicineReminderMode.notification
-                                ? AppColors.primarySubtle
-                                : AppColors.surfaceRaised,
+                                ? context.primarySubtleColor
+                                : context.surfaceRaisedColor,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: _reminderMode ==
                                       MedicineReminderMode.notification
                                   ? AppColors.primary
-                                  : AppColors.cardBorder,
+                                  : context.cardBorderColor,
                               width: _reminderMode ==
                                       MedicineReminderMode.notification
                                   ? 1.5
@@ -771,12 +773,12 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                             color: _reminderMode == MedicineReminderMode.alarm
                                 ? AppColors.medicineCareColor
                                     .withValues(alpha: 0.12)
-                                : AppColors.surfaceRaised,
+                                : context.surfaceRaisedColor,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: _reminderMode == MedicineReminderMode.alarm
                                   ? AppColors.medicineCareColor
-                                  : AppColors.cardBorder,
+                                  : context.cardBorderColor,
                               width: _reminderMode == MedicineReminderMode.alarm
                                   ? 1.5
                                   : 1,
@@ -953,9 +955,9 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: context.cardBorderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

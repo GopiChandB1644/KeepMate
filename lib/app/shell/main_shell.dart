@@ -22,10 +22,10 @@ class MainShell extends StatelessWidget {
         body: navigationShell,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.surfaceColor,
             border: Border(
               top: BorderSide(
-                color: AppColors.cardBorder.withValues(alpha: 0.8),
+                color: context.cardBorderColor.withValues(alpha: 0.8),
                 width: 1,
               ),
             ),

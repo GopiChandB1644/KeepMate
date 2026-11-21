@@ -143,7 +143,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
+                color: context.surfaceRaisedColor,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
@@ -245,19 +245,17 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.isDark
-                      ? const Color(0xFF78350F).withValues(alpha: 0.3)
-                      : const Color(0xFFFEF3C7),
+                  color: context.warningSubtleColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                       color: AppColors.accent
-                          .withValues(alpha: AppColors.isDark ? 0.35 : 0.4)),
+                          .withValues(alpha: context.isDark ? 0.35 : 0.4)),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.shield_rounded,
-                      color: AppColors.isDark
+                      color: context.isDark
                           ? const Color(0xFFFBBF24)
                           : const Color(0xFFB45309),
                       size: 30,
@@ -271,7 +269,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                             'Local-First Privacy',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: AppColors.isDark
+                              color: context.isDark
                                   ? const Color(0xFFFDE68A)
                                   : const Color(0xFF92400E),
                             ),
@@ -280,7 +278,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                           Text(
                             'KeepRemind keeps 100% of your documents and data on your phone. To avoid losing data if you change phones, create an encrypted backup regularly.',
                             style: AppText.bodySmall.copyWith(
-                              color: AppColors.isDark
+                              color: context.isDark
                                   ? const Color(0xFFFDE68A)
                                       .withValues(alpha: 0.85)
                                   : const Color(0xFF78350F),
@@ -315,9 +313,9 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.surfaceColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: context.cardBorderColor),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,9 +354,9 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.surfaceColor,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: context.cardBorderColor),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,15 +388,21 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceRaised,
+                    color: context.surfaceRaisedColor,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: context.cardBorderColor),
                   ),
                   child: const Text('No backups recorded yet on this device.'),
                 )
               else
                 ...state.history.map((record) {
-                  return Card(
+                  return Container(
                     margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      color: context.surfaceColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: context.cardBorderColor),
+                    ),
                     child: ListTile(
                       leading: const Icon(Icons.check_circle_rounded,
                           color: AppColors.safeGreen),

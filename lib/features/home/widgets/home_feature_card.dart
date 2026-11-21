@@ -37,10 +37,10 @@ class HomeFeatureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: item.iconColor.withValues(alpha: 0.2),
+          color: item.iconColor.withValues(alpha: context.isDark ? 0.3 : 0.2),
           width: 1.2,
         ),
       ),
@@ -78,7 +78,7 @@ class HomeFeatureCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.textPrimaryColor,
                         letterSpacing: -0.2,
                       ),
                       maxLines: 1,
@@ -90,7 +90,7 @@ class HomeFeatureCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
-                        color: AppColors.textSecondary,
+                        color: context.textSecondaryColor,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

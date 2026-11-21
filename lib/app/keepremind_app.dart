@@ -77,6 +77,12 @@ class _KeepRemindAppState extends State<KeepRemindApp> {
                 darkTheme: AppTheme.darkTheme,
                 themeMode: settingsState.themeMode,
                 routerConfig: _router,
+                builder: (context, child) {
+                  final isDark =
+                      Theme.of(context).brightness == Brightness.dark;
+                  AppColors.isDark = isDark;
+                  return child ?? const SizedBox.shrink();
+                },
               ),
             );
           },

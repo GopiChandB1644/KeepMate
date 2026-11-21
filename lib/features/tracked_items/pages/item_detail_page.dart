@@ -107,9 +107,9 @@ class ItemDetailPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.surfaceColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.cardBorder),
+              border: Border.all(color: context.cardBorderColor),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,9 +191,9 @@ class ItemDetailPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.cardBorder),
+                border: Border.all(color: context.cardBorderColor),
               ),
               child: Column(
                 children: [
@@ -324,16 +324,22 @@ class ItemDetailPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceRaised,
+                color: context.surfaceRaisedColor,
                 borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: context.cardBorderColor),
               ),
               child: const Text(
                   'No files attached. You can edit this item to attach invoices or certificates.'),
             )
           else
             ...item.documents.map((doc) {
-              return Card(
+              return Container(
                 margin: const EdgeInsets.only(bottom: 8),
+                decoration: BoxDecoration(
+                  color: context.surfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: context.cardBorderColor),
+                ),
                 child: ListTile(
                   leading: Icon(
                     doc.fileName.toLowerCase().endsWith('.pdf')

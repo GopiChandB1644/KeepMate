@@ -290,9 +290,10 @@ class VaultPage extends StatelessWidget {
                           return Container(
                             margin: const EdgeInsets.only(bottom: 10),
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: context.surfaceColor,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.cardBorder),
+                              border:
+                                  Border.all(color: context.cardBorderColor),
                             ),
                             child: Material(
                               color: Colors.transparent,

@@ -92,4 +92,96 @@ class AppColors {
   // Shimmer / Divider
   static Color get divider =>
       _p(const Color(0xFFE2E8F0), const Color(0xFF1E293B));
+
+  // --- Context-Aware Resolution Helpers ---
+  static bool isDarkMode(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  static Color surfaceOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF1E293B) : const Color(0xFFFFFFFF);
+
+  static Color surfaceRaisedOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+
+  static Color surfaceSubtleOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF162032) : const Color(0xFFF8FAFC);
+
+  static Color cardBorderOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+
+  static Color cardBorderSubtleOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF263345) : const Color(0xFFEEF2F6);
+
+  static Color textPrimaryOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+
+  static Color textSecondaryOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+
+  static Color textMutedOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+
+  static Color dividerOf(BuildContext context) =>
+      isDarkMode(context) ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+
+  static Color primarySubtleOf(BuildContext context) => isDarkMode(context)
+      ? const Color(0xFF1E3A8A).withValues(alpha: 0.3)
+      : const Color(0xFFEFF6FF);
+
+  static Color warningOrangeSubtleOf(BuildContext context) =>
+      isDarkMode(context)
+          ? const Color(0xFF78350F).withValues(alpha: 0.3)
+          : const Color(0xFFFFFBEB);
+}
+
+/// Seamless BuildContext extension for robust, reactive theme color resolution
+extension ThemeContextX on BuildContext {
+  /// Whether the active Flutter Theme in this context is dark
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  /// Surface color for cards, panels, and modal backgrounds (White in Light, Slate-800 in Dark)
+  Color get surfaceColor =>
+      isDark ? const Color(0xFF1E293B) : const Color(0xFFFFFFFF);
+
+  /// Slightly elevated / distinct surface for input boxes, date pickers, chips (Slate-100 in Light, Slate-700 in Dark)
+  Color get surfaceRaisedColor =>
+      isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9);
+
+  /// Subtle container background
+  Color get surfaceSubtleColor =>
+      isDark ? const Color(0xFF162032) : const Color(0xFFF8FAFC);
+
+  /// Standard card border color
+  Color get cardBorderColor =>
+      isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0);
+
+  /// Subtle border color
+  Color get cardBorderSubtleColor =>
+      isDark ? const Color(0xFF263345) : const Color(0xFFEEF2F6);
+
+  /// Primary high-contrast text color
+  Color get textPrimaryColor =>
+      isDark ? const Color(0xFFF8FAFC) : const Color(0xFF0F172A);
+
+  /// Secondary readable text color
+  Color get textSecondaryColor =>
+      isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569);
+
+  /// Muted / disabled text color
+  Color get textMutedColor =>
+      isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8);
+
+  /// Divider color
+  Color get dividerColor =>
+      isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
+
+  /// Subtle tinted background for primary brand accents
+  Color get primarySubtleColor => isDark
+      ? const Color(0xFF1E3A8A).withValues(alpha: 0.3)
+      : const Color(0xFFEFF6FF);
+
+  /// Subtle tinted background for warning banners
+  Color get warningSubtleColor => isDark
+      ? const Color(0xFF78350F).withValues(alpha: 0.3)
+      : const Color(0xFFFFFBEB);
 }

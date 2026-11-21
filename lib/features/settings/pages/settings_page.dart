@@ -36,9 +36,9 @@ class SettingsPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.surfaceColor,
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: context.cardBorderColor),
                 ),
                 child: Row(
                   children: [
@@ -191,9 +191,9 @@ class SettingsPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.surfaceColor,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
+                  border: Border.all(color: context.cardBorderColor),
                 ),
                 child: Column(
                   children: [
@@ -250,13 +250,13 @@ class SettingsPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Material(
-                color: AppColors.surface,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: context.cardBorderColor),
                   ),
                   child: Column(
                     children: [
@@ -428,13 +428,13 @@ class SettingsPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Material(
-                color: AppColors.surface,
+                color: context.surfaceColor,
                 borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: context.cardBorderColor),
                   ),
                   child: ListTile(
                     leading: const Icon(Icons.lock_reset_rounded,

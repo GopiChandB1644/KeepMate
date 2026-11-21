@@ -185,11 +185,11 @@ class _FreshCheckPageState extends State<FreshCheckPage> {
       label: Text(label),
       selected: selected,
       selectedColor: AppColors.freshCheckColor.withValues(alpha: 0.12),
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       side: BorderSide(
         color: selected
             ? AppColors.freshCheckColor.withValues(alpha: 0.6)
-            : AppColors.cardBorder,
+            : context.cardBorderColor,
       ),
       labelStyle: TextStyle(
         fontSize: 12.5,

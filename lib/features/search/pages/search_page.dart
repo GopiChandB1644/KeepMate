@@ -105,7 +105,7 @@ class _SearchPageState extends State<SearchPage> {
                             },
                           )
                         : null,
-                    fillColor: AppColors.surface,
+                    fillColor: context.surfaceColor,
                   ),
                 ),
               ),
@@ -276,10 +276,10 @@ class _SearchPageState extends State<SearchPage> {
         decoration: BoxDecoration(
           color: isSelected
               ? activeColor.withValues(alpha: 0.12)
-              : AppColors.surface,
+              : context.surfaceColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? activeColor : AppColors.cardBorder,
+            color: isSelected ? activeColor : context.cardBorderColor,
             width: isSelected ? 1.5 : 1,
           ),
         ),

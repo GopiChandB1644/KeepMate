@@ -17,7 +17,7 @@ class StatusChip extends StatelessWidget {
     Color bg;
     Color fg;
 
-    final isDark = AppColors.isDark;
+    final isDark = context.isDark;
 
     switch (status) {
       case ItemStatus.active:

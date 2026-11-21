@@ -1100,9 +1100,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceRaised,
+                    color: context.surfaceRaisedColor,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: context.cardBorderColor),
                   ),
                   child: Row(
                     children: [
@@ -1180,9 +1180,9 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: AppColors.surfaceRaised,
+                      color: context.surfaceRaisedColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.cardBorder),
+                      border: Border.all(color: context.cardBorderColor),
                     ),
                     child: Row(
                       children: [

@@ -59,12 +59,12 @@ class ItemSummaryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isUrgent
               ? AppColors.dangerRed.withValues(alpha: 0.35)
-              : AppColors.cardBorder,
+              : context.cardBorderColor,
         ),
       ),
       child: Material(
@@ -116,7 +116,7 @@ class ItemSummaryCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Divider(
                   height: 1,
-                  color: AppColors.cardBorder.withValues(alpha: 0.6),
+                  color: context.cardBorderColor.withValues(alpha: 0.6),
                 ),
                 const SizedBox(height: 8),
                 Row(

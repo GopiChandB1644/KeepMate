@@ -226,11 +226,11 @@ class _DocAlertPageState extends State<DocAlertPage> {
       label: Text(label),
       selected: selected,
       selectedColor: AppColors.docAlertColor.withValues(alpha: 0.12),
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       side: BorderSide(
         color: selected
             ? AppColors.docAlertColor.withValues(alpha: 0.6)
-            : AppColors.cardBorder,
+            : context.cardBorderColor,
       ),
       labelStyle: TextStyle(
         fontSize: 12.5,

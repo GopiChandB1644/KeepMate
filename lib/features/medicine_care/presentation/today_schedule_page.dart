@@ -168,7 +168,7 @@ class TodaySchedulePage extends StatelessWidget {
                     ],
 
                     // Summary statistics strip
-                    _buildStatsRow(state),
+                    _buildStatsRow(context, state),
 
                     const SizedBox(height: 18),
 
@@ -197,7 +197,7 @@ class TodaySchedulePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: AppColors.medicineCareColor.withValues(alpha: 0.35),
@@ -260,7 +260,7 @@ class TodaySchedulePage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceRaised,
+                  color: context.surfaceRaisedColor,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -268,7 +268,7 @@ class TodaySchedulePage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textSecondary,
+                    color: context.textSecondaryColor,
                   ),
                 ),
               ),
@@ -339,28 +339,29 @@ class TodaySchedulePage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow(MedicineState state) {
+  Widget _buildStatsRow(BuildContext context, MedicineState state) {
     return Row(
       children: [
-        _statChip('Taken', state.takenCount, AppColors.safeGreen),
+        _statChip(context, 'Taken', state.takenCount, AppColors.safeGreen),
         const SizedBox(width: 8),
-        _statChip('Pending', state.pendingCount, AppColors.primary),
+        _statChip(context, 'Pending', state.pendingCount, AppColors.primary),
         const SizedBox(width: 8),
-        _statChip('Skipped', state.skippedCount, AppColors.textMuted),
+        _statChip(context, 'Skipped', state.skippedCount, AppColors.textMuted),
         const SizedBox(width: 8),
-        _statChip('Unconfirmed', state.unconfirmedCount, AppColors.dangerRed),
+        _statChip(context, 'Unconfirmed', state.unconfirmedCount,
+            AppColors.dangerRed),
       ],
     );
   }
 
-  Widget _statChip(String label, int count, Color color) {
+  Widget _statChip(BuildContext context, String label, int count, Color color) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.surfaceColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.cardBorder),
+          border: Border.all(color: context.cardBorderColor),
         ),
         child: Column(
           children: [
@@ -392,9 +393,9 @@ class TodaySchedulePage extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.surfaceColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: context.cardBorderColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

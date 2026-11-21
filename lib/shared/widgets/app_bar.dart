@@ -34,15 +34,15 @@ class CircleIconButton extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: color ?? AppColors.surfaceRaised,
+            color: color ?? context.surfaceRaisedColor,
             shape: BoxShape.circle,
-            border:
-                Border.all(color: AppColors.cardBorder.withValues(alpha: 0.8)),
+            border: Border.all(
+                color: context.cardBorderColor.withValues(alpha: 0.8)),
           ),
           child: Icon(
             icon,
             size: size * 0.5,
-            color: iconColor ?? AppColors.textPrimary,
+            color: iconColor ?? context.textPrimaryColor,
           ),
         ),
       ),
@@ -128,12 +128,12 @@ class KeepRemindAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: transparent
             ? Colors.transparent
-            : (backgroundColor ?? AppColors.surface),
+            : (backgroundColor ?? context.surfaceColor),
         border: transparent
             ? null
             : Border(
                 bottom: BorderSide(
-                  color: AppColors.cardBorder.withValues(alpha: 0.4),
+                  color: context.cardBorderColor.withValues(alpha: 0.4),
                   width: 1,
                 ),
               ),

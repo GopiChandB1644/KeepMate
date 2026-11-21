@@ -61,7 +61,7 @@ class DocumentPreviewDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       contentPadding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
       actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -112,9 +112,9 @@ class DocumentPreviewDialog extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceRaised,
+                    color: context.surfaceRaisedColor,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: context.cardBorderColor),
                   ),
                   child: Column(
                     children: [
