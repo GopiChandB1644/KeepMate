@@ -46,28 +46,32 @@ class TodaySchedulePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Why is ${dose.medicine.name} being skipped?',
-                style: AppText.bodyMedium),
+            Text(
+              'Why is ${dose.medicine.name} being skipped?',
+              style: AppText.bodyMedium,
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 6,
               runSpacing: 6,
               children: commonReasons.map((r) {
                 return ActionChip(
-                  label: Text(r, style: const TextStyle(fontSize: 12)),
+                  label: Text(r, style: const TextStyle(fontSize: 12.5)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   onPressed: () {
                     reasonController.text = r;
                   },
                 );
               }).toList(),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             TextField(
               controller: reasonController,
               decoration: InputDecoration(
                 hintText: 'Enter reason or select above',
                 border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -118,10 +122,11 @@ class TodaySchedulePage extends StatelessWidget {
                 '${state.takenCount} taken • ${state.pendingCount} pending',
             showBack: true,
             actions: [
-              IconButton(
-                icon: const Icon(Icons.calendar_month_rounded),
+              CircleIconButton(
+                icon: Icons.calendar_month_rounded,
                 tooltip: 'Select Date',
-                onPressed: () async {
+                size: 38,
+                onTap: () async {
                   final picked = await showDatePicker(
                     context: context,
                     initialDate: state.selectedDate,
@@ -134,16 +139,18 @@ class TodaySchedulePage extends StatelessWidget {
                   }
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.add_rounded),
+              const SizedBox(width: 8),
+              CircleIconButton(
+                icon: Icons.add_rounded,
                 tooltip: 'Add Medicine',
-                onPressed: () => context.push(AppRoutes.medicineAdd),
+                size: 38,
+                onTap: () => context.push(AppRoutes.medicineAdd),
               ),
             ],
           ),
           body: doses.isEmpty
               ? EmptyStateView(
-                  icon: Icons.medication_rounded,
+                  icon: Icons.medication_outlined,
                   title: 'No medicines scheduled',
                   description: isToday
                       ? 'No active medicine doses for today. Tap "+ Add Medicine" to set up your prescription schedule.'
@@ -157,16 +164,24 @@ class TodaySchedulePage extends StatelessWidget {
                     // Next Dose Hero Card if applicable
                     if (isToday && nextDose != null) ...[
                       _buildNextDoseHeroCard(context, nextDose),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                     ],
 
                     // Summary statistics strip
                     _buildStatsRow(state),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 18),
 
-                    Text('All Scheduled Doses', style: AppText.h3),
-                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'All Scheduled Doses (${doses.length})',
+                          style: AppText.h3.copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
 
                     ...doses.map((dose) => _buildDoseCard(context, dose)),
                   ],
@@ -182,22 +197,12 @@ class TodaySchedulePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.medicineCareColor,
-            AppColors.medicineCareColor.withValues(alpha: 0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: AppColors.medicineCareColor.withValues(alpha: 0.35),
+          width: 1.5,
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.medicineCareColor.withValues(alpha: 0.28),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,20 +213,26 @@ class TodaySchedulePage extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.medicineCareColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.alarm_rounded, color: Colors.white, size: 14),
-                    SizedBox(width: 4),
+                    Icon(
+                      Icons.alarm_rounded,
+                      color: AppColors.medicineCareColor,
+                      size: 15,
+                    ),
+                    const SizedBox(width: 5),
                     Text(
                       'NEXT DOSE',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold),
+                        color: AppColors.medicineCareColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
                     ),
                   ],
                 ),
@@ -229,74 +240,96 @@ class TodaySchedulePage extends StatelessWidget {
               const Spacer(),
               Text(
                 _formatTime12Hour(dose.scheduledTime),
-                style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
+                style: AppText.timeDisplay,
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
             dose.medicine.name,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+            style: AppText.h2.copyWith(fontSize: 21),
           ),
-          const SizedBox(height: 4),
-          Text(
-            '${dose.medicine.dosage} • ${dose.medicine.instructions.label}',
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9), fontSize: 14),
+          const SizedBox(height: 3),
+          Row(
+            children: [
+              Text(
+                dose.medicine.dosage,
+                style: AppText.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceRaised,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  dose.medicine.instructions.label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
+                flex: 2,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.medicineCareColor,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: AppColors.safeGreen,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(0, 52),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                  icon: const Icon(Icons.check_circle_rounded, size: 18),
-                  label: const Text('Mark Taken',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.check_circle_rounded, size: 20),
+                  label: const Text(
+                    'Mark Taken',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
                   onPressed: () async {
                     await cubit.markDoseTaken(dose);
                     if (context.mounted) {
                       showToast(
-                          context, '${dose.medicine.name} marked as taken!',
-                          type: ToastType.success);
+                        context,
+                        '${dose.medicine.name} marked as taken!',
+                        type: ToastType.success,
+                      );
                     }
                   },
                 ),
               ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.white, width: 1.2),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () async {
-                  await cubit.snoozeDose(dose, minutes: 15);
-                  if (context.mounted) {
-                    showToast(context, 'Snoozed for 15 minutes',
-                        type: ToastType.info);
-                  }
-                },
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.snooze_rounded, size: 16),
-                    SizedBox(width: 4),
-                    Text('Snooze'),
-                  ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 52),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                  ),
+                  icon: const Icon(Icons.snooze_rounded, size: 18),
+                  label: const Text('Snooze'),
+                  onPressed: () async {
+                    await cubit.snoozeDose(dose, minutes: 15);
+                    if (context.mounted) {
+                      showToast(
+                        context,
+                        'Snoozed for 15 minutes',
+                        type: ToastType.info,
+                      );
+                    }
+                  },
                 ),
               ),
             ],
@@ -311,7 +344,7 @@ class TodaySchedulePage extends StatelessWidget {
       children: [
         _statChip('Taken', state.takenCount, AppColors.safeGreen),
         const SizedBox(width: 8),
-        _statChip('Pending', state.pendingCount, AppColors.infoBlue),
+        _statChip('Pending', state.pendingCount, AppColors.primary),
         const SizedBox(width: 8),
         _statChip('Skipped', state.skippedCount, AppColors.textMuted),
         const SizedBox(width: 8),
@@ -334,12 +367,18 @@ class TodaySchedulePage extends StatelessWidget {
             Text(
               '$count',
               style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold, color: color),
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
             ),
             const SizedBox(height: 2),
-            Text(label,
-                style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                maxLines: 1),
+            Text(
+              label,
+              style: AppText.bodySmall.copyWith(fontSize: 11),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),
@@ -350,7 +389,7 @@ class TodaySchedulePage extends StatelessWidget {
     final cubit = context.read<MedicineCubit>();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -363,10 +402,10 @@ class TodaySchedulePage extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 42,
-                height: 42,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.medicineCareColor.withValues(alpha: 0.12),
+                  color: AppColors.medicineCareColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Center(
@@ -383,8 +422,7 @@ class TodaySchedulePage extends StatelessWidget {
                   children: [
                     Text(
                       dose.medicine.name,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                      style: AppText.h3.copyWith(fontSize: 16),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -400,7 +438,9 @@ class TodaySchedulePage extends StatelessWidget {
                   Text(
                     _formatTime12Hour(dose.scheduledTime),
                     style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.bold),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   _statusBadge(dose.status),
@@ -412,73 +452,102 @@ class TodaySchedulePage extends StatelessWidget {
           // Show Action buttons if dose is pending or snoozed
           if (dose.isPending) ...[
             const SizedBox(height: 12),
-            const Divider(height: 1),
-            const SizedBox(height: 8),
+            Divider(
+              height: 1,
+              color: AppColors.cardBorder.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton.icon(
                   onPressed: () => _showSkipDialog(context, dose),
-                  icon: Icon(Icons.close_rounded,
-                      size: 16, color: AppColors.textMuted),
-                  label: Text('Skip',
-                      style: TextStyle(color: AppColors.textMuted)),
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: AppColors.textMuted,
+                  ),
+                  label: Text(
+                    'Skip',
+                    style: TextStyle(color: AppColors.textMuted),
+                  ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: 6),
                 TextButton.icon(
                   onPressed: () async {
                     await cubit.snoozeDose(dose, minutes: 15);
                     if (context.mounted) {
-                      showToast(context, 'Snoozed for 15 minutes',
-                          type: ToastType.info);
+                      showToast(
+                        context,
+                        'Snoozed for 15 minutes',
+                        type: ToastType.info,
+                      );
                     }
                   },
-                  icon: const Icon(Icons.snooze_rounded,
-                      size: 16, color: AppColors.accent),
-                  label: const Text('Snooze',
-                      style: TextStyle(color: AppColors.accent)),
+                  icon: const Icon(
+                    Icons.snooze_rounded,
+                    size: 16,
+                    color: AppColors.accent,
+                  ),
+                  label: const Text(
+                    'Snooze',
+                    style: TextStyle(color: AppColors.accent),
+                  ),
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.safeGreen,
+                    minimumSize: const Size(100, 42),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                   ),
                   onPressed: () async {
                     await cubit.markDoseTaken(dose);
                     if (context.mounted) {
-                      showToast(context, 'Marked as taken!',
-                          type: ToastType.success);
+                      showToast(
+                        context,
+                        'Marked as taken!',
+                        type: ToastType.success,
+                      );
                     }
                   },
-                  icon: const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 16),
-                  label: const Text('Taken',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  icon: const Icon(
+                    Icons.check_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  label: const Text(
+                    'Taken',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ],
             ),
           ] else if (dose.isTaken && dose.actionTime != null) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Confirmed at ${DateFormat('hh:mm a').format(DateTime.parse(dose.actionTime!))}',
               style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.safeGreen,
-                  fontWeight: FontWeight.w600),
+                fontSize: 12,
+                color: AppColors.safeGreen,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ] else if (dose.isSkipped && dose.skipReason != null) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 8),
             Text(
               'Reason: ${dose.skipReason}',
               style: TextStyle(
-                  fontSize: 11,
-                  color: AppColors.textMuted,
-                  fontStyle: FontStyle.italic),
+                fontSize: 12,
+                color: AppColors.textMuted,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           ],
         ],
@@ -493,42 +562,42 @@ class TodaySchedulePage extends StatelessWidget {
 
     switch (status) {
       case DoseStatus.taken:
-        bg = AppColors.safeGreen.withValues(alpha: 0.15);
+        bg = AppColors.safeGreen.withValues(alpha: 0.12);
         fg = AppColors.safeGreen;
         label = 'Taken';
         break;
       case DoseStatus.snoozed:
-        bg = AppColors.accent.withValues(alpha: 0.15);
+        bg = AppColors.accent.withValues(alpha: 0.12);
         fg = AppColors.accent;
         label = 'Snoozed';
         break;
       case DoseStatus.skipped:
-        bg = Colors.grey.withValues(alpha: 0.15);
+        bg = Colors.grey.withValues(alpha: 0.12);
         fg = AppColors.textMuted;
         label = 'Skipped';
         break;
       case DoseStatus.unconfirmed:
       case DoseStatus.missed:
-        bg = AppColors.dangerRed.withValues(alpha: 0.15);
+        bg = AppColors.dangerRed.withValues(alpha: 0.12);
         fg = AppColors.dangerRed;
         label = 'Unconfirmed';
         break;
       case DoseStatus.pending:
-        bg = AppColors.infoBlue.withValues(alpha: 0.15);
-        fg = AppColors.infoBlue;
+        bg = AppColors.primary.withValues(alpha: 0.12);
+        fg = AppColors.primary;
         label = 'Upcoming';
         break;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: fg),
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: fg),
       ),
     );
   }

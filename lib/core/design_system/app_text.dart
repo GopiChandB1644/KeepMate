@@ -22,6 +22,7 @@ class AppText {
         fontSize: 17,
         fontWeight: FontWeight.w600,
         color: AppColors.textPrimary,
+        letterSpacing: -0.2,
       );
 
   static TextStyle get bodyLarge => TextStyle(
@@ -34,6 +35,7 @@ class AppText {
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
+        height: 1.4,
       );
 
   static TextStyle get bodySmall => TextStyle(
@@ -52,5 +54,27 @@ class AppText {
         fontSize: 15,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
+      );
+
+  // Accessible Elderly-Friendly Typography Helpers
+  static TextStyle get timeDisplayHero => TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.w800,
+        color: AppColors.textPrimary,
+        letterSpacing: -0.5,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  static TextStyle get timeDisplay => TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      );
+
+  static TextStyle get doseInstruction => TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
       );
 }

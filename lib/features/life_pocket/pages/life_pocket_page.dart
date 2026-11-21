@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
+import '../../../../core/design_system/app_text.dart';
 import '../../../../core/enums/item_enums.dart';
 import '../../../../shared/widgets/widgets.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
@@ -27,12 +28,20 @@ class _LifePocketPageState extends State<LifePocketPage> {
         showBack: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.addItem,
-            extra: _selectedSubFilter ?? ItemSubcategory.bill),
+        onPressed: () => context.push(
+          AppRoutes.addItem,
+          extra: _selectedSubFilter ?? ItemSubcategory.bill,
+        ),
         backgroundColor: AppColors.lifePocketColor,
         icon: const Icon(Icons.add_rounded, color: Colors.white),
-        label: const Text('Add Bill / Warranty',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Add Bill / Warranty',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+          ),
+        ),
       ),
       body: BlocBuilder<ItemsCubit, ItemsState>(
         builder: (context, state) {
@@ -45,67 +54,122 @@ class _LifePocketPageState extends State<LifePocketPage> {
                   .where((e) => e.subcategory == _selectedSubFilter)
                   .toList();
 
+          final activeCount =
+              displayed.where((e) => e.status == ItemStatus.active).length;
+          final urgentCount = displayed
+              .where((e) =>
+                  e.status == ItemStatus.dueToday ||
+                  e.status == ItemStatus.expired)
+              .length;
+
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Subcategory Filter Chips
+              // Clean Filter Chips Bar
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Row(
                   children: [
-                    FilterChip(
-                      label: const Text('All'),
+                    _filterChip(
+                      label: 'All (${lifePocketItems.length})',
                       selected: _selectedSubFilter == null,
-                      onSelected: (_) =>
+                      onSelected: () =>
                           setState(() => _selectedSubFilter = null),
                     ),
                     const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('⚡ Bills'),
+                    _filterChip(
+                      label: 'Bills',
+                      icon: Icons.receipt_long_outlined,
                       selected: _selectedSubFilter == ItemSubcategory.bill,
-                      onSelected: (_) => setState(
+                      onSelected: () => setState(
                           () => _selectedSubFilter = ItemSubcategory.bill),
                     ),
                     const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('🛡️ Warranties'),
+                    _filterChip(
+                      label: 'Warranties',
+                      icon: Icons.verified_user_outlined,
                       selected: _selectedSubFilter == ItemSubcategory.warranty,
-                      onSelected: (_) => setState(
+                      onSelected: () => setState(
                           () => _selectedSubFilter = ItemSubcategory.warranty),
                     ),
                     const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('🩺 Insurance'),
+                    _filterChip(
+                      label: 'Insurance',
+                      icon: Icons.health_and_safety_outlined,
                       selected: _selectedSubFilter == ItemSubcategory.insurance,
-                      onSelected: (_) => setState(
+                      onSelected: () => setState(
                           () => _selectedSubFilter = ItemSubcategory.insurance),
                     ),
                     const SizedBox(width: 8),
-                    FilterChip(
-                      label: const Text('🔁 Subscriptions'),
+                    _filterChip(
+                      label: 'Subscriptions',
+                      icon: Icons.autorenew_rounded,
                       selected:
                           _selectedSubFilter == ItemSubcategory.subscription,
-                      onSelected: (_) => setState(() =>
+                      onSelected: () => setState(() =>
                           _selectedSubFilter = ItemSubcategory.subscription),
                     ),
                   ],
                 ),
               ),
 
+              // Summary bar if items present
+              if (displayed.isNotEmpty)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${displayed.length} items',
+                        style: AppText.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          if (urgentCount > 0) ...[
+                            Text(
+                              '$urgentCount need attention',
+                              style: AppText.bodySmall.copyWith(
+                                color: AppColors.dangerRed,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Text(
+                            '$activeCount active',
+                            style: AppText.bodySmall.copyWith(
+                              color: AppColors.safeGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
               Expanded(
                 child: displayed.isEmpty
                     ? EmptyStateView(
-                        icon: Icons.account_balance_wallet_rounded,
+                        icon: Icons.account_balance_wallet_outlined,
                         title: 'No items in LifePocket',
                         description:
-                            'Never miss an electricity bill, wifi payment, or warranty expiry again.',
+                            'Never miss an electricity bill, wifi payment, or appliance warranty expiry again.',
                         actionLabel: 'Add First Item',
-                        onAction: () => context.push(AppRoutes.addItem,
-                            extra: _selectedSubFilter ?? ItemSubcategory.bill),
+                        onAction: () => context.push(
+                          AppRoutes.addItem,
+                          extra: _selectedSubFilter ?? ItemSubcategory.bill,
+                        ),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                        padding: const EdgeInsets.fromLTRB(16, 6, 16, 88),
                         itemCount: displayed.length,
                         itemBuilder: (context, index) {
                           final item = displayed[index];
@@ -132,6 +196,42 @@ class _LifePocketPageState extends State<LifePocketPage> {
           );
         },
       ),
+    );
+  }
+
+  Widget _filterChip({
+    required String label,
+    IconData? icon,
+    required bool selected,
+    required VoidCallback onSelected,
+  }) {
+    return ChoiceChip(
+      showCheckmark: false,
+      avatar: icon != null
+          ? Icon(
+              icon,
+              size: 15,
+              color: selected
+                  ? AppColors.lifePocketColor
+                  : AppColors.textSecondary,
+            )
+          : null,
+      label: Text(label),
+      selected: selected,
+      selectedColor: AppColors.lifePocketColor.withValues(alpha: 0.12),
+      backgroundColor: AppColors.surface,
+      side: BorderSide(
+        color: selected
+            ? AppColors.lifePocketColor.withValues(alpha: 0.6)
+            : AppColors.cardBorder,
+      ),
+      labelStyle: TextStyle(
+        fontSize: 12.5,
+        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+        color: selected ? AppColors.lifePocketColor : AppColors.textPrimary,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      onSelected: (_) => onSelected(),
     );
   }
 }

@@ -92,8 +92,8 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                       alignment: Alignment.center,
                       children: [
                         SizedBox(
-                          width: 64,
-                          height: 64,
+                          width: 68,
+                          height: 68,
                           child: CircularProgressIndicator(
                             value: totalActioned > 0
                                 ? (takenCount / totalActioned)
@@ -101,17 +101,20 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                             strokeWidth: 6,
                             backgroundColor: AppColors.cardBorder,
                             valueColor: const AlwaysStoppedAnimation<Color>(
-                                AppColors.safeGreen),
+                              AppColors.safeGreen,
+                            ),
                           ),
                         ),
                         Text(
                           '$adherencePercent%',
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 18),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +122,9 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                           const Text(
                             'Medication Adherence',
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -146,7 +151,7 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                 ],
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               ...filtered.map((item) => _buildHistoryCard(item)),
             ],
@@ -159,17 +164,22 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
   Widget _filterChip(String code, String label) {
     final isSel = _selectedFilter == code;
     return ChoiceChip(
+      showCheckmark: false,
       label: Text(label),
       selected: isSel,
-      selectedColor: AppColors.medicineCareColor.withValues(alpha: 0.18),
+      selectedColor: AppColors.medicineCareColor.withValues(alpha: 0.12),
       backgroundColor: AppColors.surface,
       labelStyle: TextStyle(
-        fontSize: 12,
-        fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-        color: isSel ? AppColors.medicineCareColor : AppColors.textSecondary,
+        fontSize: 12.5,
+        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+        color: isSel ? AppColors.medicineCareColor : AppColors.textPrimary,
       ),
       side: BorderSide(
-          color: isSel ? AppColors.medicineCareColor : AppColors.cardBorder),
+        color: isSel
+            ? AppColors.medicineCareColor.withValues(alpha: 0.6)
+            : AppColors.cardBorder,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       onSelected: (val) {
         if (val) setState(() => _selectedFilter = code);
       },
@@ -181,18 +191,28 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.cardBorder),
       ),
       child: Row(
         children: [
-          Icon(
-            isTaken ? Icons.check_circle_rounded : Icons.cancel_rounded,
-            color: isTaken ? AppColors.safeGreen : AppColors.textMuted,
-            size: 24,
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: isTaken
+                  ? AppColors.safeGreen.withValues(alpha: 0.1)
+                  : Colors.grey.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              isTaken ? Icons.check_circle_rounded : Icons.cancel_rounded,
+              color: isTaken ? AppColors.safeGreen : AppColors.textMuted,
+              size: 22,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -202,7 +222,9 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                 Text(
                   dose.medicine.name,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -210,20 +232,21 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
                   style: AppText.bodySmall,
                 ),
                 if (!isTaken && dose.skipReason != null) ...[
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     'Reason: ${dose.skipReason}',
                     style: TextStyle(
-                        fontSize: 11,
-                        color: AppColors.textMuted,
-                        fontStyle: FontStyle.italic),
+                      fontSize: 12,
+                      color: AppColors.textMuted,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ],
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
             decoration: BoxDecoration(
               color: isTaken
                   ? AppColors.safeGreen.withValues(alpha: 0.12)
@@ -234,7 +257,7 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
               isTaken ? 'Taken' : 'Skipped',
               style: TextStyle(
                 fontSize: 11,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w700,
                 color: isTaken ? AppColors.safeGreen : AppColors.textMuted,
               ),
             ),

@@ -19,20 +19,40 @@ class VaultPage extends StatelessWidget {
     final cubit = context.read<VaultCubit>();
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Add File to Vault', style: AppText.h3),
-              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text('Add File to Vault', style: AppText.h3),
+              ),
+              const SizedBox(height: 12),
               ListTile(
-                leading: const Icon(Icons.camera_alt_rounded,
-                    color: AppColors.primary),
-                title: const Text('Take a Photo'),
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                ),
+                title: const Text(
+                  'Take a Photo',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: const Text('Capture document with camera'),
                 onTap: () async {
                   Navigator.pop(ctx);
@@ -44,17 +64,34 @@ class VaultPage extends StatelessWidget {
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(
-                        picked.path,
-                        purpose: ImagePurpose.document);
+                      picked.path,
+                      purpose: ImagePurpose.document,
+                    );
                     await cubit.uploadDocument(
-                        file: File(compressed), source: 'camera');
+                      file: File(compressed),
+                      source: 'camera',
+                    );
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library_rounded,
-                    color: AppColors.secondary),
-                title: const Text('Choose Photo from Gallery'),
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.safeGreenSubtle,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.photo_library_outlined,
+                    color: AppColors.secondary,
+                    size: 20,
+                  ),
+                ),
+                title: const Text(
+                  'Choose Photo from Gallery',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: const Text('Pick existing image from device'),
                 onTap: () async {
                   Navigator.pop(ctx);
@@ -66,17 +103,34 @@ class VaultPage extends StatelessWidget {
                   );
                   if (picked != null) {
                     final compressed = await ImageCompressor.compress(
-                        picked.path,
-                        purpose: ImagePurpose.document);
+                      picked.path,
+                      purpose: ImagePurpose.document,
+                    );
                     await cubit.uploadDocument(
-                        file: File(compressed), source: 'gallery');
+                      file: File(compressed),
+                      source: 'gallery',
+                    );
                   }
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.picture_as_pdf_rounded,
-                    color: AppColors.dangerRed),
-                title: const Text('Select PDF Document'),
+                leading: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColors.dangerRedSubtle,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    Icons.picture_as_pdf_outlined,
+                    color: AppColors.dangerRed,
+                    size: 20,
+                  ),
+                ),
+                title: const Text(
+                  'Select PDF Document',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
                 subtitle: const Text('Upload PDF document'),
                 onTap: () async {
                   Navigator.pop(ctx);
@@ -86,8 +140,9 @@ class VaultPage extends StatelessWidget {
                   );
                   if (result != null && result.files.single.path != null) {
                     await cubit.uploadDocument(
-                        file: File(result.files.single.path!),
-                        source: 'pdf_picker');
+                      file: File(result.files.single.path!),
+                      source: 'pdf_picker',
+                    );
                   }
                 },
               ),
@@ -150,8 +205,14 @@ class VaultPage extends StatelessWidget {
         onPressed: () => _pickAndUpload(context),
         backgroundColor: AppColors.vaultColor,
         icon: const Icon(Icons.upload_file_rounded, color: Colors.white),
-        label: const Text('Add Document',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text(
+          'Add Document',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 14,
+          ),
+        ),
       ),
       body: BlocBuilder<VaultCubit, VaultState>(
         builder: (context, state) {
@@ -160,22 +221,59 @@ class VaultPage extends StatelessWidget {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                 child: TextField(
                   onChanged: (val) => context.read<VaultCubit>().search(val),
                   decoration: InputDecoration(
                     hintText: 'Search files in vault...',
-                    prefixIcon: const Icon(Icons.search_rounded),
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
                     contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     fillColor: AppColors.surface,
                   ),
                 ),
               ),
+              if (docs.isNotEmpty)
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${docs.length} stored documents',
+                        style: AppText.bodySmall.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.lock_outline_rounded,
+                            size: 13,
+                            color: AppColors.safeGreen,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Encrypted On-Device',
+                            style: AppText.bodySmall.copyWith(
+                              color: AppColors.safeGreen,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               Expanded(
                 child: docs.isEmpty
                     ? EmptyStateView(
-                        icon: Icons.folder_zip_rounded,
+                        icon: Icons.folder_zip_outlined,
                         title: 'Vault is empty',
                         description:
                             'Store insurance policies, receipts, IDs and bills securely on your device.',
@@ -183,39 +281,84 @@ class VaultPage extends StatelessWidget {
                         onAction: () => _pickAndUpload(context),
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 88),
                         itemCount: docs.length,
                         itemBuilder: (context, index) {
                           final doc = docs[index];
                           final isPdf =
                               doc.fileName.toLowerCase().endsWith('.pdf');
-                          return Card(
+                          return Container(
                             margin: const EdgeInsets.only(bottom: 10),
-                            child: ListTile(
-                              leading: Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: (isPdf
-                                          ? AppColors.dangerRed
-                                          : AppColors.primary)
-                                      .withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Icon(
-                                  isPdf
-                                      ? Icons.picture_as_pdf_rounded
-                                      : Icons.image_rounded,
-                                  color: isPdf
-                                      ? AppColors.dangerRed
-                                      : AppColors.primary,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppColors.cardBorder),
+                            ),
+                            child: Material(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => _previewDocument(context, doc),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 44,
+                                        height: 44,
+                                        decoration: BoxDecoration(
+                                          color: (isPdf
+                                                  ? AppColors.dangerRed
+                                                  : AppColors.primary)
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Icon(
+                                          isPdf
+                                              ? Icons.picture_as_pdf_rounded
+                                              : Icons.image_rounded,
+                                          color: isPdf
+                                              ? AppColors.dangerRed
+                                              : AppColors.primary,
+                                          size: 22,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              doc.fileName,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppText.h3
+                                                  .copyWith(fontSize: 15),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '${(doc.fileSize / 1024).toStringAsFixed(1)} KB • Stored Locally',
+                                              style: AppText.bodySmall,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.visibility_outlined,
+                                          size: 20,
+                                        ),
+                                        tooltip: 'View Document',
+                                        onPressed: () =>
+                                            _previewDocument(context, doc),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              title: Text(doc.fileName,
-                                  maxLines: 1, overflow: TextOverflow.ellipsis),
-                              subtitle: Text(
-                                  '${(doc.fileSize / 1024).toStringAsFixed(1)} KB • Stored Locally'),
-                              trailing: const Icon(Icons.visibility_rounded),
-                              onTap: () => _previewDocument(context, doc),
                             ),
                           );
                         },

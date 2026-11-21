@@ -137,7 +137,8 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
       context: context,
       backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -299,623 +300,666 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
           children: [
             // Safety Disclaimer Banner
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: AppColors.medicineCareColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                    color: AppColors.medicineCareColor.withValues(alpha: 0.2)),
+                  color: AppColors.medicineCareColor.withValues(alpha: 0.2),
+                ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.health_and_safety_rounded,
-                      color: AppColors.medicineCareColor, size: 22),
+                  const Icon(
+                    Icons.health_and_safety_rounded,
+                    color: AppColors.medicineCareColor,
+                    size: 22,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Please follow your doctor\'s prescription. KeepRemind records your schedule and does not recommend dosages.',
-                      style: AppText.bodySmall
-                          .copyWith(color: AppColors.textPrimary, height: 1.3),
+                      style: AppText.bodySmall.copyWith(
+                        color: AppColors.textPrimary,
+                        height: 1.35,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 20),
-
-            // Medicine Name
-            Text('Medicine Name *', style: AppText.h3),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                hintText: 'e.g. Paracetamol, Metformin, Shelcal',
-                prefixIcon: const Icon(Icons.medication_rounded,
-                    color: AppColors.medicineCareColor),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Please enter medicine name'
-                  : null,
-            ),
-
             const SizedBox(height: 18),
 
-            // Medicine Type Chips
-            Text('Medicine Type', style: AppText.h3),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: MedicineType.values.map((type) {
-                final isSel = _selectedType == type;
-                return ChoiceChip(
-                  label: Text('${type.icon} ${type.label}'),
-                  selected: isSel,
-                  selectedColor:
-                      AppColors.medicineCareColor.withValues(alpha: 0.2),
-                  backgroundColor: AppColors.surface,
-                  labelStyle: TextStyle(
-                    fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                    color: isSel
-                        ? AppColors.medicineCareColor
-                        : AppColors.textSecondary,
-                  ),
-                  side: BorderSide(
-                    color: isSel
-                        ? AppColors.medicineCareColor
-                        : AppColors.cardBorder,
-                  ),
-                  onSelected: (val) {
-                    if (val) setState(() => _selectedType = type);
-                  },
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 18),
-
-            // Dosage
-            Text('Prescribed Dosage *', style: AppText.h3),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _dosageController,
-              decoration: InputDecoration(
-                hintText: 'e.g. 500 mg, 1 tablet, 5 ml, 2 drops',
-                prefixIcon:
-                    Icon(Icons.straighten_rounded, color: AppColors.textMuted),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Please enter prescribed dosage'
-                  : null,
-            ),
-
-            const SizedBox(height: 18),
-
-            // Food Instruction
-            Text('Meal Instructions', style: AppText.h3),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: MealInstruction.values.map((inst) {
-                final isSel = _mealInstruction == inst;
-                return ChoiceChip(
-                  label: Text('${inst.icon} ${inst.label}'),
-                  selected: isSel,
-                  selectedColor: AppColors.primary.withValues(alpha: 0.15),
-                  backgroundColor: AppColors.surface,
-                  labelStyle: TextStyle(
-                    fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                    color: isSel ? AppColors.primary : AppColors.textSecondary,
-                  ),
-                  side: BorderSide(
-                    color: isSel ? AppColors.primary : AppColors.cardBorder,
-                  ),
-                  onSelected: (val) {
-                    if (val) setState(() => _mealInstruction = inst);
-                  },
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Daily Schedule Timings
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // Card 1: Core Medicine Information
+            _sectionCard(
               children: [
-                Text('Daily Reminder Schedule', style: AppText.h3),
-                TextButton.icon(
-                  onPressed: _addNewDoseTime,
-                  icon: const Icon(Icons.add_rounded, size: 18),
-                  label: const Text('Add Time'),
+                Text('Medicine Name *', style: AppText.h3),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Paracetamol, Metformin, Shelcal',
+                    prefixIcon: const Icon(
+                      Icons.medication_rounded,
+                      color: AppColors.medicineCareColor,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Please enter medicine name'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                Text('Medicine Type', style: AppText.h3),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: MedicineType.values.map((type) {
+                    final isSel = _selectedType == type;
+                    return ChoiceChip(
+                      showCheckmark: false,
+                      label: Text('${type.icon} ${type.label}'),
+                      selected: isSel,
+                      selectedColor:
+                          AppColors.medicineCareColor.withValues(alpha: 0.15),
+                      backgroundColor: AppColors.surface,
+                      labelStyle: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        color: isSel
+                            ? AppColors.medicineCareColor
+                            : AppColors.textSecondary,
+                      ),
+                      side: BorderSide(
+                        color: isSel
+                            ? AppColors.medicineCareColor
+                            : AppColors.cardBorder,
+                      ),
+                      onSelected: (val) {
+                        if (val) setState(() => _selectedType = type);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                Text('Prescribed Dosage *', style: AppText.h3),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _dosageController,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. 500 mg, 1 tablet, 5 ml, 2 drops',
+                    prefixIcon: Icon(
+                      Icons.straighten_rounded,
+                      color: AppColors.textMuted,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Please enter prescribed dosage'
+                      : null,
+                ),
+                const SizedBox(height: 16),
+                Text('Meal Instructions', style: AppText.h3),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: MealInstruction.values.map((inst) {
+                    final isSel = _mealInstruction == inst;
+                    return ChoiceChip(
+                      showCheckmark: false,
+                      label: Text('${inst.icon} ${inst.label}'),
+                      selected: isSel,
+                      selectedColor: AppColors.primary.withValues(alpha: 0.15),
+                      backgroundColor: AppColors.surface,
+                      labelStyle: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                        color:
+                            isSel ? AppColors.primary : AppColors.textSecondary,
+                      ),
+                      side: BorderSide(
+                        color: isSel ? AppColors.primary : AppColors.cardBorder,
+                      ),
+                      onSelected: (val) {
+                        if (val) setState(() => _mealInstruction = inst);
+                      },
+                    );
+                  }).toList(),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
 
-            ..._doseTimes.asMap().entries.map((entry) {
-              final index = entry.key;
-              final timeStr = entry.value;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.cardBorder),
-                ),
-                child: Row(
+            const SizedBox(height: 16),
+
+            // Card 2: Schedule Timings
+            _sectionCard(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.alarm_rounded,
-                        color: AppColors.medicineCareColor, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _formatTime12Hour(timeStr),
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+                    Text('Daily Reminder Schedule', style: AppText.h3),
+                    TextButton.icon(
+                      onPressed: _addNewDoseTime,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('Add Time'),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined, size: 20),
-                      tooltip: 'Change Time',
-                      onPressed: () => _pickTime(index),
-                    ),
-                    if (_doseTimes.length > 1)
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded,
-                            size: 20, color: AppColors.dangerRed),
-                        tooltip: 'Remove',
-                        onPressed: () =>
-                            setState(() => _doseTimes.removeAt(index)),
-                      ),
                   ],
                 ),
-              );
-            }),
+                const SizedBox(height: 8),
 
-            const SizedBox(height: 18),
-
-            // Start & End Date
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Start Date', style: AppText.h3),
-                      const SizedBox(height: 6),
-                      InkWell(
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _startDate,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime(2035),
-                          );
-                          if (picked != null) {
-                            setState(() => _startDate = picked);
-                          }
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.cardBorder),
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.surface,
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.calendar_today_rounded,
-                                  size: 18, color: AppColors.primary),
-                              const SizedBox(width: 8),
-                              Text(DateFormat('dd MMM yyyy').format(_startDate),
-                                  style: AppText.bodyMedium),
-                            ],
+                ..._doseTimes.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final timeStr = entry.value;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.alarm_rounded,
+                            color: AppColors.medicineCareColor, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _formatTime12Hour(timeStr),
+                            style: AppText.timeDisplay.copyWith(fontSize: 17),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('End Date (Optional)', style: AppText.h3),
-                      const SizedBox(height: 6),
-                      InkWell(
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: context,
-                            initialDate: _endDate ??
-                                _startDate.add(const Duration(days: 7)),
-                            firstDate: _startDate,
-                            lastDate: DateTime(2035),
-                          );
-                          if (picked != null) setState(() => _endDate = picked);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AppColors.cardBorder),
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.surface,
+                        IconButton(
+                          icon: const Icon(Icons.edit_outlined, size: 20),
+                          tooltip: 'Change Time',
+                          onPressed: () => _pickTime(index),
+                        ),
+                        if (_doseTimes.length > 1)
+                          IconButton(
+                            icon: const Icon(Icons.close_rounded,
+                                size: 20, color: AppColors.dangerRed),
+                            tooltip: 'Remove',
+                            onPressed: () =>
+                                setState(() => _doseTimes.removeAt(index)),
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.event_available_rounded,
-                                  size: 18, color: AppColors.accent),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _endDate != null
-                                      ? DateFormat('dd MMM yyyy')
-                                          .format(_endDate!)
-                                      : 'Ongoing',
-                                  style: AppText.bodyMedium,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                      ],
+                    ),
+                  );
+                }),
+
+                const SizedBox(height: 14),
+
+                // Start & End Date
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Start Date', style: AppText.label),
+                          const SizedBox(height: 6),
+                          InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: _startDate,
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2035),
+                              );
+                              if (picked != null) {
+                                setState(() => _startDate = picked);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.cardBorder),
+                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.surface,
                               ),
-                              if (_endDate != null)
-                                GestureDetector(
-                                  onTap: () => setState(() => _endDate = null),
-                                  child: Icon(Icons.clear_rounded,
-                                      size: 16, color: AppColors.textMuted),
-                                ),
-                            ],
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_today_rounded,
+                                      size: 16, color: AppColors.primary),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    DateFormat('dd MMM yyyy')
+                                        .format(_startDate),
+                                    style: AppText.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('End Date (Optional)', style: AppText.label),
+                          const SizedBox(height: 6),
+                          InkWell(
+                            onTap: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: _endDate ??
+                                    _startDate.add(const Duration(days: 7)),
+                                firstDate: _startDate,
+                                lastDate: DateTime(2035),
+                              );
+                              if (picked != null) {
+                                setState(() => _endDate = picked);
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.cardBorder),
+                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.surface,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.event_available_rounded,
+                                      size: 16, color: AppColors.accent),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _endDate != null
+                                          ? DateFormat('dd MMM yyyy')
+                                              .format(_endDate!)
+                                          : 'Ongoing',
+                                      style: AppText.bodyMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (_endDate != null)
+                                    GestureDetector(
+                                      onTap: () =>
+                                          setState(() => _endDate = null),
+                                      child: Icon(Icons.clear_rounded,
+                                          size: 16, color: AppColors.textMuted),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
 
-            // Doctor Name (Optional)
-            Text('Prescribed By (Doctor)', style: AppText.h3),
-            const SizedBox(height: 8),
-            TextFormField(
-              controller: _doctorController,
-              decoration: InputDecoration(
-                hintText: 'e.g. Dr. Ramesh Kumar, Cardiologist',
-                prefixIcon:
-                    Icon(Icons.person_pin_rounded, color: AppColors.textMuted),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            // Prescription Attachment
-            Text('Prescription Copy (Optional)', style: AppText.h3),
-            const SizedBox(height: 8),
-            InkWell(
-              onTap: _pickPrescriptionFile,
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: _prescriptionPath != null
-                        ? AppColors.safeGreen
-                        : AppColors.cardBorder,
-                    style: _prescriptionPath != null
-                        ? BorderStyle.solid
-                        : BorderStyle.solid,
+            // Card 3: Doctor & Prescription
+            _sectionCard(
+              children: [
+                Text('Prescribed By (Doctor)', style: AppText.h3),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _doctorController,
+                  decoration: InputDecoration(
+                    hintText: 'e.g. Dr. Ramesh Kumar, Cardiologist',
+                    prefixIcon: Icon(Icons.person_pin_rounded,
+                        color: AppColors.textMuted),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _prescriptionPath != null
-                          ? Icons.check_circle_rounded
-                          : Icons.attach_file_rounded,
-                      color: _prescriptionPath != null
-                          ? AppColors.safeGreen
-                          : AppColors.textMuted,
+                const SizedBox(height: 14),
+                Text('Prescription Copy (Optional)', style: AppText.h3),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: _pickPrescriptionFile,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceRaised,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: _prescriptionPath != null
+                            ? AppColors.safeGreen
+                            : AppColors.cardBorder,
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _prescriptionPath != null
-                            ? 'Attached: ${_prescriptionPath!.split(Platform.pathSeparator).last}'
-                            : 'Upload Prescription (Camera, Gallery, or PDF)',
-                        style: TextStyle(
+                    child: Row(
+                      children: [
+                        Icon(
+                          _prescriptionPath != null
+                              ? Icons.check_circle_rounded
+                              : Icons.attach_file_rounded,
                           color: _prescriptionPath != null
                               ? AppColors.safeGreen
-                              : AppColors.textSecondary,
-                          fontWeight: _prescriptionPath != null
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                              : AppColors.textMuted,
                         ),
-                        overflow: TextOverflow.ellipsis,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            _prescriptionPath != null
+                                ? 'Attached: ${_prescriptionPath!.split(Platform.pathSeparator).last}'
+                                : 'Upload Prescription (Camera, Gallery, or PDF)',
+                            style: TextStyle(
+                              color: _prescriptionPath != null
+                                  ? AppColors.safeGreen
+                                  : AppColors.textSecondary,
+                              fontWeight: _prescriptionPath != null
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (_prescriptionPath != null)
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded,
+                                color: AppColors.dangerRed, size: 20),
+                            onPressed: () =>
+                                setState(() => _prescriptionPath = null),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Card 4: Reminder Mode (Notification vs Alarm)
+            _sectionCard(
+              children: [
+                Text('Reminder Type', style: AppText.h3),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(() =>
+                            _reminderMode = MedicineReminderMode.notification),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: _reminderMode ==
+                                    MedicineReminderMode.notification
+                                ? AppColors.primarySubtle
+                                : AppColors.surfaceRaised,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: _reminderMode ==
+                                      MedicineReminderMode.notification
+                                  ? AppColors.primary
+                                  : AppColors.cardBorder,
+                              width: _reminderMode ==
+                                      MedicineReminderMode.notification
+                                  ? 1.5
+                                  : 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.notifications_active_outlined,
+                                    color: _reminderMode ==
+                                            MedicineReminderMode.notification
+                                        ? AppColors.primary
+                                        : AppColors.textSecondary,
+                                    size: 22,
+                                  ),
+                                  const Spacer(),
+                                  if (_reminderMode ==
+                                      MedicineReminderMode.notification)
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: AppColors.primary, size: 18),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Notification',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: _reminderMode ==
+                                          MedicineReminderMode.notification
+                                      ? AppColors.primary
+                                      : AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Normal alert & sound',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    if (_prescriptionPath != null)
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline_rounded,
-                            color: AppColors.dangerRed, size: 20),
-                        onPressed: () =>
-                            setState(() => _prescriptionPath = null),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: InkWell(
+                        onTap: () => setState(
+                            () => _reminderMode = MedicineReminderMode.alarm),
+                        borderRadius: BorderRadius.circular(14),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: _reminderMode == MedicineReminderMode.alarm
+                                ? AppColors.medicineCareColor
+                                    .withValues(alpha: 0.12)
+                                : AppColors.surfaceRaised,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: _reminderMode == MedicineReminderMode.alarm
+                                  ? AppColors.medicineCareColor
+                                  : AppColors.cardBorder,
+                              width: _reminderMode == MedicineReminderMode.alarm
+                                  ? 1.5
+                                  : 1,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.alarm_rounded,
+                                    color: _reminderMode ==
+                                            MedicineReminderMode.alarm
+                                        ? AppColors.medicineCareColor
+                                        : AppColors.textSecondary,
+                                    size: 22,
+                                  ),
+                                  const Spacer(),
+                                  if (_reminderMode ==
+                                      MedicineReminderMode.alarm)
+                                    const Icon(Icons.check_circle_rounded,
+                                        color: AppColors.medicineCareColor,
+                                        size: 18),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Alarm Mode',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
+                                  color: _reminderMode ==
+                                          MedicineReminderMode.alarm
+                                      ? AppColors.medicineCareColor
+                                      : AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Continuous ring & full-screen',
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                    ),
                   ],
                 ),
-              ),
+                if (_reminderMode == MedicineReminderMode.alarm) ...[
+                  const SizedBox(height: 14),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color:
+                            AppColors.medicineCareColor.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded,
+                                color: AppColors.medicineCareColor, size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Alarm Mode rings continuously on lock-screen with Stop, Snooze & Taken controls.',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Divider(height: 20),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Vibrate during alarm',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w700)),
+                          subtitle: const Text('Rhythmic vibration pattern',
+                              style: TextStyle(fontSize: 12)),
+                          value: _vibrationEnabled,
+                          onChanged: (val) =>
+                              setState(() => _vibrationEnabled = val),
+                        ),
+                        const Divider(height: 20),
+                        Text('Snooze Duration', style: AppText.label),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: [5, 10, 15].map((mins) {
+                            final isSel = _snoozeDurationMinutes == mins;
+                            return ChoiceChip(
+                              showCheckmark: false,
+                              label: Text('$mins mins'),
+                              selected: isSel,
+                              selectedColor: AppColors.medicineCareColor
+                                  .withValues(alpha: 0.15),
+                              onSelected: (_) =>
+                                  setState(() => _snoozeDurationMinutes = mins),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 12),
+                        Text('Maximum Ringing Duration', style: AppText.label),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: [5, 10, 15].map((mins) {
+                            final isSel =
+                                _maximumRingingDurationMinutes == mins;
+                            return ChoiceChip(
+                              showCheckmark: false,
+                              label: Text('$mins mins'),
+                              selected: isSel,
+                              selectedColor: AppColors.medicineCareColor
+                                  .withValues(alpha: 0.15),
+                              onSelected: (_) => setState(
+                                  () => _maximumRingingDurationMinutes = mins),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
             ),
 
             const SizedBox(height: 24),
 
-            // Reminder Type: Notification vs Alarm
-            Text('Reminder Type', style: AppText.h3),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () => setState(() =>
-                        _reminderMode = MedicineReminderMode.notification),
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color:
-                            _reminderMode == MedicineReminderMode.notification
-                                ? AppColors.primary.withValues(alpha: 0.12)
-                                : AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color:
-                              _reminderMode == MedicineReminderMode.notification
-                                  ? AppColors.primary
-                                  : AppColors.cardBorder,
-                          width:
-                              _reminderMode == MedicineReminderMode.notification
-                                  ? 2
-                                  : 1,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.notifications_active_rounded,
-                                color: _reminderMode ==
-                                        MedicineReminderMode.notification
-                                    ? AppColors.primary
-                                    : AppColors.textSecondary,
-                                size: 22,
-                              ),
-                              const Spacer(),
-                              if (_reminderMode ==
-                                  MedicineReminderMode.notification)
-                                const Icon(Icons.check_circle_rounded,
-                                    color: AppColors.primary, size: 20),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Notification',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: _reminderMode ==
-                                      MedicineReminderMode.notification
-                                  ? AppColors.primary
-                                  : AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Normal alert & sound',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: InkWell(
-                    onTap: () => setState(
-                        () => _reminderMode = MedicineReminderMode.alarm),
-                    borderRadius: BorderRadius.circular(14),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: _reminderMode == MedicineReminderMode.alarm
-                            ? AppColors.medicineCareColor
-                                .withValues(alpha: 0.12)
-                            : AppColors.surface,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: _reminderMode == MedicineReminderMode.alarm
-                              ? AppColors.medicineCareColor
-                              : AppColors.cardBorder,
-                          width: _reminderMode == MedicineReminderMode.alarm
-                              ? 2
-                              : 1,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.alarm_rounded,
-                                color:
-                                    _reminderMode == MedicineReminderMode.alarm
-                                        ? AppColors.medicineCareColor
-                                        : AppColors.textSecondary,
-                                size: 22,
-                              ),
-                              const Spacer(),
-                              if (_reminderMode == MedicineReminderMode.alarm)
-                                const Icon(Icons.check_circle_rounded,
-                                    color: AppColors.medicineCareColor,
-                                    size: 20),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Alarm Mode',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                              color: _reminderMode == MedicineReminderMode.alarm
-                                  ? AppColors.medicineCareColor
-                                  : AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Continuous ring & full-screen',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            if (_reminderMode == MedicineReminderMode.alarm) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color:
-                          AppColors.medicineCareColor.withValues(alpha: 0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.touch_app_rounded,
-                            color: AppColors.medicineCareColor, size: 18),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Alarm Mode rings continuously on lock-screen with Stop, Snooze & Taken controls.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Divider(height: 24),
-                    // Vibration toggle
-                    SwitchListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('Vibrate during alarm',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Rhythmic vibration pattern',
-                          style: TextStyle(fontSize: 12)),
-                      value: _vibrationEnabled,
-                      onChanged: (val) =>
-                          setState(() => _vibrationEnabled = val),
-                    ),
-                    const Divider(height: 20),
-                    // Snooze interval
-                    Text('Snooze Duration', style: AppText.label),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: [5, 10, 15].map((mins) {
-                        final isSel = _snoozeDurationMinutes == mins;
-                        return ChoiceChip(
-                          label: Text('$mins mins'),
-                          selected: isSel,
-                          selectedColor: AppColors.medicineCareColor
-                              .withValues(alpha: 0.2),
-                          onSelected: (_) =>
-                              setState(() => _snoozeDurationMinutes = mins),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 14),
-                    // Maximum duration
-                    Text('Maximum Ringing Duration', style: AppText.label),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: [5, 10, 15].map((mins) {
-                        final isSel = _maximumRingingDurationMinutes == mins;
-                        return ChoiceChip(
-                          label: Text('$mins mins'),
-                          selected: isSel,
-                          selectedColor: AppColors.medicineCareColor
-                              .withValues(alpha: 0.2),
-                          onSelected: (_) => setState(
-                              () => _maximumRingingDurationMinutes = mins),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 28),
-
             // Save Button
             SizedBox(
               width: double.infinity,
-              height: 50,
+              height: 52,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.medicineCareColor,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
                 icon: const Icon(Icons.check_rounded, color: Colors.white),
                 label: Text(
                   isEdit ? 'Update Medicine' : 'Save Medicine Schedule',
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
                 ),
                 onPressed: _save,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _sectionCard({required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: children,
       ),
     );
   }

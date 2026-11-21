@@ -30,7 +30,7 @@ class AppColors {
     isDark = computeIsDark(mode, platformBrightness);
   }
 
-  // Brand primary colors (Modern Indigo & Emerald)
+  // Brand primary colors (Modern Indigo & Emerald) - Strictly Preserved
   static const Color primary = Color(0xFF2563EB); // Vibrant Blue
   static const Color primaryDark = Color(0xFF1D4ED8);
   static const Color secondary = Color(0xFF0D9488); // Teal
@@ -56,8 +56,30 @@ class AppColors {
       _p(const Color(0xFFFFFFFF), const Color(0xFF1E293B));
   static Color get surfaceRaised =>
       _p(const Color(0xFFF1F5F9), const Color(0xFF334155));
+  static Color get surfaceSubtle =>
+      _p(const Color(0xFFF8FAFC), const Color(0xFF162032));
   static Color get cardBorder =>
       _p(const Color(0xFFE2E8F0), const Color(0xFF334155));
+  static Color get cardBorderSubtle =>
+      _p(const Color(0xFFEEF2F6), const Color(0xFF263345));
+
+  // Subtle semantic surface tints (Calm, non-aggressive backgrounds)
+  static Color get primarySubtle => _p(
+        const Color(0xFFEFF6FF),
+        const Color(0xFF1E3A8A).withValues(alpha: 0.3),
+      );
+  static Color get safeGreenSubtle => _p(
+        const Color(0xFFECFDF5),
+        const Color(0xFF064E3B).withValues(alpha: 0.3),
+      );
+  static Color get warningOrangeSubtle => _p(
+        const Color(0xFFFFFBEB),
+        const Color(0xFF78350F).withValues(alpha: 0.3),
+      );
+  static Color get dangerRedSubtle => _p(
+        const Color(0xFFFEF2F2),
+        const Color(0xFF7F1D1D).withValues(alpha: 0.3),
+      );
 
   // Text Colors
   static Color get textPrimary =>

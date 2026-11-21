@@ -30,48 +30,65 @@ class SettingsPage extends StatelessWidget {
           final cubit = context.read<SettingsCubit>();
 
           return ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
             children: [
-              // App Identity Card
+              // 1. App Identity Card (Calm, dignified brand header)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(14),
+                      width: 52,
+                      height: 52,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
+                        color: AppColors.primarySubtle,
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(Icons.shield_rounded,
-                          color: Colors.white, size: 36),
+                      child: const Icon(
+                        Icons.shield_rounded,
+                        color: AppColors.primary,
+                        size: 28,
+                      ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            AppConstants.appName,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold),
+                          Row(
+                            children: [
+                              Text(
+                                AppConstants.appName,
+                                style: AppText.h2.copyWith(fontSize: 19),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primarySubtle,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'v${AppConstants.appVersion}',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 2),
                           Text(
                             AppConstants.appTagline,
-                            style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                fontSize: 13),
+                            style: AppText.bodySmall,
                           ),
                         ],
                       ),
@@ -80,9 +97,9 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              // Status Banner ("Everything is Safe!" / "X Items Need Attention")
+              // 2. Status Banner ("Everything is Safe!" / "X Items Need Attention")
               Builder(
                 builder: (context) {
                   ItemsState? itemsState;
@@ -98,45 +115,36 @@ class SettingsPage extends StatelessWidget {
                       (itemsState?.upcomingCount ?? 0) +
                       (itemsState?.expiredCount ?? 0);
 
+                  final bannerBg = isSafe
+                      ? AppColors.safeGreenSubtle
+                      : AppColors.warningOrangeSubtle;
+                  final bannerColor =
+                      isSafe ? AppColors.safeGreen : AppColors.warningOrange;
+
                   return Container(
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isSafe
-                            ? [const Color(0xFF10B981), const Color(0xFF059669)]
-                            : [
-                                const Color(0xFFF59E0B),
-                                const Color(0xFFDC2626)
-                              ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                      color: bannerBg,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: bannerColor.withValues(alpha: 0.3),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: (isSafe
-                                  ? const Color(0xFF10B981)
-                                  : const Color(0xFFDC2626))
-                              .withValues(alpha: 0.25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
                     ),
                     child: Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          width: 42,
+                          height: 42,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
+                            color: bannerColor.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
                             isSafe
                                 ? Icons.check_circle_rounded
                                 : Icons.priority_high_rounded,
-                            color: Colors.white,
-                            size: 30,
+                            color: bannerColor,
+                            size: 24,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -148,20 +156,19 @@ class SettingsPage extends StatelessWidget {
                                 isSafe
                                     ? 'Everything is Safe!'
                                     : '$attentionCount Items Need Attention',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
+                                style: TextStyle(
+                                  color: bannerColor,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(height: 3),
+                              const SizedBox(height: 2),
                               Text(
                                 isSafe
                                     ? 'No bills or products expiring soon.'
                                     : 'Due today or upcoming in the next 7 days.',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                  fontSize: 13,
+                                style: AppText.bodySmall.copyWith(
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -173,11 +180,14 @@ class SettingsPage extends StatelessWidget {
                 },
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Storage Info Section
-              Text('Device Storage', style: AppText.h3),
-              const SizedBox(height: 10),
+              // 3. Storage Info Section
+              Text(
+                'Device Storage',
+                style: AppText.h3.copyWith(fontSize: 16),
+              ),
+              const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -187,20 +197,29 @@ class SettingsPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _statRow(Icons.description_rounded, 'Items Tracked',
-                        '${state.totalItemsCount} records'),
-                    const Divider(),
-                    _statRow(Icons.folder_open_rounded, 'Documents Stored',
-                        '${state.totalDocumentsCount} files'),
-                    const Divider(),
-                    _statRow(Icons.storage_rounded, 'Storage Used',
-                        state.formattedStorageUsed),
+                    _statRow(
+                      Icons.description_outlined,
+                      'Items Tracked',
+                      '${state.totalItemsCount} records',
+                    ),
+                    const Divider(height: 16),
+                    _statRow(
+                      Icons.folder_open_outlined,
+                      'Documents Stored',
+                      '${state.totalDocumentsCount} files',
+                    ),
+                    const Divider(height: 16),
+                    _statRow(
+                      Icons.storage_rounded,
+                      'Storage Used',
+                      state.formattedStorageUsed,
+                    ),
                     const SizedBox(height: 12),
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
                         icon: const Icon(Icons.cleaning_services_rounded,
-                            size: 18),
+                            size: 16),
                         label: const Text('Clean Deleted Storage Cache'),
                         onPressed: () async {
                           final freed = await cubit.cleanOrphanedFiles();
@@ -222,11 +241,14 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Preferences Section
-              Text('Preferences', style: AppText.h3),
-              const SizedBox(height: 10),
+              // 4. Preferences Section
+              Text(
+                'Preferences',
+                style: AppText.h3.copyWith(fontSize: 16),
+              ),
+              const SizedBox(height: 8),
               Material(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
@@ -240,21 +262,34 @@ class SettingsPage extends StatelessWidget {
                     children: [
                       SwitchListTile(
                         secondary: const Icon(
-                            Icons.notifications_active_rounded,
-                            color: AppColors.primary),
-                        title: const Text('Expiry & Due Reminders'),
+                          Icons.notifications_active_outlined,
+                          color: AppColors.primary,
+                        ),
+                        title: const Text(
+                          'Expiry & Due Reminders',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
                         subtitle: const Text(
-                            'Receive alerts before bills or documents expire'),
+                          'Receive alerts before bills or documents expire',
+                          style: TextStyle(fontSize: 12),
+                        ),
                         value: state.notificationsEnabled,
                         onChanged: (val) => cubit.toggleNotifications(val),
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.access_time_filled_rounded,
+                        leading: const Icon(Icons.access_time_rounded,
                             color: AppColors.warningOrange),
-                        title: const Text('Daily Alert Time'),
+                        title: const Text(
+                          'Daily Alert Time',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
                         subtitle: Text(
-                            'Notifications arrive at ${AppDateUtils.formatTime12Hour(state.preferredReminderTime)}'),
+                          'Notifications arrive at ${AppDateUtils.formatTime12Hour(state.preferredReminderTime)}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         trailing: const Icon(Icons.chevron_right_rounded),
                         onTap: () async {
                           final parts = state.preferredReminderTime.split(':');
@@ -277,13 +312,19 @@ class SettingsPage extends StatelessWidget {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.notifications_active_outlined,
+                        leading: const Icon(Icons.notifications_outlined,
                             color: AppColors.freshCheckColor),
-                        title: const Text('Send Test Alert'),
+                        title: const Text(
+                          'Send Test Alert',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
                         subtitle: const Text(
-                            'Fire an instant notification to test heads-up banner & sound'),
+                          'Fire an instant notification to test heads-up banner & sound',
+                          style: TextStyle(fontSize: 12),
+                        ),
                         trailing: const Icon(Icons.send_rounded,
-                            size: 20, color: AppColors.freshCheckColor),
+                            size: 18, color: AppColors.freshCheckColor),
                         onTap: () async {
                           final notif = context.read<NotificationService>();
                           await notif.showNotification(
@@ -304,11 +345,17 @@ class SettingsPage extends StatelessWidget {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.alarm_rounded,
+                        leading: const Icon(Icons.alarm_outlined,
                             color: AppColors.medicineCareColor),
-                        title: const Text('Test Alarm Mode (3s Delay)'),
+                        title: const Text(
+                          'Test Alarm Mode (3s Delay)',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
                         subtitle: const Text(
-                            'Triggers native full-screen alarm & continuous ring'),
+                          'Triggers native full-screen alarm & continuous ring',
+                          style: TextStyle(fontSize: 12),
+                        ),
                         trailing: const Icon(Icons.play_circle_fill_rounded,
                             size: 20, color: AppColors.medicineCareColor),
                         onTap: () async {
@@ -340,10 +387,17 @@ class SettingsPage extends StatelessWidget {
                       ),
                       const Divider(height: 1),
                       ListTile(
-                        leading: const Icon(Icons.dark_mode_rounded,
+                        leading: const Icon(Icons.dark_mode_outlined,
                             color: AppColors.vaultColor),
-                        title: const Text('Appearance / Theme'),
-                        subtitle: Text(state.themeMode.name.toUpperCase()),
+                        title: const Text(
+                          'Appearance / Theme',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          state.themeMode.name.toUpperCase(),
+                          style: const TextStyle(fontSize: 12),
+                        ),
                         trailing: DropdownButton<ThemeMode>(
                           value: state.themeMode,
                           underline: const SizedBox.shrink(),
@@ -365,11 +419,14 @@ class SettingsPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Data Security & Backup Section
-              Text('Security & Backups', style: AppText.h3),
-              const SizedBox(height: 10),
+              // 5. Data Security & Backup Section
+              Text(
+                'Security & Backups',
+                style: AppText.h3.copyWith(fontSize: 16),
+              ),
+              const SizedBox(height: 8),
               Material(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
@@ -382,10 +439,17 @@ class SettingsPage extends StatelessWidget {
                   child: ListTile(
                     leading: const Icon(Icons.lock_reset_rounded,
                         color: AppColors.safeGreen),
-                    title: const Text('Backup & Restore (.kmb)'),
-                    subtitle: Text(state.lastBackupDate != null
-                        ? 'Last backup: ${AppDateUtils.formatDisplay(DateTime.tryParse(state.lastBackupDate!))}'
-                        : 'No backup created yet'),
+                    title: const Text(
+                      'Backup & Restore (.kmb)',
+                      style:
+                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    ),
+                    subtitle: Text(
+                      state.lastBackupDate != null
+                          ? 'Last backup: ${AppDateUtils.formatDisplay(DateTime.tryParse(state.lastBackupDate!))}'
+                          : 'No backup created yet',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                     trailing: const Icon(Icons.chevron_right_rounded),
                     onTap: () => context.push(AppRoutes.backupRestore),
                   ),
@@ -402,14 +466,17 @@ class SettingsPage extends StatelessWidget {
 
   Widget _statRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppColors.textSecondary),
+          Icon(icon, size: 18, color: AppColors.textSecondary),
           const SizedBox(width: 12),
           Text(label, style: AppText.bodyMedium),
           const Spacer(),
-          Text(value, style: AppText.h3),
+          Text(
+            value,
+            style: AppText.h3.copyWith(fontSize: 15),
+          ),
         ],
       ),
     );

@@ -25,6 +25,7 @@ class AppTheme {
       surface: Colors.white,
       onSurface: const Color(0xFF0F172A),
       outline: const Color(0xFFE2E8F0),
+      outlineVariant: const Color(0xFFEEF2F6),
     );
 
     return base.copyWith(
@@ -35,25 +36,41 @@ class AppTheme {
         backgroundColor: Colors.white,
         foregroundColor: Color(0xFF0F172A),
         centerTitle: false,
+        scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         titleTextStyle: TextStyle(
           fontSize: 19,
           fontWeight: FontWeight.w700,
           color: Color(0xFF0F172A),
+          letterSpacing: -0.2,
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         color: Colors.white,
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFFE2E8F0)),
         ),
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: const Color(0xFFF8FAFC),
+        selectedColor: const Color(0xFFEFF6FF),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        labelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF0F172A),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
       listTileTheme: const ListTileThemeData(
         tileColor: Colors.transparent,
         textColor: Color(0xFF0F172A),
         iconColor: Color(0xFF475569),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.white,
@@ -67,6 +84,11 @@ class AppTheme {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF0F172A),
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: Color(0xFFE2E8F0),
@@ -79,9 +101,21 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           minimumSize: const Size(double.infinity, 52),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.primary,
+          minimumSize: const Size(double.infinity, 50),
+          side: const BorderSide(color: Color(0xFFCBD5E1)),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -113,6 +147,7 @@ class AppTheme {
       surface: const Color(0xFF1E293B),
       onSurface: const Color(0xFFF8FAFC),
       outline: const Color(0xFF334155),
+      outlineVariant: const Color(0xFF263345),
     );
 
     return base.copyWith(
@@ -123,25 +158,41 @@ class AppTheme {
         backgroundColor: Color(0xFF1E293B),
         foregroundColor: Color(0xFFF8FAFC),
         centerTitle: false,
+        scrolledUnderElevation: 0,
         systemOverlayStyle: SystemUiOverlayStyle.light,
         titleTextStyle: TextStyle(
           fontSize: 19,
           fontWeight: FontWeight.w700,
           color: Color(0xFFF8FAFC),
+          letterSpacing: -0.2,
         ),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
         color: const Color(0xFF1E293B),
+        margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: Color(0xFF334155)),
         ),
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: const Color(0xFF1E293B),
+        selectedColor: const Color(0xFF1E3A8A).withValues(alpha: 0.4),
+        side: const BorderSide(color: Color(0xFF334155)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        labelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFF8FAFC),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      ),
       listTileTheme: const ListTileThemeData(
         tileColor: Colors.transparent,
         textColor: Color(0xFFF8FAFC),
         iconColor: Color(0xFF94A3B8),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Color(0xFF1E293B),
@@ -155,6 +206,11 @@ class AppTheme {
         backgroundColor: const Color(0xFF1E293B),
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        titleTextStyle: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFFF8FAFC),
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: Color(0xFF334155),
@@ -167,9 +223,21 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           minimumSize: const Size(double.infinity, 52),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 50),
+          side: const BorderSide(color: Color(0xFF475569)),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(

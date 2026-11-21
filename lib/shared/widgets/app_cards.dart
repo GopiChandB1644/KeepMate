@@ -53,19 +53,19 @@ class ItemSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isUrgent =
+        item.status == ItemStatus.expired || item.status == ItemStatus.dueToday;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(
+          color: isUrgent
+              ? AppColors.dangerRed.withValues(alpha: 0.35)
+              : AppColors.cardBorder,
+        ),
       ),
       child: Material(
         color: Colors.transparent,
@@ -74,22 +74,23 @@ class ItemSummaryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      width: 44,
+                      height: 44,
                       decoration: BoxDecoration(
-                        color: _iconColor.withValues(alpha: 0.12),
+                        color: _iconColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(_icon, color: _iconColor, size: 26),
+                      child: Icon(_icon, color: _iconColor, size: 22),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +101,7 @@ class ItemSummaryCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             item.subcategory.displayName,
                             style: AppText.bodySmall,
@@ -108,12 +109,16 @@ class ItemSummaryCard extends StatelessWidget {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 8),
                     StatusChip(status: item.status),
                   ],
                 ),
-                const SizedBox(height: 12),
-                const Divider(height: 1),
                 const SizedBox(height: 10),
+                Divider(
+                  height: 1,
+                  color: AppColors.cardBorder.withValues(alpha: 0.6),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -121,20 +126,18 @@ class ItemSummaryCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.event_rounded,
-                          size: 16,
-                          color: item.status == ItemStatus.expired ||
-                                  item.status == ItemStatus.dueToday
+                          size: 15,
+                          color: isUrgent
                               ? AppColors.dangerRed
                               : AppColors.textMuted,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 5),
                         Text(
                           item.relativeTimeLabel,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: item.status == ItemStatus.expired ||
-                                    item.status == ItemStatus.dueToday
+                            color: isUrgent
                                 ? AppColors.dangerRed
                                 : AppColors.textSecondary,
                           ),
@@ -145,18 +148,21 @@ class ItemSummaryCard extends StatelessWidget {
                       TextButton.icon(
                         onPressed: onQuickAction,
                         icon: const Icon(Icons.check_circle_outline_rounded,
-                            size: 16),
+                            size: 15),
                         label: Text(quickActionLabel!),
                         style: TextButton.styleFrom(
+                          foregroundColor: isUrgent
+                              ? AppColors.dangerRed
+                              : AppColors.primary,
+                          visualDensity: VisualDensity.compact,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
-                          visualDensity: VisualDensity.compact,
-                          foregroundColor: AppColors.primary,
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      )
-                    else
-                      const Icon(Icons.chevron_right_rounded,
-                          color: Colors.grey, size: 20),
+                      ),
                   ],
                 ),
               ],

@@ -24,37 +24,42 @@ class MainShell extends StatelessWidget {
           decoration: BoxDecoration(
             color: AppColors.surface,
             border: Border(
-                top: BorderSide(color: AppColors.cardBorder, width: 0.8)),
+              top: BorderSide(
+                color: AppColors.cardBorder.withValues(alpha: 0.8),
+                width: 1,
+              ),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, -2),
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 10,
+                offset: const Offset(0, -3),
               ),
             ],
           ),
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            top: false,
+            child: SizedBox(
+              height: 64,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _navItem(
                     index: 0,
                     label: 'Home',
-                    icon: Icons.home_rounded,
+                    icon: Icons.home_outlined,
                     activeIcon: Icons.home_rounded,
                   ),
                   _navItem(
                     index: 1,
                     label: 'Vault',
-                    icon: Icons.folder_shared_rounded,
+                    icon: Icons.folder_shared_outlined,
                     activeIcon: Icons.folder_shared_rounded,
                   ),
                   _navItem(
                     index: 2,
                     label: 'Settings',
-                    icon: Icons.settings_rounded,
+                    icon: Icons.settings_outlined,
                     activeIcon: Icons.settings_rounded,
                   ),
                 ],
@@ -73,28 +78,50 @@ class MainShell extends StatelessWidget {
     required IconData activeIcon,
   }) {
     final isSelected = navigationShell.currentIndex == index;
-    final color = isSelected ? AppColors.primary : AppColors.textMuted;
+    final color = isSelected ? AppColors.primary : AppColors.textSecondary;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => navigationShell.goBranch(index,
-          initialLocation: index == navigationShell.currentIndex),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isSelected ? activeIcon : icon, color: color, size: 24),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+    return Expanded(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+              decoration: BoxDecoration(
+                color:
+                    isSelected ? AppColors.primarySubtle : Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isSelected ? activeIcon : icon,
+                    color: color,
+                    size: 23,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

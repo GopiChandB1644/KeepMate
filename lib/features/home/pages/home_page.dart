@@ -52,13 +52,17 @@ class _HomePageState extends State<HomePage> {
             return Scaffold(
               appBar: KeepRemindAppBar(
                 leading: Container(
-                  padding: const EdgeInsets.all(8),
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.bookmark_added_rounded,
-                      color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.bookmark_added_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
                 title: 'KeepRemind',
                 subtitle: 'Never miss an expiry or bill',
@@ -66,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                 actions: [
                   CircleIconButton(
                     icon: Icons.search_rounded,
-                    size: 40,
+                    size: 38,
                     tooltip: 'Search',
                     onTap: () => context.push(AppRoutes.search),
                   ),
@@ -79,20 +83,21 @@ class _HomePageState extends State<HomePage> {
                 label: Text(
                   fabConfig.label,
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
                 ),
               ),
               body: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 96),
                 children: [
-                  // 1. Top Segmented Category Tabs
+                  // 1. Category Switcher (Calm, pill segmented tabs)
                   _buildCategorySegmentedControl(state, medState),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // 2. Quick Status Counters for selected tab
+                  // 2. Status Metric Counters
                   if (_selectedCategory == ItemCategory.medicineCare)
                     Row(
                       children: [
@@ -101,13 +106,13 @@ class _HomePageState extends State<HomePage> {
                           count: medState.takenCount,
                           color: AppColors.safeGreen,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _statusCounterCard(
                           label: 'Pending',
                           count: medState.pendingCount,
-                          color: AppColors.infoBlue,
+                          color: AppColors.primary,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _statusCounterCard(
                           label: 'Unconfirmed',
                           count: medState.unconfirmedCount,
@@ -123,13 +128,13 @@ class _HomePageState extends State<HomePage> {
                           count: tabDueToday,
                           color: AppColors.dangerRed,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _statusCounterCard(
                           label: 'Due Soon',
                           count: tabUpcoming,
                           color: AppColors.warningOrange,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 8),
                         _statusCounterCard(
                           label: 'Active',
                           count: tabActive,
@@ -138,33 +143,39 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
 
-                  // 3. Tab Section Header
+                  // 3. Section Header
                   _buildCategoryHeader(),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
-                  // 4. 2x2 Feature Action Cards Grid
+                  // 4. Quick Feature Action Cards
                   _buildFeatureCardsGrid(),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
                   // 5. Category-Specific Body
                   if (_selectedCategory == ItemCategory.medicineCare) ...[
                     _buildMedicineCareHomeSection(context, medState),
                   ] else ...[
-                    // Urgent / Action Required Items for this tab
+                    // Urgent / Action Required Items
                     if (urgentTabItems.isNotEmpty) ...[
                       Row(
                         children: [
-                          const Icon(Icons.notification_important_rounded,
-                              color: AppColors.dangerRed, size: 22),
-                          const SizedBox(width: 8),
-                          Text('Action Required', style: AppText.h3),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            color: AppColors.dangerRed,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Action Required (${urgentTabItems.length})',
+                            style: AppText.h3.copyWith(fontSize: 16),
+                          ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       ...urgentTabItems.map((item) {
                         return ItemSummaryCard(
                           item: item,
@@ -193,18 +204,19 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           '${_selectedCategory.displayName} Items (${tabItems.length})',
-                          style: AppText.h3,
+                          style: AppText.h3.copyWith(fontSize: 16),
                         ),
                         if (tabItems.isNotEmpty)
                           Text(
                             '$tabActive active',
                             style: AppText.bodySmall.copyWith(
-                                color: AppColors.safeGreen,
-                                fontWeight: FontWeight.bold),
+                              color: AppColors.safeGreen,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
 
                     if (tabItems.isEmpty)
                       _buildEmptyState()
@@ -242,7 +254,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Segmented Control with pills matching brand colors
+  /// Segmented Control with calm, accessible pills
   Widget _buildCategorySegmentedControl(
       ItemsState state, MedicineState medState) {
     return Container(
@@ -257,7 +269,8 @@ class _HomePageState extends State<HomePage> {
           _categoryTabPill(
             category: ItemCategory.lifePocket,
             label: 'LifePocket',
-            icon: Icons.account_balance_wallet_rounded,
+            icon: Icons.account_balance_wallet_outlined,
+            activeIcon: Icons.account_balance_wallet_rounded,
             activeColor: AppColors.lifePocketColor,
             count: state.items
                 .where((e) => e.category == ItemCategory.lifePocket)
@@ -267,7 +280,8 @@ class _HomePageState extends State<HomePage> {
           _categoryTabPill(
             category: ItemCategory.freshCheck,
             label: 'FreshCheck',
-            icon: Icons.apple_rounded,
+            icon: Icons.apple_outlined,
+            activeIcon: Icons.apple_rounded,
             activeColor: AppColors.freshCheckColor,
             count: state.items
                 .where((e) => e.category == ItemCategory.freshCheck)
@@ -277,7 +291,8 @@ class _HomePageState extends State<HomePage> {
           _categoryTabPill(
             category: ItemCategory.docAlert,
             label: 'DocAlert',
-            icon: Icons.shield_rounded,
+            icon: Icons.shield_outlined,
+            activeIcon: Icons.shield_rounded,
             activeColor: AppColors.docAlertColor,
             count: state.items
                 .where((e) => e.category == ItemCategory.docAlert)
@@ -287,7 +302,8 @@ class _HomePageState extends State<HomePage> {
           _categoryTabPill(
             category: ItemCategory.medicineCare,
             label: 'MedicineCare',
-            icon: Icons.medication_rounded,
+            icon: Icons.medication_outlined,
+            activeIcon: Icons.medication_rounded,
             activeColor: AppColors.medicineCareColor,
             count: medState.medicines.length,
           ),
@@ -300,45 +316,53 @@ class _HomePageState extends State<HomePage> {
     required ItemCategory category,
     required String label,
     required IconData icon,
+    required IconData activeIcon,
     required Color activeColor,
     required int count,
   }) {
     final isSelected = _selectedCategory == category;
     return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => setState(() => _selectedCategory = category),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? activeColor.withValues(alpha: 0.14)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected ? activeColor : Colors.transparent,
-              width: 1.4,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isSelected ? activeColor : AppColors.textMuted,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => setState(() => _selectedCategory = category),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? activeColor.withValues(alpha: 0.12)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected
+                    ? activeColor.withValues(alpha: 0.7)
+                    : Colors.transparent,
+                width: 1,
               ),
-              const SizedBox(height: 3),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isSelected ? activeIcon : icon,
+                  size: 19,
                   color: isSelected ? activeColor : AppColors.textSecondary,
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? activeColor : AppColors.textSecondary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -372,23 +396,22 @@ class _HomePageState extends State<HomePage> {
       children: [
         Text(
           title,
-          style: const TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: -0.3),
+          style: AppText.h3.copyWith(fontSize: 18),
         ),
         const SizedBox(height: 2),
         Text(
           subtitle,
           style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textMuted,
-              letterSpacing: 0.6),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textMuted,
+            letterSpacing: 0.6,
+          ),
         ),
       ],
     );
   }
 
-  /// 2x2 Feature Cards Grid matching the user's reference image
   Widget _buildFeatureCardsGrid() {
     final List<HomeFeatureItem> cards = _getFeatureItemsForTab();
 
@@ -397,15 +420,15 @@ class _HomePageState extends State<HomePage> {
         Row(
           children: [
             Expanded(child: HomeFeatureCard(item: cards[0])),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(child: HomeFeatureCard(item: cards[1])),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         Row(
           children: [
             Expanded(child: HomeFeatureCard(item: cards[2])),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(child: HomeFeatureCard(item: cards[3])),
           ],
         ),
@@ -766,22 +789,12 @@ class _HomePageState extends State<HomePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.medicineCareColor,
-                  AppColors.medicineCareColor.withValues(alpha: 0.85),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.medicineCareColor.withValues(alpha: 0.3),
+                width: 1.2,
               ),
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.medicineCareColor.withValues(alpha: 0.25),
-                  blurRadius: 12,
-                  offset: const Offset(0, 5),
-                ),
-              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -790,23 +803,29 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(16),
+                        color:
+                            AppColors.medicineCareColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.alarm_rounded,
-                              color: Colors.white, size: 13),
-                          SizedBox(width: 4),
+                          Icon(
+                            Icons.alarm_rounded,
+                            color: AppColors.medicineCareColor,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
                           Text(
                             'UPCOMING DOSE',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold),
+                              color: AppColors.medicineCareColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ],
                       ),
@@ -814,73 +833,79 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     Text(
                       _formatDoseTime(nextDose.scheduledTime),
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
+                      style: AppText.timeDisplay,
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
                 Text(
                   nextDose.medicine.name,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                  style: AppText.h2.copyWith(fontSize: 19),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   '${nextDose.medicine.dosage} • ${nextDose.medicine.instructions.label}',
-                  style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
+                  style: AppText.bodyMedium,
                 ),
                 const SizedBox(height: 14),
                 Row(
                   children: [
                     Expanded(
+                      flex: 2,
                       child: ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: AppColors.medicineCareColor,
+                          backgroundColor: AppColors.safeGreen,
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(0, 48),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        icon: const Icon(Icons.check_circle_rounded, size: 16),
-                        label: const Text('Mark Taken',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 13)),
+                        icon: const Icon(Icons.check_circle_rounded, size: 18),
+                        label: const Text(
+                          'Mark Taken',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
                         onPressed: () => cubit.markDoseTaken(nextDose),
                       ),
                     ),
                     const SizedBox(width: 8),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.white, width: 1.1),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                        ),
+                        onPressed: () =>
+                            cubit.snoozeDose(nextDose, minutes: 15),
+                        child: const Text(
+                          'Snooze 15m',
+                          style: TextStyle(fontSize: 12),
+                        ),
                       ),
-                      onPressed: () => cubit.snoozeDose(nextDose, minutes: 15),
-                      child: const Text('Snooze 15m',
-                          style: TextStyle(fontSize: 12)),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
         ],
 
         // Schedule Header
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Today's Schedule (${todayDoses.length})", style: AppText.h3),
+            Text(
+              "Today's Schedule (${todayDoses.length})",
+              style: AppText.h3.copyWith(fontSize: 16),
+            ),
             if (todayDoses.isNotEmpty)
               TextButton(
                 onPressed: () => context.push(AppRoutes.medicineToday),
@@ -917,7 +942,7 @@ class _HomePageState extends State<HomePage> {
     final cubit = context.read<MedicineCubit>();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.surface,
@@ -930,7 +955,7 @@ class _HomePageState extends State<HomePage> {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.medicineCareColor.withValues(alpha: 0.12),
+              color: AppColors.medicineCareColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Center(
@@ -948,7 +973,9 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   dose.medicine.name,
                   style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 Text(
                   '${dose.medicine.dosage} • ${dose.medicine.instructions.label}',
@@ -962,46 +989,58 @@ class _HomePageState extends State<HomePage> {
             children: [
               Text(
                 _formatDoseTime(dose.scheduledTime),
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               const SizedBox(height: 4),
               if (dose.isTaken)
-                const Text('✓ Taken',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.safeGreen))
+                const Text(
+                  '✓ Taken',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.safeGreen,
+                  ),
+                )
               else if (dose.status == DoseStatus.snoozed)
-                const Text('⏰ Snoozed',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.accent))
+                const Text(
+                  '⏰ Snoozed',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.accent,
+                  ),
+                )
               else if (dose.isSkipped)
-                Text('✕ Skipped',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textMuted))
+                Text(
+                  '✕ Skipped',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textMuted,
+                  ),
+                )
               else
                 InkWell(
                   onTap: () => cubit.markDoseTaken(dose),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                   child: Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color:
-                          AppColors.medicineCareColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                          AppColors.medicineCareColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       'Take Dose',
                       style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.medicineCareColor),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.medicineCareColor,
+                      ),
                     ),
                   ),
                 ),
@@ -1012,14 +1051,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _statusCounterCard(
-      {required String label, required int count, required Color color}) {
+  Widget _statusCounterCard({
+    required String label,
+    required int count,
+    required Color color,
+  }) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(color: AppColors.cardBorder),
         ),
         child: Column(
@@ -1027,12 +1069,18 @@ class _HomePageState extends State<HomePage> {
             Text(
               '$count',
               style: TextStyle(
-                  fontSize: 22, fontWeight: FontWeight.bold, color: color),
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               label,
-              style: AppText.bodySmall,
+              style: AppText.bodySmall.copyWith(
+                fontWeight: FontWeight.w500,
+                fontSize: 11,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
