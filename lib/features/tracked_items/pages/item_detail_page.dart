@@ -78,7 +78,7 @@ class ItemDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final sub = item.subcategory;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: KeepRemindAppBar(
         title: item.title,
         subtitle: '${sub.displayName} Details',

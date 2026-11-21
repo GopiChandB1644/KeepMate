@@ -197,7 +197,7 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const KeepRemindAppBar(
         title: 'Backup & Restore',
         subtitle: 'Encrypted export & recovery',

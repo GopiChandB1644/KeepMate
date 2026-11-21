@@ -77,6 +77,10 @@ void main() {
           equals(const Color(0xFFF1F5F9)));
       expect(AppColors.cardBorderOf(capturedContext),
           equals(const Color(0xFFE2E8F0)));
+      expect(capturedContext.scaffoldGradient.colors.first,
+          equals(const Color(0xFFEEF4FF)));
+      expect(capturedContext.scaffoldGradient.colors.last,
+          equals(const Color(0xFFF8FAFC)));
     });
 
     testWidgets(
@@ -110,6 +114,10 @@ void main() {
           equals(const Color(0xFF334155)));
       expect(AppColors.cardBorderOf(capturedContext),
           equals(const Color(0xFF334155)));
+      expect(capturedContext.scaffoldGradient.colors.first,
+          equals(const Color(0xFF131D33)));
+      expect(capturedContext.scaffoldGradient.colors.last,
+          equals(const Color(0xFF0F172A)));
     });
   });
 }

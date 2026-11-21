@@ -22,7 +22,7 @@ class _DocAlertPageState extends State<DocAlertPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const KeepRemindAppBar(
         title: 'DocAlert',
         subtitle: 'Licences, passports & vehicle documents',

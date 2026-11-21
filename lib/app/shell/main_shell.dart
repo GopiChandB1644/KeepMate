@@ -19,7 +19,15 @@ class MainShell extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: navigationShell,
+        backgroundColor: Colors.transparent,
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            gradient: context.scaffoldGradient,
+          ),
+          child: navigationShell,
+        ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             color: context.surfaceColor,

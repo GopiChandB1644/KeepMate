@@ -863,7 +863,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
   Widget build(BuildContext context) {
     final isEditing = widget.existingItem != null;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: KeepRemindAppBar(
         title: _appBarTitle,
         subtitle: _appBarSubtitle,

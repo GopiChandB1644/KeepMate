@@ -10,6 +10,7 @@ import '../../../../core/database/app_database.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../shared/widgets/app_bar.dart';
+import '../../../../shared/widgets/app_scaffold.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../cubit/medicine_cubit.dart';
 import '../domain/entities/medicine_entity.dart';
@@ -287,7 +288,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   Widget build(BuildContext context) {
     final isEdit = widget.existingMedicine != null;
 
-    return Scaffold(
+    return AppScaffold(
       appBar: KeepRemindAppBar(
         title: isEdit ? 'Edit Medicine' : 'Add Medicine',
         subtitle: 'Prescribed timings & reminder setup',

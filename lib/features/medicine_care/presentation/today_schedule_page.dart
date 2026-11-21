@@ -6,6 +6,7 @@ import '../../../../app/router/app_routes.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../shared/widgets/app_bar.dart';
+import '../../../../shared/widgets/app_scaffold.dart';
 import '../../../../shared/widgets/app_toast.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../cubit/medicine_cubit.dart';
@@ -113,7 +114,7 @@ class TodaySchedulePage extends StatelessWidget {
         final doses = state.todayDoses;
         final nextDose = state.nextDose;
 
-        return Scaffold(
+        return AppScaffold(
           appBar: KeepRemindAppBar(
             title: isToday
                 ? "Today's Medicines"

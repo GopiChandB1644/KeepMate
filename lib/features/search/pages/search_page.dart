@@ -29,7 +29,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const KeepRemindAppBar(
         title: 'Search',
         subtitle: 'Find bills, warranties, groceries & docs',

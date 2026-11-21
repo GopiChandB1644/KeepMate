@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
             final fabConfig = _getFabConfig();
 
             return Scaffold(
+              backgroundColor: Colors.transparent,
               appBar: KeepRemindAppBar(
                 leading: Container(
                   width: 36,

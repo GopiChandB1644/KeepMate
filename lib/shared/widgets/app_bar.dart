@@ -128,12 +128,12 @@ class KeepRemindAppBar extends StatelessWidget implements PreferredSizeWidget {
       decoration: BoxDecoration(
         color: transparent
             ? Colors.transparent
-            : (backgroundColor ?? context.surfaceColor),
+            : (backgroundColor ?? Colors.transparent),
         border: transparent
             ? null
             : Border(
                 bottom: BorderSide(
-                  color: context.cardBorderColor.withValues(alpha: 0.4),
+                  color: context.cardBorderColor.withValues(alpha: 0.35),
                   width: 1,
                 ),
               ),

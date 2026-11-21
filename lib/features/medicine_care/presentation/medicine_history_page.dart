@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/design_system/app_colors.dart';
 import '../../../../core/design_system/app_text.dart';
 import '../../../../shared/widgets/app_bar.dart';
+import '../../../../shared/widgets/app_scaffold.dart';
 import '../../../../shared/widgets/empty_state_view.dart';
 import '../domain/entities/dose_log_entity.dart';
 import '../domain/repositories/medicine_repository.dart';
@@ -33,7 +34,7 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       appBar: const KeepRemindAppBar(
         title: 'Medicine History',
         subtitle: 'Adherence tracking & dose records',

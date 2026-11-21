@@ -132,12 +132,43 @@ class AppColors {
       isDarkMode(context)
           ? const Color(0xFF78350F).withValues(alpha: 0.3)
           : const Color(0xFFFFFBEB);
+
+  /// Seamless atmospheric ambient scaffold gradient (Soft brand glow fading to solid background)
+  static LinearGradient scaffoldGradient(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    if (isDark) {
+      return const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 0.35, 1.0],
+        colors: [
+          Color(0xFF131D33), // Deep midnight navy ambient tint
+          Color(0xFF101826), // Smooth transitional dark slate
+          Color(0xFF0F172A), // Base deep slate scaffold background
+        ],
+      );
+    } else {
+      return const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.0, 0.35, 1.0],
+        colors: [
+          Color(0xFFEEF4FF), // Soft airy blue-indigo glow (4% brand saturation)
+          Color(0xFFF5F8FC), // Gentle transition
+          Color(0xFFF8FAFC), // Base calm light background
+        ],
+      );
+    }
+  }
 }
 
 /// Seamless BuildContext extension for robust, reactive theme color resolution
 extension ThemeContextX on BuildContext {
   /// Whether the active Flutter Theme in this context is dark
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
+
+  /// Full-screen ambient atmospheric background gradient
+  LinearGradient get scaffoldGradient => AppColors.scaffoldGradient(this);
 
   /// Surface color for cards, panels, and modal backgrounds (White in Light, Slate-800 in Dark)
   Color get surfaceColor =>

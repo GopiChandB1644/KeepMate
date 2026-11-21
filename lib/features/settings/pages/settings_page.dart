@@ -20,6 +20,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: const KeepRemindAppBar(
         title: 'Settings',
         subtitle: 'Preferences & Storage',
