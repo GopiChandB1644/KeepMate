@@ -19,7 +19,7 @@ class VaultPage extends StatelessWidget {
     final cubit = context.read<VaultCubit>();
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -231,7 +231,16 @@ class VaultPage extends StatelessWidget {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    fillColor: AppColors.surface,
+                    fillColor: context.surfaceColor,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.cardBorderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary, width: 2),
+                    ),
                   ),
                 ),
               ),

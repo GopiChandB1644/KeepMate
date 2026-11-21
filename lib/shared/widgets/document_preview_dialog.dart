@@ -165,7 +165,7 @@ class DocumentPreviewDialog extends StatelessWidget {
                         errorBuilder: (_, __, ___) => Container(
                           height: 180,
                           alignment: Alignment.center,
-                          color: AppColors.surfaceRaised,
+                          color: context.surfaceRaisedColor,
                           child: const Text('Unable to load image preview'),
                         ),
                       ),

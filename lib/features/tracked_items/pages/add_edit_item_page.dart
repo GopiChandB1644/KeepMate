@@ -412,7 +412,7 @@ class _AddEditItemPageState extends State<AddEditItemPage> {
   Future<void> _pickAttachment() async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => SafeArea(

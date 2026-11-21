@@ -122,7 +122,7 @@ class CaregiverContactsPage extends StatelessWidget {
                         selected: isSel,
                         selectedColor:
                             AppColors.medicineCareColor.withValues(alpha: 0.15),
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: context.surfaceColor,
                         labelStyle: TextStyle(
                           color: isSel
                               ? AppColors.medicineCareColor

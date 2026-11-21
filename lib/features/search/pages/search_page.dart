@@ -106,6 +106,15 @@ class _SearchPageState extends State<SearchPage> {
                           )
                         : null,
                     fillColor: context.surfaceColor,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: context.cardBorderColor),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary, width: 2),
+                    ),
                   ),
                 ),
               ),

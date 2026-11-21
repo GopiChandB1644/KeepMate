@@ -168,7 +168,7 @@ class _MedicineHistoryPageState extends State<MedicineHistoryPage> {
       label: Text(label),
       selected: isSel,
       selectedColor: AppColors.medicineCareColor.withValues(alpha: 0.12),
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       labelStyle: TextStyle(
         fontSize: 12.5,
         fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,

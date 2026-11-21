@@ -135,7 +135,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
   Future<void> _pickPrescriptionFile() async {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.surfaceColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -837,7 +837,7 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.surfaceColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color:

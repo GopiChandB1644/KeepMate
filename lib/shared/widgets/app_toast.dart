@@ -180,7 +180,7 @@ class _TopToastWidgetState extends State<_TopToastWidget>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.surfaceColor,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                       color: widget.color.withValues(alpha: 0.3), width: 1.2),
