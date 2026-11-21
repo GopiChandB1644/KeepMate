@@ -12,9 +12,17 @@ import '../../../../shared/widgets/empty_state_view.dart';
 import '../cubit/medicine_cubit.dart';
 import '../cubit/medicine_state.dart';
 import '../domain/entities/dose_log_entity.dart';
+import '../domain/entities/medicine_entity.dart';
 
-class TodaySchedulePage extends StatelessWidget {
+class TodaySchedulePage extends StatefulWidget {
   const TodaySchedulePage({super.key});
+
+  @override
+  State<TodaySchedulePage> createState() => _TodaySchedulePageState();
+}
+
+class _TodaySchedulePageState extends State<TodaySchedulePage> {
+  int _selectedTab = 0; // 0: Daily Doses, 1: All Prescriptions
 
   String _formatTime12Hour(String hhmm) {
     try {
@@ -103,6 +111,109 @@ class TodaySchedulePage extends StatelessWidget {
     );
   }
 
+  Future<void> _confirmDeleteMedicine(
+      BuildContext context, MedicineEntity medicine) async {
+    final cubit = context.read<MedicineCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Medicine?'),
+        content: Text(
+          'Are you sure you want to delete "${medicine.name}"?\n\n'
+          '• All upcoming alarms and reminder notifications will be cancelled immediately.\n'
+          '• Your past adherence and dose history will be safely preserved.',
+          style: AppText.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Medicine'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.dangerRed,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete Medicine'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await cubit.deleteMedicine(medicine.id);
+      if (context.mounted) {
+        showToast(
+          context,
+          '${medicine.name} deleted and alarms cancelled',
+          type: ToastType.info,
+          icon: Icons.delete_rounded,
+        );
+      }
+    }
+  }
+
+  Widget _buildMedicineOptionsMenu(
+      BuildContext context, MedicineEntity medicine,
+      {DoseLogEntity? dose}) {
+    return PopupMenuButton<String>(
+      icon: Icon(
+        Icons.more_vert_rounded,
+        size: 20,
+        color: context.textSecondaryColor,
+      ),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: 160),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      tooltip: 'Options',
+      onSelected: (val) async {
+        if (val == 'edit') {
+          await context.push(AppRoutes.medicineAdd, extra: medicine);
+        } else if (val == 'delete') {
+          await _confirmDeleteMedicine(context, medicine);
+        } else if (val == 'skip' && dose != null) {
+          _showSkipDialog(context, dose);
+        }
+      },
+      itemBuilder: (ctx) => [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [
+              Icon(Icons.edit_outlined, size: 18, color: AppColors.primary),
+              const SizedBox(width: 10),
+              const Text('Edit Schedule'),
+            ],
+          ),
+        ),
+        if (dose != null && dose.isPending)
+          PopupMenuItem(
+            value: 'skip',
+            child: Row(
+              children: [
+                Icon(Icons.close_rounded, size: 18, color: AppColors.textMuted),
+                const SizedBox(width: 10),
+                const Text('Skip This Dose'),
+              ],
+            ),
+          ),
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline_rounded,
+                  size: 18, color: AppColors.dangerRed),
+              const SizedBox(width: 10),
+              Text('Delete Medicine',
+                  style: TextStyle(color: AppColors.dangerRed)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MedicineCubit, MedicineState>(
@@ -112,34 +223,37 @@ class TodaySchedulePage extends StatelessWidget {
             DateFormat('yyyy-MM-dd').format(DateTime.now());
 
         final doses = state.todayDoses;
-        final nextDose = state.nextDose;
 
         return AppScaffold(
           appBar: KeepRemindAppBar(
-            title: isToday
-                ? "Today's Medicines"
-                : DateFormat('EEE, dd MMM').format(state.selectedDate),
-            subtitle:
-                '${state.takenCount} taken • ${state.pendingCount} pending',
+            title: _selectedTab == 0
+                ? (isToday
+                    ? "Today's Medicines"
+                    : DateFormat('EEE, dd MMM').format(state.selectedDate))
+                : "My Prescriptions",
+            subtitle: _selectedTab == 0
+                ? '${state.takenCount} taken • ${state.pendingCount} pending'
+                : '${state.medicines.length} active prescriptions',
             showBack: true,
             actions: [
-              CircleIconButton(
-                icon: Icons.calendar_month_rounded,
-                tooltip: 'Select Date',
-                size: 38,
-                onTap: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: state.selectedDate,
-                    firstDate:
-                        DateTime.now().subtract(const Duration(days: 90)),
-                    lastDate: DateTime.now().add(const Duration(days: 90)),
-                  );
-                  if (picked != null) {
-                    cubit.changeSelectedDate(picked);
-                  }
-                },
-              ),
+              if (_selectedTab == 0)
+                CircleIconButton(
+                  icon: Icons.calendar_month_rounded,
+                  tooltip: 'Select Date',
+                  size: 38,
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: state.selectedDate,
+                      firstDate:
+                          DateTime.now().subtract(const Duration(days: 90)),
+                      lastDate: DateTime.now().add(const Duration(days: 90)),
+                    );
+                    if (picked != null) {
+                      cubit.changeSelectedDate(picked);
+                    }
+                  },
+                ),
               const SizedBox(width: 8),
               CircleIconButton(
                 icon: Icons.add_rounded,
@@ -149,46 +263,368 @@ class TodaySchedulePage extends StatelessWidget {
               ),
             ],
           ),
-          body: doses.isEmpty
-              ? EmptyStateView(
-                  icon: Icons.medication_outlined,
-                  title: 'No medicines scheduled',
-                  description: isToday
-                      ? 'No active medicine doses for today. Tap "+ Add Medicine" to set up your prescription schedule.'
-                      : 'No scheduled doses for this date.',
-                  actionLabel: '+ Add Medicine',
-                  onAction: () => context.push(AppRoutes.medicineAdd),
-                )
-              : ListView(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 40),
-                  children: [
-                    // Next Dose Hero Card if applicable
-                    if (isToday && nextDose != null) ...[
-                      _buildNextDoseHeroCard(context, nextDose),
-                      const SizedBox(height: 16),
-                    ],
-
-                    // Summary statistics strip
-                    _buildStatsRow(context, state),
-
-                    const SizedBox(height: 18),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'All Scheduled Doses (${doses.length})',
-                          style: AppText.h3.copyWith(fontSize: 16),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
-                    ...doses.map((dose) => _buildDoseCard(context, dose)),
-                  ],
-                ),
+          body: Column(
+            children: [
+              _buildTopPillToggle(context, state),
+              Expanded(
+                child: _selectedTab == 0
+                    ? _buildDailyDosesView(context, state, isToday, doses)
+                    : _buildAllPrescriptionsView(context, state),
+              ),
+            ],
+          ),
         );
       },
+    );
+  }
+
+  Widget _buildTopPillToggle(BuildContext context, MedicineState state) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: context.surfaceColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: context.cardBorderColor),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _selectedTab = 0),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _selectedTab == 0
+                      ? AppColors.medicineCareColor
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  "Daily Doses",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _selectedTab == 0
+                        ? Colors.white
+                        : context.textSecondaryColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _selectedTab = 1),
+              borderRadius: BorderRadius.circular(10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                decoration: BoxDecoration(
+                  color: _selectedTab == 1
+                      ? AppColors.medicineCareColor
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  "All Prescriptions (${state.medicines.length})",
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: _selectedTab == 1
+                        ? Colors.white
+                        : context.textSecondaryColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDailyDosesView(BuildContext context, MedicineState state,
+      bool isToday, List<DoseLogEntity> doses) {
+    final nextDose = state.nextDose;
+
+    if (doses.isEmpty) {
+      return EmptyStateView(
+        icon: Icons.medication_outlined,
+        title: 'No medicines scheduled',
+        description: isToday
+            ? 'No active medicine doses for today. Tap "+ Add Medicine" to set up your prescription schedule.'
+            : 'No scheduled doses for this date.',
+        actionLabel: '+ Add Medicine',
+        onAction: () => context.push(AppRoutes.medicineAdd),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
+      children: [
+        // Next Dose Hero Card if applicable
+        if (isToday && nextDose != null) ...[
+          _buildNextDoseHeroCard(context, nextDose),
+          const SizedBox(height: 16),
+        ],
+
+        // Summary statistics strip
+        _buildStatsRow(context, state),
+
+        const SizedBox(height: 18),
+
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'All Scheduled Doses (${doses.length})',
+              style: AppText.h3.copyWith(fontSize: 16),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+
+        ...doses.map((dose) => _buildDoseCard(context, dose)),
+      ],
+    );
+  }
+
+  Widget _buildAllPrescriptionsView(BuildContext context, MedicineState state) {
+    final medicines = state.medicines;
+    if (medicines.isEmpty) {
+      return EmptyStateView(
+        icon: Icons.medication_outlined,
+        title: 'No medicines added yet',
+        description:
+            'Add your prescribed medicines with dosage, daily timings, and alarm modes.',
+        actionLabel: '+ Add Medicine',
+        onAction: () => context.push(AppRoutes.medicineAdd),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
+      itemCount: medicines.length,
+      itemBuilder: (context, index) {
+        final med = medicines[index];
+        return _buildPrescriptionCard(context, med);
+      },
+    );
+  }
+
+  Widget _buildPrescriptionCard(BuildContext context, MedicineEntity med) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.cardBorderColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.medicineCareColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    med.medicineType.icon,
+                    style: const TextStyle(fontSize: 22),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      med.name,
+                      style: AppText.h3.copyWith(fontSize: 17),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${med.dosage} • ${med.instructions.label}',
+                      style: AppText.bodyMedium.copyWith(
+                        color: context.textSecondaryColor,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (med.doctorName != null &&
+                        med.doctorName!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Dr. ${med.doctorName}',
+                        style: AppText.bodySmall.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              _buildMedicineOptionsMenu(context, med),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Metadata badges row
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            children: [
+              // Reminder Mode badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: med.reminderMode == MedicineReminderMode.alarm
+                      ? AppColors.accent.withValues(alpha: 0.12)
+                      : AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      med.reminderMode == MedicineReminderMode.alarm
+                          ? Icons.alarm_rounded
+                          : Icons.notifications_active_rounded,
+                      size: 13,
+                      color: med.reminderMode == MedicineReminderMode.alarm
+                          ? AppColors.accent
+                          : AppColors.primary,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      med.reminderMode == MedicineReminderMode.alarm
+                          ? 'Persistent Alarm'
+                          : 'Notification',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: med.reminderMode == MedicineReminderMode.alarm
+                            ? AppColors.accent
+                            : AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Dates badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: context.surfaceRaisedColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  med.endDate != null
+                      ? 'Till ${med.endDate}'
+                      : 'Ongoing Prescription',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: context.textSecondaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Scheduled timings chips
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Timings: ',
+                style: AppText.bodySmall.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: med.schedules.map((s) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color:
+                            AppColors.medicineCareColor.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.medicineCareColor
+                              .withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Text(
+                        '${_formatTime12Hour(s.doseTime)} (${s.doseLabel ?? ""})',
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.medicineCareColor,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Divider(
+            height: 1,
+            color: context.cardBorderColor.withValues(alpha: 0.6),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.dangerRed,
+                ),
+                onPressed: () => _confirmDeleteMedicine(context, med),
+                icon: const Icon(Icons.delete_outline_rounded, size: 17),
+                label: const Text('Delete'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(
+                    color: AppColors.primary.withValues(alpha: 0.4),
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                ),
+                onPressed: () =>
+                    context.push(AppRoutes.medicineAdd, extra: med),
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const Text(
+                  'Edit Schedule',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -243,6 +679,8 @@ class TodaySchedulePage extends StatelessWidget {
                 _formatTime12Hour(dose.scheduledTime),
                 style: AppText.timeDisplay,
               ),
+              const SizedBox(width: 4),
+              _buildMedicineOptionsMenu(context, dose.medicine, dose: dose),
             ],
           ),
           const SizedBox(height: 12),
@@ -437,12 +875,19 @@ class TodaySchedulePage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    _formatTime12Hour(dose.scheduledTime),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        _formatTime12Hour(dose.scheduledTime),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      _buildMedicineOptionsMenu(context, dose.medicine,
+                          dose: dose),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   _statusBadge(dose.status),

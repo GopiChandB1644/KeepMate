@@ -9,6 +9,7 @@ import '../../../../shared/widgets/widgets.dart';
 import '../../medicine_care/cubit/medicine_cubit.dart';
 import '../../medicine_care/cubit/medicine_state.dart';
 import '../../medicine_care/domain/entities/dose_log_entity.dart';
+import '../../medicine_care/domain/entities/medicine_entity.dart';
 import '../../tracked_items/cubit/items_cubit.dart';
 import '../../tracked_items/cubit/items_state.dart';
 import '../widgets/home_feature_card.dart';
@@ -939,6 +940,49 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _confirmDeleteMedicine(
+      BuildContext context, MedicineEntity medicine) async {
+    final cubit = context.read<MedicineCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Medicine?'),
+        content: Text(
+          'Are you sure you want to delete "${medicine.name}"?\n\n'
+          '• All upcoming alarms and reminder notifications will be cancelled immediately.\n'
+          '• Your past adherence and dose history will be safely preserved.',
+          style: AppText.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Medicine'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.dangerRed,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete Medicine'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await cubit.deleteMedicine(medicine.id);
+      if (context.mounted) {
+        showToast(
+          context,
+          '${medicine.name} deleted and alarms cancelled',
+          type: ToastType.info,
+          icon: Icons.delete_rounded,
+        );
+      }
+    }
+  }
+
   Widget _buildMedicineScheduleCard(BuildContext context, DoseLogEntity dose) {
     final cubit = context.read<MedicineCubit>();
 
@@ -988,12 +1032,77 @@ class _HomePageState extends State<HomePage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(
-                _formatDoseTime(dose.scheduledTime),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _formatDoseTime(dose.scheduledTime),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert_rounded,
+                      size: 18,
+                      color: context.textSecondaryColor,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(minWidth: 150),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    tooltip: 'Options',
+                    onSelected: (val) async {
+                      if (val == 'edit') {
+                        await context.push(AppRoutes.medicineAdd,
+                            extra: dose.medicine);
+                      } else if (val == 'delete') {
+                        await _confirmDeleteMedicine(context, dose.medicine);
+                      } else if (val == 'skip') {
+                        await cubit.markDoseSkipped(dose);
+                      }
+                    },
+                    itemBuilder: (ctx) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_outlined,
+                                size: 18, color: AppColors.primary),
+                            const SizedBox(width: 8),
+                            const Text('Edit Schedule'),
+                          ],
+                        ),
+                      ),
+                      if (dose.isPending)
+                        PopupMenuItem(
+                          value: 'skip',
+                          child: Row(
+                            children: [
+                              Icon(Icons.close_rounded,
+                                  size: 18, color: AppColors.textMuted),
+                              const SizedBox(width: 8),
+                              const Text('Skip Dose'),
+                            ],
+                          ),
+                        ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_outline_rounded,
+                                size: 18, color: AppColors.dangerRed),
+                            const SizedBox(width: 8),
+                            Text('Delete',
+                                style: TextStyle(color: AppColors.dangerRed)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 4),
               if (dose.isTaken)

@@ -44,14 +44,15 @@ class MedicineRepositoryImpl implements MedicineRepository {
     });
   }
 
-  @override
-  Future<List<MedicineEntity>> getAllMedicines() async {
-    final list = await (db.select(db.medicines)
-          ..where((t) => t.deletedAt.isNull())
-          ..orderBy([
-            (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
-          ]))
-        .get();
+  Future<List<MedicineEntity>> _getAllMedicinesInternal(
+      {bool includeDeleted = false}) async {
+    final query = db.select(db.medicines)
+      ..orderBy(
+          [(t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)]);
+    if (!includeDeleted) {
+      query.where((t) => t.deletedAt.isNull());
+    }
+    final list = await query.get();
 
     final List<MedicineEntity> result = [];
     for (final med in list) {
@@ -72,6 +73,11 @@ class MedicineRepositoryImpl implements MedicineRepository {
       );
     }
     return result;
+  }
+
+  @override
+  Future<List<MedicineEntity>> getAllMedicines() async {
+    return _getAllMedicinesInternal(includeDeleted: false);
   }
 
   @override
@@ -216,6 +222,40 @@ class MedicineRepositoryImpl implements MedicineRepository {
       }
     }
 
+    // Preserve historical dose logs that were actioned for this date even if
+    // the medicine schedule was later modified (e.g. time shifted) or discontinued.
+    final matchedLogIds =
+        doses.map((d) => d.log?.id).whereType<String>().toSet();
+    final unmatchedLogs =
+        existingLogs.where((l) => !matchedLogIds.contains(l.id)).toList();
+
+    if (unmatchedLogs.isNotEmpty) {
+      final allMeds = await _getAllMedicinesInternal(includeDeleted: true);
+      final allMedMap = {for (final m in allMeds) m.id: m};
+
+      for (final log in unmatchedLogs) {
+        final med = allMedMap[log.medicineId];
+        if (med == null) continue;
+        final sched = med.schedules
+            .where((s) => s.doseTime == log.scheduledTime)
+            .firstOrNull;
+
+        doses.add(
+          DoseLogEntity(
+            log: log,
+            medicine: med,
+            schedule: sched,
+            scheduledDate: dateStr,
+            scheduledTime: log.scheduledTime,
+            status: DoseStatus.fromCode(log.status),
+            actionTime: log.actionTime,
+            skipReason: log.skipReason,
+            snoozeUntil: log.snoozeUntil,
+          ),
+        );
+      }
+    }
+
     // Sort by scheduledTime ascending
     doses.sort((a, b) => a.scheduledTime.compareTo(b.scheduledTime));
     return doses;
@@ -316,7 +356,7 @@ class MedicineRepositoryImpl implements MedicineRepository {
           ]))
         .get();
 
-    final medicines = await getAllMedicines();
+    final medicines = await _getAllMedicinesInternal(includeDeleted: true);
     final medMap = {for (final m in medicines) m.id: m};
 
     final List<DoseLogEntity> result = [];

@@ -8,6 +8,7 @@ import 'package:keepremind/features/medicine_care/cubit/medicine_cubit.dart';
 import 'package:keepremind/features/medicine_care/data/repositories/medicine_repository_impl.dart';
 import 'package:keepremind/features/medicine_care/domain/entities/medicine_entity.dart';
 import 'package:keepremind/features/medicine_care/presentation/add_edit_medicine_page.dart';
+import 'package:keepremind/features/medicine_care/presentation/today_schedule_page.dart';
 import 'package:keepremind/features/medicine_care/services/medicine_notification_service.dart';
 
 void main() {
@@ -74,6 +75,103 @@ void main() {
 
       // Save button
       expect(find.text('Save Medicine Schedule'), findsOneWidget);
+    });
+
+    testWidgets(
+        'AddEditMedicinePage in edit mode renders Edit Medicine title, Update button, and Delete button',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      late MedicineEntity med;
+      await tester.runAsync(() async {
+        final now = DateTime.now().toIso8601String();
+        await repo.saveMedicine(
+          medicine: MedicinesCompanion.insert(
+            id: 'test-edit-001',
+            name: 'Metformin',
+            medicineType: 'tablet',
+            dosage: '500 mg',
+            instructions: 'after_food',
+            startDate: '2026-11-20',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          schedules: [
+            MedicineSchedulesCompanion.insert(
+              id: 'sched-amox-1',
+              medicineId: 'test-edit-001',
+              doseTime: '08:00',
+              createdAt: now,
+            ),
+          ],
+        );
+        med = (await repo.getMedicineById('test-edit-001'))!;
+      });
+
+      await tester.pumpWidget(buildTestableAddPage(existing: med));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Edit Medicine'), findsOneWidget);
+      expect(find.text('Update Medicine'), findsOneWidget);
+      expect(find.byTooltip('Delete Medicine'), findsOneWidget);
+      expect(find.text('Delete / Discontinue Medicine'), findsOneWidget);
+    });
+
+    testWidgets(
+        'TodaySchedulePage renders pill toggle and switches between Daily Doses and All Prescriptions',
+        (tester) async {
+      tester.view.physicalSize = const Size(800, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      await tester.runAsync(() async {
+        final now = DateTime.now().toIso8601String();
+        await cubit.saveMedicine(
+          medicine: MedicinesCompanion.insert(
+            id: 'test-med-002',
+            name: 'Atorvastatin',
+            medicineType: 'tablet',
+            dosage: '10 mg',
+            instructions: 'after_food',
+            startDate: '2026-11-20',
+            createdAt: now,
+            updatedAt: now,
+          ),
+          schedules: [
+            MedicineSchedulesCompanion.insert(
+              id: 'sched-002',
+              medicineId: 'test-med-002',
+              doseTime: '21:00',
+              createdAt: now,
+            ),
+          ],
+        );
+      });
+
+      await tester.pumpWidget(
+        BlocProvider<MedicineCubit>.value(
+          value: cubit,
+          child: const MaterialApp(
+            home: TodaySchedulePage(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Top pill toggle
+      expect(find.text('Daily Doses'), findsOneWidget);
+      expect(find.textContaining('All Prescriptions'), findsOneWidget);
+
+      // Switch to All Prescriptions tab
+      await tester.tap(find.textContaining('All Prescriptions'));
+      await tester.pumpAndSettle();
+
+      // Verify All Prescriptions card appears with Atorvastatin and buttons
+      expect(find.text('Atorvastatin'), findsOneWidget);
+      expect(find.text('Edit Schedule'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
     });
 
     testWidgets(

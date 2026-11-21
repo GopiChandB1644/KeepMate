@@ -266,8 +266,12 @@ void main() {
       final med = (await repo.getMedicineById(medId))!;
       await medicineNotifService.cancelMedicineSchedules(med.id, med.schedules);
 
-      // NotificationService cancel called
-      expect(fakeNotifService.cancelledNotificationIds.length, 1);
+      // NotificationService cancel called for schedule dose and any active snooze
+      final expectedNotifId =
+          medicineNotifService.generateNotificationId(med.id, '09:00');
+      expect(
+          fakeNotifService.cancelledNotificationIds.contains(expectedNotifId),
+          isTrue);
 
       // NativeAlarmBridge cancelMedicineAlarms called
       final cancelMedCalls = nativeMethodCalls

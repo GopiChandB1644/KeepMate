@@ -109,6 +109,14 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     if (picked != null) {
       final formatted =
           '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+      if (_doseTimes.contains(formatted) &&
+          _doseTimes.indexOf(formatted) != index) {
+        if (mounted) {
+          showToast(context, 'This dose time is already scheduled',
+              type: ToastType.warning);
+        }
+        return;
+      }
       setState(() {
         _doseTimes[index] = formatted;
         _doseTimes.sort();
@@ -124,12 +132,17 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     if (picked != null) {
       final formatted =
           '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
-      if (!_doseTimes.contains(formatted)) {
-        setState(() {
-          _doseTimes.add(formatted);
-          _doseTimes.sort();
-        });
+      if (_doseTimes.contains(formatted)) {
+        if (mounted) {
+          showToast(context, 'This dose time is already scheduled',
+              type: ToastType.warning);
+        }
+        return;
       }
+      setState(() {
+        _doseTimes.add(formatted);
+        _doseTimes.sort();
+      });
     }
   }
 
@@ -284,6 +297,51 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
     }
   }
 
+  Future<void> _confirmDelete() async {
+    final med = widget.existingMedicine;
+    if (med == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Medicine?'),
+        content: Text(
+          'Are you sure you want to delete "${med.name}"?\n\n'
+          '• All upcoming alarms and reminder notifications will be cancelled immediately.\n'
+          '• Your past adherence and dose history will be safely preserved.',
+          style: AppText.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep Medicine'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.dangerRed,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete Medicine'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      await context.read<MedicineCubit>().deleteMedicine(med.id);
+      if (mounted) {
+        showToast(
+          context,
+          '${med.name} deleted and alarms cancelled',
+          type: ToastType.info,
+          icon: Icons.delete_rounded,
+        );
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.existingMedicine != null;
@@ -293,6 +351,17 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
         title: isEdit ? 'Edit Medicine' : 'Add Medicine',
         subtitle: 'Prescribed timings & reminder setup',
         showBack: true,
+        actions: isEdit
+            ? [
+                CircleIconButton(
+                  icon: Icons.delete_outline_rounded,
+                  iconColor: AppColors.dangerRed,
+                  tooltip: 'Delete Medicine',
+                  size: 38,
+                  onTap: _confirmDelete,
+                ),
+              ]
+            : const [],
       ),
       body: Form(
         key: _formKey,
@@ -946,6 +1015,34 @@ class _AddEditMedicinePageState extends State<AddEditMedicinePage> {
                 onPressed: _save,
               ),
             ),
+
+            if (isEdit) ...[
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.dangerRed,
+                    side: const BorderSide(
+                        color: AppColors.dangerRed, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: const Icon(Icons.delete_outline_rounded,
+                      color: AppColors.dangerRed),
+                  label: const Text(
+                    'Delete / Discontinue Medicine',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                  onPressed: _confirmDelete,
+                ),
+              ),
+            ],
           ],
         ),
       ),

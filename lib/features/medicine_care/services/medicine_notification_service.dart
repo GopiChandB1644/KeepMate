@@ -199,6 +199,10 @@ class MedicineNotificationService {
       final notifId = generateNotificationId(medicineId, schedule.doseTime);
       await _notificationService.cancel(notifId);
     }
+    // Cancel any active snooze notifications for this medicine
+    final snoozeNotifId = (medicineId.hashCode + 9999).abs() & 0x7FFFFFFF;
+    await _notificationService.cancel(snoozeNotifId);
+
     await _nativeAlarmBridge.cancelMedicineAlarms(medicineId);
   }
 
